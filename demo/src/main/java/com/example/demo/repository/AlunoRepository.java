@@ -4,6 +4,7 @@ import com.example.demo.entity.Aluno;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -25,4 +26,24 @@ public interface AlunoRepository extends JpaRepository<Aluno, Long> {
      * @return true se existir, false caso contrário
      */
     boolean existsByCpf(String cpf);
+    
+    /**
+     * Busca alunos cujo nome contém a string fornecida (case insensitive)
+     * @param nome Parte do nome do aluno
+     * @return Lista de alunos encontrados
+     */
+    List<Aluno> findByNomeContainingIgnoreCase(String nome);
+    
+    /**
+     * Busca um aluno pelo nome exato
+     * @param nome Nome do aluno
+     * @return Optional contendo o aluno se encontrado
+     */
+    Optional<Aluno> findByNome(String nome);
+    
+    /**
+     * Lista todos os alunos ordenados por nome
+     * @return Lista de alunos ordenados
+     */
+    List<Aluno> findAllByOrderByNomeAsc();
 }

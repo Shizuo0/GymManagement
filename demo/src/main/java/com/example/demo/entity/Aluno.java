@@ -7,7 +7,7 @@ import java.time.LocalDate;
  * Entidade que representa um Aluno no sistema de gestão da academia
  */
 @Entity
-@Table(name = "aluno")
+@Table(name = "alunos")
 public class Aluno {
     
     @Id
@@ -21,11 +21,16 @@ public class Aluno {
     @Column(name = "cpf", nullable = false, unique = true, length = 14)
     private String cpf;
     
-    @Column(name = "data_ingresso", nullable = false)
+    @Column(name = "data_ingresso")
     private LocalDate dataIngresso;
     
     // Construtores
     public Aluno() {
+    }
+    
+    public Aluno(String nome, String cpf) {
+        this.nome = nome;
+        this.cpf = cpf;
     }
     
     public Aluno(String nome, String cpf, LocalDate dataIngresso) {
