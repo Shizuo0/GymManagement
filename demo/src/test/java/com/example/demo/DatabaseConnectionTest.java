@@ -1,9 +1,14 @@
 package com.example.demo;
 
+import com.example.demo.entity.Aluno;
+import com.example.demo.repository.AlunoRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
+
+import java.time.LocalDate;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -16,6 +21,9 @@ public class DatabaseConnectionTest {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+    
+    @Autowired
+    private AlunoRepository alunoRepository;
 
     @Test
     public void testDatabaseConnection() {
@@ -57,45 +65,36 @@ public class DatabaseConnectionTest {
     
     @Test
     public void testInsertInAlunoTable() {
-        System.out.println("=== TESTE DE INSERT NA TABELA ALUNO ===");
+        System.out.println("=== TESTE DE INSERT NA TABELA ALUNO (JPA) ===");
         
         // Gerar CPF único baseado no timestamp
         String cpfUnico = "999." + System.currentTimeMillis() % 1000 + ".789-00";
         String nomeAluno = "Maria Teste " + System.currentTimeMillis() % 1000;
         
-        // Inserir um aluno de teste
-        int rowsInserted = jdbcTemplate.update(
-            "INSERT INTO Aluno (nome, cpf, data_ingresso) VALUES (?, ?, ?)",
-            nomeAluno,
-            cpfUnico,
-            "2025-10-18"
-        );
-        assertEquals(1, rowsInserted, "Falha ao inserir aluno de teste");
-        System.out.println("✅ Aluno inserido com sucesso!");
-        System.out.println("   Nome: " + nomeAluno);
-        System.out.println("   CPF: " + cpfUnico);
+        // Criar um novo aluno usando JPA
+        Aluno novoAluno = new Aluno(nomeAluno, cpfUnico, LocalDate.of(2025, 10, 18));
         
-        // Consultar o aluno inserido
-        String nomeConsultado = jdbcTemplate.queryForObject(
-            "SELECT nome FROM Aluno WHERE cpf = ?",
-            String.class,
-            cpfUnico
-        );
-        assertEquals(nomeAluno, nomeConsultado, "Falha ao consultar aluno inserido");
-        System.out.println("✅ Aluno consultado: " + nomeConsultado);
+        // Salvar o aluno no banco
+        Aluno alunoSalvo = alunoRepository.save(novoAluno);
+        assertNotNull(alunoSalvo.getIdAluno(), "Falha ao inserir aluno de teste");
+        System.out.println("✅ Aluno inserido com sucesso!");
+        System.out.println("   ID: " + alunoSalvo.getIdAluno());
+        System.out.println("   Nome: " + alunoSalvo.getNome());
+        System.out.println("   CPF: " + alunoSalvo.getCpf());
+        
+        // Consultar o aluno inserido pelo CPF
+        Aluno alunoConsultado = alunoRepository.findByCpf(cpfUnico)
+                .orElseThrow(() -> new AssertionError("Aluno não encontrado"));
+        assertEquals(nomeAluno, alunoConsultado.getNome(), "Falha ao consultar aluno inserido");
+        System.out.println("✅ Aluno consultado: " + alunoConsultado.getNome());
         
         // Mostrar todos os alunos para verificar
         System.out.println("📋 Lista de todos os alunos:");
-        jdbcTemplate.query(
-            "SELECT id_aluno, nome, cpf, data_ingresso FROM Aluno ORDER BY id_aluno DESC LIMIT 5",
-            (rs, rowNum) -> {
-                System.out.println("   ID: " + rs.getInt("id_aluno") + 
-                                 " | Nome: " + rs.getString("nome") + 
-                                 " | CPF: " + rs.getString("cpf") + 
-                                 " | Data: " + rs.getDate("data_ingresso"));
-                return null;
-            }
-        );
+        List<Aluno> alunos = alunoRepository.findAll();
+        System.out.println("   Total de alunos: " + alunos.size());
+        alunos.stream()
+              .limit(5)
+              .forEach(aluno -> System.out.println("   " + aluno));
         
         System.out.println("=== TESTE DE INSERT CONCLUÍDO ===");
     }
