@@ -1,13 +1,68 @@
 package com.example.demo;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.jdbc.core.JdbcTemplate;
+
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 @SpringBootApplication
-public class DemoApplication {
+public class DemoApplication implements CommandLineRunner {
+
+	@Autowired
+	private DataSource dataSource;
+
+	@Autowired
+	private JdbcTemplate jdbcTemplate;
 
 	public static void main(String[] args) {
 		SpringApplication.run(DemoApplication.class, args);
 	}
 
+	@Override
+	public void run(String... args) throws Exception {
+		testDatabaseConnection();
+	}
+
+	private void testDatabaseConnection() {
+		System.out.println("=== TESTE DE CONEXÃO COM BANCO DE DADOS ===");
+		
+		try (Connection connection = dataSource.getConnection()) {
+			System.out.println("✅ Conexão com o banco de dados estabelecida com sucesso!");
+			System.out.println("📊 URL do banco: " + connection.getMetaData().getURL());
+			System.out.println("👤 Usuário: " + connection.getMetaData().getUserName());
+			System.out.println("🔧 Driver: " + connection.getMetaData().getDriverName());
+			System.out.println("📈 Versão do driver: " + connection.getMetaData().getDriverVersion());
+			
+			// Teste de query simples
+			String result = jdbcTemplate.queryForObject("SELECT 'Conexão funcionando!' as status", String.class);
+			System.out.println("🔍 Resultado do teste: " + result);
+			
+			// Verificar tipo de banco
+			String databaseProductName = connection.getMetaData().getDatabaseProductName();
+			System.out.println("🗄️  Tipo de banco: " + databaseProductName);
+			
+			if (databaseProductName.toLowerCase().contains("h2")) {
+				System.out.println("💡 Dica: Acesse o console H2 em: http://localhost:8081/h2-console");
+				System.out.println("   JDBC URL: jdbc:h2:mem:testdb");
+				System.out.println("   Usuário: sa | Senha: (vazio)");
+			}
+			
+		} catch (SQLException e) {
+			System.err.println("❌ Erro ao conectar com o banco de dados:");
+			System.err.println("   Código do erro: " + e.getErrorCode());
+			System.err.println("   Mensagem: " + e.getMessage());
+			System.err.println("   SQL State: " + e.getSQLState());
+			System.err.println("\n💡 Dicas para resolver:");
+			System.err.println("   1. Verifique se o MySQL está rodando");
+			System.err.println("   2. Execute com perfil H2: --spring.profiles.active=h2");
+			System.err.println("   3. Verifique as credenciais no application.properties");
+		}
+		
+		System.out.println("=== FIM DO TESTE ===");
+	}
 }
