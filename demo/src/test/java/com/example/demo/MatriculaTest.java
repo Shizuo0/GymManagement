@@ -1,5 +1,20 @@
 package com.example.demo;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.example.demo.entity.Aluno;
 import com.example.demo.entity.Matricula;
 import com.example.demo.entity.Plano;
@@ -7,18 +22,7 @@ import com.example.demo.enums.MatriculaStatus;
 import com.example.demo.repository.AlunoRepository;
 import com.example.demo.repository.MatriculaRepository;
 import com.example.demo.repository.PlanoRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
+import com.example.demo.service.MatriculaService;
 
 /**
  * Testes para a entidade Matricula e MatriculaRepository
@@ -35,6 +39,9 @@ public class MatriculaTest {
     
     @Autowired
     private PlanoRepository planoRepository;
+
+    @Autowired
+    private MatriculaService matriculaService;
     
     private Aluno alunoTeste;
     private Plano planoTeste;
@@ -45,7 +52,7 @@ public class MatriculaTest {
         alunoTeste = new Aluno("João Test", "111.111.111-11", LocalDate.now());
         alunoTeste = alunoRepository.save(alunoTeste);
         
-        planoTeste = new Plano("Plano Test", new BigDecimal("99.90"), 30);
+        planoTeste = new Plano("Plano Test", null, new BigDecimal("99.90"), 30);
         planoTeste = planoRepository.save(planoTeste);
     }
 
@@ -81,9 +88,9 @@ public class MatriculaTest {
         Matricula matricula = new Matricula(
             alunoTeste, 
             planoTeste, 
-            LocalDate.of(2025, 9, 1), 
+                LocalDate.of(2025, 9, 1), 
             LocalDate.of(2025, 9, 30), 
-            "ATIVA"
+            MatriculaStatus.ATIVA
         );
         Matricula matriculaSalva = matriculaRepository.save(matricula);
         
@@ -157,10 +164,10 @@ public class MatriculaTest {
         
         // Criar matrículas com diferentes status
         matriculaRepository.save(new Matricula(
-            alunoTeste, planoTeste, LocalDate.now(), LocalDate.now().plusDays(30), "ATIVA"
+            alunoTeste, planoTeste, LocalDate.now(), LocalDate.now().plusDays(30), MatriculaStatus.ATIVA
         ));
         matriculaRepository.save(new Matricula(
-            alunoTeste, planoTeste, LocalDate.now().minusDays(60), LocalDate.now().minusDays(30), "INATIVA"
+            alunoTeste, planoTeste, LocalDate.now().minusDays(60), LocalDate.now().minusDays(30), MatriculaStatus.INATIVA
         ));
         
         // Buscar matrículas ativas do aluno
@@ -182,19 +189,19 @@ public class MatriculaTest {
         System.out.println("=== TESTE: Buscar Matrículas por Plano ===");
         
         // Criar outro plano
-        Plano plano2 = planoRepository.save(new Plano("Plano Premium", new BigDecimal("199.90"), 90));
+        Plano plano2 = planoRepository.save(new Plano("Plano Premium", null, new BigDecimal("199.90"), 90));
         
         // Criar matrículas em diferentes planos
         Aluno aluno2 = alunoRepository.save(new Aluno("Pedro Test", "333.333.333-33"));
         
         matriculaRepository.save(new Matricula(
-            alunoTeste, planoTeste, LocalDate.now(), LocalDate.now().plusDays(30), "ATIVA"
+            alunoTeste, planoTeste, LocalDate.now(), LocalDate.now().plusDays(30), MatriculaStatus.ATIVA
         ));
         matriculaRepository.save(new Matricula(
-            aluno2, planoTeste, LocalDate.now(), LocalDate.now().plusDays(30), "ATIVA"
+            aluno2, planoTeste, LocalDate.now(), LocalDate.now().plusDays(30), MatriculaStatus.ATIVA
         ));
         matriculaRepository.save(new Matricula(
-            alunoTeste, plano2, LocalDate.now(), LocalDate.now().plusDays(90), "ATIVA"
+            alunoTeste, plano2, LocalDate.now(), LocalDate.now().plusDays(90), MatriculaStatus.ATIVA
         ));
         
         // Buscar matrículas do plano teste
@@ -216,7 +223,7 @@ public class MatriculaTest {
         
         // Criar matrículas com data de fim específica
         matriculaRepository.save(new Matricula(
-            alunoTeste, planoTeste, LocalDate.of(2025, 12, 1), dataFimEspecifica, "ATIVA"
+            alunoTeste, planoTeste, LocalDate.of(2025, 12, 1), dataFimEspecifica, MatriculaStatus.ATIVA
         ));
         
         // Buscar matrículas que vencem nesta data
@@ -236,13 +243,13 @@ public class MatriculaTest {
         
         // Criar matrículas com diferentes datas de vencimento
         matriculaRepository.save(new Matricula(
-            alunoTeste, planoTeste, LocalDate.of(2025, 11, 1), LocalDate.of(2025, 11, 15), "ATIVA"
+            alunoTeste, planoTeste, LocalDate.of(2025, 11, 1), LocalDate.of(2025, 11, 15), MatriculaStatus.ATIVA
         ));
         matriculaRepository.save(new Matricula(
-            alunoTeste, planoTeste, LocalDate.of(2025, 11, 5), LocalDate.of(2025, 11, 20), "ATIVA"
+            alunoTeste, planoTeste, LocalDate.of(2025, 11, 5), LocalDate.of(2025, 11, 20), MatriculaStatus.ATIVA
         ));
         matriculaRepository.save(new Matricula(
-            alunoTeste, planoTeste, LocalDate.of(2025, 12, 1), LocalDate.of(2025, 12, 31), "ATIVA"
+            alunoTeste, planoTeste, LocalDate.of(2025, 12, 1), LocalDate.of(2025, 12, 31), MatriculaStatus.ATIVA
         ));
         
         // Buscar matrículas que vencem em novembro
@@ -264,13 +271,13 @@ public class MatriculaTest {
         
         // Criar matrículas com diferentes status
         matriculaRepository.save(new Matricula(
-            alunoTeste, planoTeste, LocalDate.now(), LocalDate.now().plusDays(30), "ATIVA"
+            alunoTeste, planoTeste, LocalDate.now(), LocalDate.now().plusDays(30), MatriculaStatus.ATIVA
         ));
         matriculaRepository.save(new Matricula(
-            alunoTeste, planoTeste, LocalDate.now().minusDays(60), LocalDate.now().minusDays(30), "INATIVA"
+            alunoTeste, planoTeste, LocalDate.now().minusDays(60), LocalDate.now().minusDays(30), MatriculaStatus.INATIVA
         ));
         matriculaRepository.save(new Matricula(
-            alunoTeste, planoTeste, LocalDate.now(), LocalDate.now().plusDays(15), "SUSPENSA"
+            alunoTeste, planoTeste, LocalDate.now(), LocalDate.now().plusDays(15), MatriculaStatus.CANCELADA
         ));
         
         // Buscar matrículas ativas usando query customizada
@@ -278,7 +285,7 @@ public class MatriculaTest {
         
         // Validações
         assertTrue(matriculasAtivas.size() >= 1, "Deve ter pelo menos 1 matrícula ativa");
-        matriculasAtivas.forEach(m -> assertEquals("ATIVA", m.getStatus()));
+        matriculasAtivas.forEach(m -> assertEquals(MatriculaStatus.ATIVA, m.getStatus()));
         
         System.out.println("✅ Matrículas ativas (query custom): " + matriculasAtivas.size());
         System.out.println("=== TESTE CONCLUÍDO ===\n");
@@ -290,13 +297,13 @@ public class MatriculaTest {
         
         // Criar várias matrículas para o aluno
         matriculaRepository.save(new Matricula(
-            alunoTeste, planoTeste, LocalDate.now().minusDays(90), LocalDate.now().minusDays(60), "INATIVA"
+            alunoTeste, planoTeste, LocalDate.now().minusDays(90), LocalDate.now().minusDays(60), MatriculaStatus.INATIVA
         ));
         matriculaRepository.save(new Matricula(
-            alunoTeste, planoTeste, LocalDate.now().minusDays(30), LocalDate.now(), "INATIVA"
+            alunoTeste, planoTeste, LocalDate.now().minusDays(30), LocalDate.now(), MatriculaStatus.INATIVA
         ));
         matriculaRepository.save(new Matricula(
-            alunoTeste, planoTeste, LocalDate.now(), LocalDate.now().plusDays(30), "ATIVA"
+            alunoTeste, planoTeste, LocalDate.now(), LocalDate.now().plusDays(30), MatriculaStatus.ATIVA
         ));
         
         // Contar matrículas
@@ -315,15 +322,15 @@ public class MatriculaTest {
         
         // Criar matrícula ativa
         matriculaRepository.save(new Matricula(
-            alunoTeste, planoTeste, LocalDate.now(), LocalDate.now().plusDays(30), "ATIVA"
+            alunoTeste, planoTeste, LocalDate.now(), LocalDate.now().plusDays(30), MatriculaStatus.ATIVA
         ));
         
         // Verificar existência
-        boolean temMatriculaAtiva = matriculaRepository.existsByAlunoAndStatus(alunoTeste, "ATIVA");
+        boolean temMatriculaAtiva = matriculaRepository.existsByAlunoAndStatus(alunoTeste, MatriculaStatus.ATIVA);
         
         // Criar outro aluno sem matrícula ativa
         Aluno alunoSemMatricula = alunoRepository.save(new Aluno("Sem Matrícula", "444.444.444-44"));
-        boolean naoTemMatriculaAtiva = matriculaRepository.existsByAlunoAndStatus(alunoSemMatricula, "ATIVA");
+        boolean naoTemMatriculaAtiva = matriculaRepository.existsByAlunoAndStatus(alunoSemMatricula, MatriculaStatus.ATIVA);
         
         // Validações
         assertTrue(temMatriculaAtiva, "Aluno deve ter matrícula ativa");
@@ -339,13 +346,13 @@ public class MatriculaTest {
         
         // Criar e salvar uma matrícula
         Matricula matricula = new Matricula(
-            alunoTeste, planoTeste, LocalDate.now(), LocalDate.now().plusDays(30), "ATIVA"
+            alunoTeste, planoTeste, LocalDate.now(), LocalDate.now().plusDays(30), MatriculaStatus.ATIVA
         );
         Matricula matriculaSalva = matriculaRepository.save(matricula);
         Long id = matriculaSalva.getIdMatricula();
         
         // Atualizar o status
-        matriculaSalva.setStatus("SUSPENSA");
+        matriculaSalva.setStatus(MatriculaStatus.CANCELADA);
         matriculaRepository.save(matriculaSalva);
         
         // Buscar novamente
@@ -353,7 +360,7 @@ public class MatriculaTest {
         
         // Validações
         assertTrue(matriculaAtualizada.isPresent());
-        assertEquals("SUSPENSA", matriculaAtualizada.get().getStatus());
+        assertEquals(MatriculaStatus.CANCELADA, matriculaAtualizada.get().getStatus());
         
         System.out.println("✅ Matrícula atualizada: " + matriculaAtualizada.get());
         System.out.println("=== TESTE CONCLUÍDO ===\n");
@@ -365,7 +372,7 @@ public class MatriculaTest {
         
         // Criar e salvar uma matrícula
         Matricula matricula = new Matricula(
-            alunoTeste, planoTeste, LocalDate.now(), LocalDate.now().plusDays(30), "ATIVA"
+            alunoTeste, planoTeste, LocalDate.now(), LocalDate.now().plusDays(30), MatriculaStatus.ATIVA
         );
         Matricula matriculaSalva = matriculaRepository.save(matricula);
         Long id = matriculaSalva.getIdMatricula();
@@ -380,6 +387,41 @@ public class MatriculaTest {
         assertFalse(matriculaDeletada.isPresent(), "Matrícula não deve existir após deleção");
         
         System.out.println("✅ Matrícula deletada com sucesso");
+        System.out.println("=== TESTE CONCLUÍDO ===\n");
+    }
+
+    @Test
+    public void testRenovarMatricula() {
+        System.out.println("=== TESTE: Renovar Matrícula ===");
+        
+        // Criar e salvar uma matrícula ativa
+        LocalDate dataInicio = LocalDate.now();
+        LocalDate dataFim = dataInicio.plusMonths(planoTeste.getDuracaoMeses());
+        Matricula matricula = new Matricula(
+            alunoTeste, 
+            planoTeste, 
+            dataInicio, 
+            dataFim, 
+            MatriculaStatus.ATIVA
+        );
+        
+        Matricula matriculaSalva = matriculaRepository.save(matricula);
+        
+        // Renovar a matrícula
+        Matricula matriculaRenovada = matriculaService.renovarMatricula(matriculaSalva.getIdMatricula());
+        
+        // Validações
+        assertNotNull(matriculaRenovada);
+        assertEquals(alunoTeste.getIdAluno(), matriculaRenovada.getAluno().getIdAluno());
+        assertEquals(planoTeste.getIdPlanoAssinatura(), matriculaRenovada.getPlano().getIdPlanoAssinatura());
+        assertEquals(MatriculaStatus.ATIVA, matriculaRenovada.getStatus());
+        assertEquals(dataFim.plusDays(1), matriculaRenovada.getDataInicio());
+        assertEquals(
+            dataFim.plusDays(1).plusMonths(planoTeste.getDuracaoMeses()), 
+            matriculaRenovada.getDataFim()
+        );
+        
+        System.out.println("✅ Matrícula renovada: " + matriculaRenovada);
         System.out.println("=== TESTE CONCLUÍDO ===\n");
     }
 }

@@ -1,17 +1,20 @@
 package com.example.demo;
 
-import com.example.demo.entity.Plano;
-import com.example.demo.repository.PlanoRepository;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
+import com.example.demo.entity.Plano;
+import com.example.demo.repository.PlanoRepository;
 
 /**
  * Testes para a entidade Plano e PlanoRepository
@@ -55,7 +58,7 @@ public class PlanoTest {
         System.out.println("=== TESTE: Buscar Plano por ID ===");
         
         // Criar e salvar um plano
-        Plano plano = new Plano("Trimestral", new BigDecimal("249.90"), 90);
+        Plano plano = new Plano("Trimestral", "Plano trimestral com acesso total", new BigDecimal("249.90"), 3);
         Plano planoSalvo = planoRepository.save(plano);
         
         // Buscar pelo ID
@@ -74,7 +77,7 @@ public class PlanoTest {
         System.out.println("=== TESTE: Buscar Plano por Nome ===");
         
         // Criar e salvar um plano
-        Plano plano = new Plano("Semestral", new BigDecimal("449.90"), 180);
+        Plano plano = new Plano("Semestral", "Plano semestral com acesso total", new BigDecimal("449.90"), 6);
         planoRepository.save(plano);
         
         // Buscar pelo nome
@@ -93,9 +96,9 @@ public class PlanoTest {
         System.out.println("=== TESTE: Listar Todos os Planos ===");
         
         // Criar vários planos
-        planoRepository.save(new Plano("Plano A", new BigDecimal("79.90"), 30));
-        planoRepository.save(new Plano("Plano B", new BigDecimal("199.90"), 90));
-        planoRepository.save(new Plano("Plano C", new BigDecimal("149.90"), 60));
+        planoRepository.save(new Plano("Plano A", "Plano básico mensal", new BigDecimal("79.90"), 1));
+        planoRepository.save(new Plano("Plano B", "Plano trimestral", new BigDecimal("199.90"), 3));
+        planoRepository.save(new Plano("Plano C", "Plano bimestral", new BigDecimal("149.90"), 2));
         
         // Listar todos
         List<Plano> planos = planoRepository.findAll();
@@ -113,9 +116,9 @@ public class PlanoTest {
         System.out.println("=== TESTE: Listar Planos Ordenados por Valor ===");
         
         // Criar planos com valores diferentes
-        planoRepository.save(new Plano("Premium", new BigDecimal("299.90"), 90));
-        planoRepository.save(new Plano("Basic", new BigDecimal("99.90"), 30));
-        planoRepository.save(new Plano("Standard", new BigDecimal("179.90"), 60));
+        planoRepository.save(new Plano("Premium", "Plano premium trimestral", new BigDecimal("299.90"), 3));
+        planoRepository.save(new Plano("Basic", "Plano básico mensal", new BigDecimal("99.90"), 1));
+        planoRepository.save(new Plano("Standard", "Plano padrão bimestral", new BigDecimal("179.90"), 2));
         
         // Listar ordenados por valor
         List<Plano> planosOrdenados = planoRepository.findAllByOrderByValorAsc();
@@ -141,7 +144,7 @@ public class PlanoTest {
         System.out.println("=== TESTE: Atualizar Plano ===");
         
         // Criar e salvar um plano
-        Plano plano = new Plano("Anual", new BigDecimal("799.90"), 365);
+        Plano plano = new Plano("Anual", "Plano anual com acesso total", new BigDecimal("799.90"), 12);
         Plano planoSalvo = planoRepository.save(plano);
         Long id = planoSalvo.getIdPlanoAssinatura();
         
@@ -165,7 +168,7 @@ public class PlanoTest {
         System.out.println("=== TESTE: Deletar Plano ===");
         
         // Criar e salvar um plano
-        Plano plano = new Plano("Teste Delete", new BigDecimal("50.00"), 15);
+        Plano plano = new Plano("Teste Delete", "Plano de teste para deleção", new BigDecimal("50.00"), 1);
         Plano planoSalvo = planoRepository.save(plano);
         Long id = planoSalvo.getIdPlanoAssinatura();
         
@@ -187,18 +190,18 @@ public class PlanoTest {
         System.out.println("=== TESTE: Buscar Planos por Duração ===");
         
         // Criar planos com mesma duração
-        planoRepository.save(new Plano("Mensal A", new BigDecimal("89.90"), 30));
-        planoRepository.save(new Plano("Mensal B", new BigDecimal("99.90"), 30));
-        planoRepository.save(new Plano("Trimestral", new BigDecimal("249.90"), 90));
+        planoRepository.save(new Plano("Mensal A", "Plano mensal básico", new BigDecimal("89.90"), 1));
+        planoRepository.save(new Plano("Mensal B", "Plano mensal plus", new BigDecimal("99.90"), 1));
+        planoRepository.save(new Plano("Trimestral", "Plano trimestral completo", new BigDecimal("249.90"), 3));
         
-        // Buscar planos de 30 dias
-        List<Plano> planosMensais = planoRepository.findByDuracaoDias(30);
+        // Buscar planos de 1 mês
+        List<Plano> planosMensais = planoRepository.findByDuracaoMeses(1);
         
         // Validações
         assertTrue(planosMensais.size() >= 2, "Deve ter pelo menos 2 planos mensais");
-        planosMensais.forEach(p -> assertEquals(30, p.getDuracaoDias()));
+        planosMensais.forEach(p -> assertEquals(1, p.getDuracaoMeses()));
         
-        System.out.println("✅ Planos de 30 dias encontrados: " + planosMensais.size());
+        System.out.println("✅ Planos de 1 mês encontrados: " + planosMensais.size());
         planosMensais.forEach(p -> System.out.println("   - " + p));
         System.out.println("=== TESTE CONCLUÍDO ===\n");
     }

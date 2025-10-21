@@ -79,8 +79,8 @@ public interface MatriculaRepository extends JpaRepository<Matricula, Long> {
     /**
      * Verifica se existe uma matrícula ativa para o aluno
      * @param aluno Aluno
-     * @param status Status (geralmente "ATIVA")
+     * @param status Status da matrícula
      * @return true se existir, false caso contrário
      */
-    boolean existsByAlunoAndStatus(Aluno aluno, String status);
+    boolean existsByAlunoAndStatus(Aluno aluno, MatriculaStatus status);
 }

@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +29,21 @@ public class MatriculaService {
     public Matricula criarMatricula(Matricula matricula) {
         validarMatricula(matricula);
         validarPlano(matricula.getPlano());
+        
+        // Verificar se já existe matrícula ativa
+        if (matriculaRepository.existsByAlunoAndStatus(
+            matricula.getAluno(), MatriculaStatus.ATIVA)) {
+            throw new MatriculaException.MatriculaInvalidaException(
+                "Aluno já possui matrícula ativa");
+        }
+        
+        // Calcular data fim baseada no plano
+        matricula.setDataFim(
+            matricula.getDataInicio().plusMonths(matricula.getPlano().getDuracaoMeses())
+        );
+        
         validarPeriodo(matricula.getDataInicio(), matricula.getDataFim());
+        validarDuracaoPlano(matricula.getPlano(), matricula.getDataInicio(), matricula.getDataFim());
         
         // Matrícula nova sempre começa com status ATIVA
         matricula.setStatus(MatriculaStatus.ATIVA);
@@ -152,5 +167,39 @@ public class MatriculaService {
             throw new MatriculaException.DataInvalidaException(
                 "Data de início não pode ser no passado");
         }
+    }
+
+    private void validarDuracaoPlano(Plano plano, LocalDate dataInicio, LocalDate dataFim) {
+        long mesesMatricula = ChronoUnit.MONTHS.between(dataInicio, dataFim);
+        if (mesesMatricula != plano.getDuracaoMeses()) {
+            throw new MatriculaException.DataInvalidaException(
+                "Duração da matrícula deve corresponder à duração do plano: " + 
+                plano.getDuracaoMeses() + " meses");
+        }
+    }
+
+    public Matricula renovarMatricula(Long idMatricula) {
+        Matricula atual = buscarMatriculaPorId(idMatricula);
+        
+        if (atual.getStatus() != MatriculaStatus.ATIVA) {
+            throw new MatriculaException.StatusInvalidoException(
+                "Apenas matrículas ativas podem ser renovadas");
+        }
+        
+        // Validar se o plano ainda está ativo
+        validarPlano(atual.getPlano());
+        
+        LocalDate novaDataInicio = atual.getDataFim().plusDays(1);
+        LocalDate novaDataFim = novaDataInicio.plusMonths(atual.getPlano().getDuracaoMeses());
+        
+        Matricula novaMatricula = new Matricula(
+            atual.getAluno(),
+            atual.getPlano(),
+            novaDataInicio,
+            novaDataFim,
+            MatriculaStatus.ATIVA
+        );
+        
+        return matriculaRepository.save(novaMatricula);
     }
 }
