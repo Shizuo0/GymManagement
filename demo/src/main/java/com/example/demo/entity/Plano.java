@@ -1,7 +1,13 @@
 package com.example.demo.entity;
 
-import jakarta.persistence.*;
 import java.math.BigDecimal;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 /**
  * Entidade que representa um Plano de Assinatura na academia
@@ -18,20 +24,28 @@ public class Plano {
     @Column(name = "nome", nullable = false, length = 50)
     private String nome;
     
+    @Column(name = "descricao", columnDefinition = "TEXT")
+    private String descricao;
+    
     @Column(name = "valor", nullable = false, precision = 10, scale = 2)
     private BigDecimal valor;
     
-    @Column(name = "duracao_dias", nullable = false)
-    private Integer duracaoDias;
+    @Column(name = "duracao_meses", nullable = false)
+    private Integer duracaoMeses;
+    
+    @Column(name = "status", nullable = false, length = 20)
+    private String status = "ATIVO";
     
     // Construtores
     public Plano() {
     }
     
-    public Plano(String nome, BigDecimal valor, Integer duracaoDias) {
+    public Plano(String nome, String descricao, BigDecimal valor, Integer duracaoMeses) {
         this.nome = nome;
+        this.descricao = descricao;
         this.valor = valor;
-        this.duracaoDias = duracaoDias;
+        this.duracaoMeses = duracaoMeses;
+        this.status = "ATIVO";
     }
     
     // Getters e Setters
@@ -51,6 +65,14 @@ public class Plano {
         this.nome = nome;
     }
     
+    public String getDescricao() {
+        return descricao;
+    }
+    
+    public void setDescricao(String descricao) {
+        this.descricao = descricao;
+    }
+    
     public BigDecimal getValor() {
         return valor;
     }
@@ -59,12 +81,20 @@ public class Plano {
         this.valor = valor;
     }
     
-    public Integer getDuracaoDias() {
-        return duracaoDias;
+    public Integer getDuracaoMeses() {
+        return duracaoMeses;
     }
     
-    public void setDuracaoDias(Integer duracaoDias) {
-        this.duracaoDias = duracaoDias;
+    public void setDuracaoMeses(Integer duracaoMeses) {
+        this.duracaoMeses = duracaoMeses;
+    }
+    
+    public String getStatus() {
+        return status;
+    }
+    
+    public void setStatus(String status) {
+        this.status = status;
     }
     
     @Override
@@ -72,8 +102,10 @@ public class Plano {
         return "Plano{" +
                 "idPlanoAssinatura=" + idPlanoAssinatura +
                 ", nome='" + nome + '\'' +
+                ", descricao='" + descricao + '\'' +
                 ", valor=" + valor +
-                ", duracaoDias=" + duracaoDias +
+                ", duracaoMeses=" + duracaoMeses +
+                ", status='" + status + '\'' +
                 '}';
     }
 }
