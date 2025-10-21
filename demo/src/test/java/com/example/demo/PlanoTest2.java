@@ -21,7 +21,7 @@ import com.example.demo.repository.PlanoRepository;
  */
 @SpringBootTest
 @Transactional
-public class PlanoTest {
+public class PlanoTest2 {
 
     @Autowired
     private PlanoRepository planoRepository;
@@ -58,7 +58,12 @@ public class PlanoTest {
         System.out.println("=== TESTE: Buscar Plano por ID ===");
         
         // Criar e salvar um plano
-        Plano plano = new Plano("Trimestral", "Plano trimestral com acesso total", new BigDecimal("249.90"), 3);
+        Plano plano = new Plano(
+            "Plano Trimestral",
+            "Acesso completo por 3 meses com desconto especial",
+            new BigDecimal("249.90"),
+            3
+        );
         Plano planoSalvo = planoRepository.save(plano);
         
         // Buscar pelo ID
@@ -66,7 +71,7 @@ public class PlanoTest {
         
         // Validações
         assertTrue(planoEncontrado.isPresent(), "Plano deve ser encontrado");
-        assertEquals("Trimestral", planoEncontrado.get().getNome());
+        assertEquals("Plano Trimestral", planoEncontrado.get().getNome());
         
         System.out.println("✅ Plano encontrado: " + planoEncontrado.get());
         System.out.println("=== TESTE CONCLUÍDO ===\n");
@@ -77,11 +82,16 @@ public class PlanoTest {
         System.out.println("=== TESTE: Buscar Plano por Nome ===");
         
         // Criar e salvar um plano
-        Plano plano = new Plano("Semestral", "Plano semestral com acesso total", new BigDecimal("449.90"), 6);
+        Plano plano = new Plano(
+            "Plano Semestral",
+            "Melhor custo-benefício: 6 meses de academia com super desconto",
+            new BigDecimal("449.90"),
+            6
+        );
         planoRepository.save(plano);
         
         // Buscar pelo nome
-        Optional<Plano> planoEncontrado = planoRepository.findByNome("Semestral");
+        Optional<Plano> planoEncontrado = planoRepository.findByNome("Plano Semestral");
         
         // Validações
         assertTrue(planoEncontrado.isPresent(), "Plano deve ser encontrado pelo nome");
@@ -96,9 +106,9 @@ public class PlanoTest {
         System.out.println("=== TESTE: Listar Todos os Planos ===");
         
         // Criar vários planos
-        planoRepository.save(new Plano("Plano A", "Plano básico mensal", new BigDecimal("79.90"), 1));
-        planoRepository.save(new Plano("Plano B", "Plano trimestral", new BigDecimal("199.90"), 3));
-        planoRepository.save(new Plano("Plano C", "Plano bimestral", new BigDecimal("149.90"), 2));
+        planoRepository.save(new Plano("Plano Básico", "Acesso básico à academia", new BigDecimal("79.90"), 1));
+        planoRepository.save(new Plano("Plano Plus", "Acesso plus com aulas em grupo", new BigDecimal("199.90"), 3));
+        planoRepository.save(new Plano("Plano Premium", "Acesso total com personal trainer", new BigDecimal("149.90"), 2));
         
         // Listar todos
         List<Plano> planos = planoRepository.findAll();
@@ -115,27 +125,23 @@ public class PlanoTest {
     public void testListarPlanosOrdenadosPorValor() {
         System.out.println("=== TESTE: Listar Planos Ordenados por Valor ===");
         
-        // Criar planos com valores diferentes
-        planoRepository.save(new Plano("Premium", "Plano premium trimestral", new BigDecimal("299.90"), 3));
-        planoRepository.save(new Plano("Basic", "Plano básico mensal", new BigDecimal("99.90"), 1));
-        planoRepository.save(new Plano("Standard", "Plano padrão bimestral", new BigDecimal("179.90"), 2));
+        // Criar vários planos com diferentes valores
+        planoRepository.save(new Plano("Premium Elite", "Acesso VIP completo", new BigDecimal("299.90"), 3));
+        planoRepository.save(new Plano("Básico Fit", "Acesso básico econômico", new BigDecimal("99.90"), 1));
+        planoRepository.save(new Plano("Intermediário Plus", "Acesso intermediário com benefícios", new BigDecimal("179.90"), 2));
         
-        // Listar ordenados por valor
-        List<Plano> planosOrdenados = planoRepository.findAllByOrderByValorAsc();
+        // Buscar ordenado por valor
+        List<Plano> planos = planoRepository.findAllByOrderByValorAsc();
         
         // Validações
-        assertTrue(planosOrdenados.size() >= 3, "Deve ter pelo menos 3 planos");
-        
-        // Verificar ordenação
-        for (int i = 0; i < planosOrdenados.size() - 1; i++) {
-            assertTrue(
-                planosOrdenados.get(i).getValor().compareTo(planosOrdenados.get(i + 1).getValor()) <= 0,
-                "Planos devem estar ordenados por valor crescente"
-            );
+        assertTrue(planos.size() >= 3, "Deve ter pelo menos 3 planos");
+        for (int i = 1; i < planos.size(); i++) {
+            assertTrue(planos.get(i).getValor().compareTo(planos.get(i-1).getValor()) >= 0,
+                    "Planos devem estar ordenados por valor");
         }
         
         System.out.println("✅ Planos ordenados por valor:");
-        planosOrdenados.forEach(p -> System.out.println("   - " + p));
+        planos.forEach(p -> System.out.println("   - " + p.getNome() + ": R$ " + p.getValor()));
         System.out.println("=== TESTE CONCLUÍDO ===\n");
     }
 
@@ -144,12 +150,18 @@ public class PlanoTest {
         System.out.println("=== TESTE: Atualizar Plano ===");
         
         // Criar e salvar um plano
-        Plano plano = new Plano("Anual", "Plano anual com acesso total", new BigDecimal("799.90"), 12);
+        Plano plano = new Plano(
+            "Plano Anual",
+            "1 ano de academia com máximo desconto e benefícios exclusivos",
+            new BigDecimal("799.90"),
+            12
+        );
         Plano planoSalvo = planoRepository.save(plano);
         Long id = planoSalvo.getIdPlanoAssinatura();
         
-        // Atualizar o valor
+        // Atualizar o valor e status
         planoSalvo.setValor(new BigDecimal("699.90"));
+        planoSalvo.setStatus("INATIVO");
         planoRepository.save(planoSalvo);
         
         // Buscar novamente
@@ -158,6 +170,7 @@ public class PlanoTest {
         // Validações
         assertTrue(planoAtualizado.isPresent());
         assertEquals(new BigDecimal("699.90"), planoAtualizado.get().getValor());
+        assertEquals("INATIVO", planoAtualizado.get().getStatus());
         
         System.out.println("✅ Plano atualizado: " + planoAtualizado.get());
         System.out.println("=== TESTE CONCLUÍDO ===\n");
@@ -168,7 +181,12 @@ public class PlanoTest {
         System.out.println("=== TESTE: Deletar Plano ===");
         
         // Criar e salvar um plano
-        Plano plano = new Plano("Teste Delete", "Plano de teste para deleção", new BigDecimal("50.00"), 1);
+        Plano plano = new Plano(
+            "Plano Teste",
+            "Plano para teste de deleção",
+            new BigDecimal("50.00"),
+            1
+        );
         Plano planoSalvo = planoRepository.save(plano);
         Long id = planoSalvo.getIdPlanoAssinatura();
         
@@ -190,19 +208,70 @@ public class PlanoTest {
         System.out.println("=== TESTE: Buscar Planos por Duração ===");
         
         // Criar planos com mesma duração
-        planoRepository.save(new Plano("Mensal A", "Plano mensal básico", new BigDecimal("89.90"), 1));
-        planoRepository.save(new Plano("Mensal B", "Plano mensal plus", new BigDecimal("99.90"), 1));
-        planoRepository.save(new Plano("Trimestral", "Plano trimestral completo", new BigDecimal("249.90"), 3));
+        planoRepository.save(new Plano(
+            "Mensal Básico",
+            "Plano mensal com acesso básico",
+            new BigDecimal("89.90"),
+            1
+        ));
+        planoRepository.save(new Plano(
+            "Mensal Premium",
+            "Plano mensal com acesso premium",
+            new BigDecimal("99.90"),
+            1
+        ));
         
-        // Buscar planos de 1 mês
-        List<Plano> planosMensais = planoRepository.findByDuracaoMeses(1);
+        // Buscar planos
+        List<Plano> planos = planoRepository.findByDuracaoMeses(1);
         
         // Validações
-        assertTrue(planosMensais.size() >= 2, "Deve ter pelo menos 2 planos mensais");
-        planosMensais.forEach(p -> assertEquals(1, p.getDuracaoMeses()));
+        assertTrue(planos.size() >= 2, "Deve ter pelo menos 2 planos com duração de 1 mês");
+        planos.forEach(p -> assertEquals(1, p.getDuracaoMeses()));
         
-        System.out.println("✅ Planos de 1 mês encontrados: " + planosMensais.size());
-        planosMensais.forEach(p -> System.out.println("   - " + p));
+        System.out.println("✅ Planos com duração de 1 mês: " + planos.size());
+        planos.forEach(p -> System.out.println("   - " + p));
+        System.out.println("=== TESTE CONCLUÍDO ===\n");
+    }
+    
+    @Test
+    public void testBuscarPlanosPorStatus() {
+        System.out.println("=== TESTE: Buscar Planos por Status ===");
+        
+        // Criar planos com diferentes status
+        Plano planoAtivo = new Plano(
+            "Plano Ativo",
+            "Plano disponível para compra",
+            new BigDecimal("99.90"),
+            1
+        );
+        
+        Plano planoInativo = new Plano(
+            "Plano Inativo",
+            "Plano temporariamente indisponível",
+            new BigDecimal("149.90"),
+            3
+        );
+        planoInativo.setStatus("INATIVO");
+        
+        planoRepository.save(planoAtivo);
+        planoRepository.save(planoInativo);
+        
+        // Buscar planos ativos
+        List<Plano> planosAtivos = planoRepository.findByStatus("ATIVO");
+        List<Plano> planosInativos = planoRepository.findByStatus("INATIVO");
+        
+        // Validações
+        assertTrue(planosAtivos.size() >= 1, "Deve ter pelo menos 1 plano ativo");
+        assertTrue(planosInativos.size() >= 1, "Deve ter pelo menos 1 plano inativo");
+        
+        planosAtivos.forEach(p -> assertEquals("ATIVO", p.getStatus()));
+        planosInativos.forEach(p -> assertEquals("INATIVO", p.getStatus()));
+        
+        System.out.println("✅ Planos por status:");
+        System.out.println("Ativos:");
+        planosAtivos.forEach(p -> System.out.println("   - " + p));
+        System.out.println("Inativos:");
+        planosInativos.forEach(p -> System.out.println("   - " + p));
         System.out.println("=== TESTE CONCLUÍDO ===\n");
     }
 }

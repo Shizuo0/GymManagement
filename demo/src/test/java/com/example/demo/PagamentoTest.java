@@ -1,25 +1,29 @@
 package com.example.demo;
 
-import com.example.demo.entity.Aluno;
-import com.example.demo.entity.Matricula;
-import com.example.demo.entity.Pagamento;
-import com.example.demo.entity.Plano;
-import com.example.demo.repository.AlunoRepository;
-import com.example.demo.repository.MatriculaRepository;
-import com.example.demo.repository.PagamentoRepository;
-import com.example.demo.repository.PlanoRepository;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
+import com.example.demo.entity.Aluno;
+import com.example.demo.entity.Matricula;
+import com.example.demo.entity.Pagamento;
+import com.example.demo.entity.Plano;
+import com.example.demo.enums.MatriculaStatus;
+import com.example.demo.repository.AlunoRepository;
+import com.example.demo.repository.MatriculaRepository;
+import com.example.demo.repository.PagamentoRepository;
+import com.example.demo.repository.PlanoRepository;
 
 /**
  * Testes para a entidade Pagamento e PagamentoRepository
@@ -48,10 +52,10 @@ public class PagamentoTest {
         Aluno aluno = new Aluno("João Pagamento", "555.555.555-55", LocalDate.now());
         aluno = alunoRepository.save(aluno);
         
-        Plano plano = new Plano("Plano Mensal", new BigDecimal("99.90"), 30);
+        Plano plano = new Plano("Plano Mensal", "Plano mensal básico", new BigDecimal("99.90"), 1);
         plano = planoRepository.save(plano);
         
-        matriculaTeste = new Matricula(aluno, plano, LocalDate.now(), LocalDate.now().plusDays(30), "ATIVA");
+        matriculaTeste = new Matricula(aluno, plano, LocalDate.now(), LocalDate.now().plusMonths(1), MatriculaStatus.ATIVA);
         matriculaTeste = matriculaRepository.save(matriculaTeste);
     }
 

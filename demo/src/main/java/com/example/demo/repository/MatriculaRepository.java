@@ -1,14 +1,16 @@
 package com.example.demo.repository;
 
-import com.example.demo.entity.Aluno;
-import com.example.demo.entity.Matricula;
-import com.example.demo.entity.Plano;
+import java.time.LocalDate;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
-import java.util.List;
+import com.example.demo.entity.Aluno;
+import com.example.demo.entity.Matricula;
+import com.example.demo.entity.Plano;
+import com.example.demo.enums.MatriculaStatus;
 
 /**
  * Repository para operações com a entidade Matricula
@@ -25,10 +27,10 @@ public interface MatriculaRepository extends JpaRepository<Matricula, Long> {
     
     /**
      * Busca matrículas por status
-     * @param status Status da matrícula (ex: "ATIVA", "INATIVA", "SUSPENSA")
+     * @param status Status da matrícula (ex: ATIVA, INATIVA, PENDENTE, CANCELADA)
      * @return Lista de matrículas com o status especificado
      */
-    List<Matricula> findByStatus(String status);
+    List<Matricula> findByStatus(MatriculaStatus status);
     
     /**
      * Busca matrículas de um aluno por status
@@ -36,7 +38,7 @@ public interface MatriculaRepository extends JpaRepository<Matricula, Long> {
      * @param status Status da matrícula
      * @return Lista de matrículas
      */
-    List<Matricula> findByAlunoAndStatus(Aluno aluno, String status);
+    List<Matricula> findByAlunoAndStatus(Aluno aluno, MatriculaStatus status);
     
     /**
      * Busca todas as matrículas de um plano específico
@@ -77,8 +79,8 @@ public interface MatriculaRepository extends JpaRepository<Matricula, Long> {
     /**
      * Verifica se existe uma matrícula ativa para o aluno
      * @param aluno Aluno
-     * @param status Status (geralmente "ATIVA")
+     * @param status Status da matrícula
      * @return true se existir, false caso contrário
      */
-    boolean existsByAlunoAndStatus(Aluno aluno, String status);
+    boolean existsByAlunoAndStatus(Aluno aluno, MatriculaStatus status);
 }
