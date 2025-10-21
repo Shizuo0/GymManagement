@@ -63,6 +63,20 @@ public class PlanoController {
         planoService.deletarPlano(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PutMapping("/{id}/ativar")
+    public ResponseEntity<PlanoResponseDTO> ativarPlano(@PathVariable Long id) {
+        planoService.ativarPlano(id);
+        Plano plano = planoService.buscarPlanoPorId(id);
+        return ResponseEntity.ok(new PlanoResponseDTO(plano));
+    }
+
+    @PutMapping("/{id}/inativar")
+    public ResponseEntity<PlanoResponseDTO> inativarPlano(@PathVariable Long id) {
+        planoService.inativarPlano(id);
+        Plano plano = planoService.buscarPlanoPorId(id);
+        return ResponseEntity.ok(new PlanoResponseDTO(plano));
+    }
     
     @ExceptionHandler(PlanoException.class)
     public ResponseEntity<String> handlePlanoException(PlanoException ex) {
