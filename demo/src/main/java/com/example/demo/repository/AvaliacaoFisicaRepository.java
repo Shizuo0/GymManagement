@@ -105,4 +105,11 @@ public interface AvaliacaoFisicaRepository extends JpaRepository<AvaliacaoFisica
      */
     @Query("SELECT a FROM AvaliacaoFisica a WHERE a.aluno = :aluno AND a.dataAvaliacao BETWEEN :dataInicio AND :dataFim ORDER BY a.dataAvaliacao DESC")
     List<AvaliacaoFisica> findAvaliacoesAlunoNoPeriodo(Aluno aluno, LocalDate dataInicio, LocalDate dataFim);
+    
+    /**
+     * Busca todas as avaliações realizadas por um instrutor (por ID)
+     * @param instrutorId ID do instrutor
+     * @return Lista de avaliações do instrutor
+     */
+    List<AvaliacaoFisica> findByInstrutorId(Long instrutorId);
 }
