@@ -3,6 +3,7 @@ package com.example.demo;
 import com.example.demo.entity.Aluno;
 import com.example.demo.entity.Matricula;
 import com.example.demo.entity.Plano;
+import com.example.demo.enums.MatriculaStatus;
 import com.example.demo.repository.AlunoRepository;
 import com.example.demo.repository.MatriculaRepository;
 import com.example.demo.repository.PlanoRepository;
@@ -55,7 +56,7 @@ public class MatriculaTest {
         // Criar uma nova matrícula
         LocalDate dataInicio = LocalDate.of(2025, 10, 1);
         LocalDate dataFim = LocalDate.of(2025, 10, 31);
-        Matricula matricula = new Matricula(alunoTeste, planoTeste, dataInicio, dataFim, "ATIVA");
+        Matricula matricula = new Matricula(alunoTeste, planoTeste, dataInicio, dataFim, MatriculaStatus.ATIVA);
         
         // Salvar no banco
         Matricula matriculaSalva = matriculaRepository.save(matricula);
@@ -64,7 +65,7 @@ public class MatriculaTest {
         assertNotNull(matriculaSalva.getIdMatricula(), "ID da matrícula não deve ser nulo após salvar");
         assertNotNull(matriculaSalva.getAluno());
         assertNotNull(matriculaSalva.getPlano());
-        assertEquals("ATIVA", matriculaSalva.getStatus());
+        assertEquals(MatriculaStatus.ATIVA, matriculaSalva.getStatus());
         assertEquals(dataInicio, matriculaSalva.getDataInicio());
         assertEquals(dataFim, matriculaSalva.getDataFim());
         
@@ -103,10 +104,10 @@ public class MatriculaTest {
         
         // Criar várias matrículas para o mesmo aluno
         matriculaRepository.save(new Matricula(
-            alunoTeste, planoTeste, LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 31), "INATIVA"
+            alunoTeste, planoTeste, LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 31), MatriculaStatus.INATIVA
         ));
         matriculaRepository.save(new Matricula(
-            alunoTeste, planoTeste, LocalDate.of(2025, 10, 1), LocalDate.of(2025, 10, 31), "ATIVA"
+            alunoTeste, planoTeste, LocalDate.of(2025, 10, 1), LocalDate.of(2025, 10, 31), MatriculaStatus.ATIVA
         ));
         
         // Buscar matrículas do aluno
@@ -129,21 +130,21 @@ public class MatriculaTest {
         Aluno aluno2 = alunoRepository.save(new Aluno("Maria Test", "222.222.222-22"));
         
         matriculaRepository.save(new Matricula(
-            alunoTeste, planoTeste, LocalDate.now(), LocalDate.now().plusDays(30), "ATIVA"
+            alunoTeste, planoTeste, LocalDate.now(), LocalDate.now().plusDays(30), MatriculaStatus.ATIVA
         ));
         matriculaRepository.save(new Matricula(
-            aluno2, planoTeste, LocalDate.now(), LocalDate.now().plusDays(30), "ATIVA"
+            aluno2, planoTeste, LocalDate.now(), LocalDate.now().plusDays(30), MatriculaStatus.ATIVA
         ));
         matriculaRepository.save(new Matricula(
-            alunoTeste, planoTeste, LocalDate.now().minusDays(60), LocalDate.now().minusDays(30), "INATIVA"
+            alunoTeste, planoTeste, LocalDate.now().minusDays(60), LocalDate.now().minusDays(30), MatriculaStatus.INATIVA
         ));
         
         // Buscar matrículas ativas
-        List<Matricula> matriculasAtivas = matriculaRepository.findByStatus("ATIVA");
+        List<Matricula> matriculasAtivas = matriculaRepository.findByStatus(MatriculaStatus.ATIVA);
         
         // Validações
         assertTrue(matriculasAtivas.size() >= 2, "Deve ter pelo menos 2 matrículas ativas");
-        matriculasAtivas.forEach(m -> assertEquals("ATIVA", m.getStatus()));
+        matriculasAtivas.forEach(m -> assertEquals(MatriculaStatus.ATIVA, m.getStatus()));
         
         System.out.println("✅ Matrículas ativas encontradas: " + matriculasAtivas.size());
         matriculasAtivas.forEach(m -> System.out.println("   - " + m));
@@ -163,12 +164,12 @@ public class MatriculaTest {
         ));
         
         // Buscar matrículas ativas do aluno
-        List<Matricula> matriculasAtivas = matriculaRepository.findByAlunoAndStatus(alunoTeste, "ATIVA");
+        List<Matricula> matriculasAtivas = matriculaRepository.findByAlunoAndStatus(alunoTeste, MatriculaStatus.ATIVA);
         
         // Validações
         assertTrue(matriculasAtivas.size() >= 1, "Deve ter pelo menos 1 matrícula ativa");
         matriculasAtivas.forEach(m -> {
-            assertEquals("ATIVA", m.getStatus());
+            assertEquals(MatriculaStatus.ATIVA, m.getStatus());
             assertEquals(alunoTeste.getIdAluno(), m.getAluno().getIdAluno());
         });
         

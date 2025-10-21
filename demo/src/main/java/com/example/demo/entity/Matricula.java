@@ -1,7 +1,21 @@
 package com.example.demo.entity;
 
-import jakarta.persistence.*;
 import java.time.LocalDate;
+
+import com.example.demo.enums.MatriculaStatus;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * Entidade que representa uma Matrícula de aluno em um plano na academia
@@ -17,26 +31,32 @@ public class Matricula {
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_aluno", nullable = false)
+    @NotNull(message = "Aluno é obrigatório")
     private Aluno aluno;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_plano_assinatura", nullable = false)
+    @NotNull(message = "Plano é obrigatório")
     private Plano plano;
     
     @Column(name = "data_inicio", nullable = false)
+    @NotNull(message = "Data de início é obrigatória")
     private LocalDate dataInicio;
     
     @Column(name = "data_fim", nullable = false)
+    @NotNull(message = "Data de fim é obrigatória")
     private LocalDate dataFim;
     
-    @Column(name = "status", nullable = false, length = 20)
-    private String status;
+    @Column(name = "status", nullable = false)
+    @Enumerated(EnumType.STRING)
+    @NotNull(message = "Status da matrícula é obrigatório")
+    private MatriculaStatus status;
     
     // Construtores
     public Matricula() {
     }
     
-    public Matricula(Aluno aluno, Plano plano, LocalDate dataInicio, LocalDate dataFim, String status) {
+    public Matricula(Aluno aluno, Plano plano, LocalDate dataInicio, LocalDate dataFim, MatriculaStatus status) {
         this.aluno = aluno;
         this.plano = plano;
         this.dataInicio = dataInicio;
@@ -85,11 +105,11 @@ public class Matricula {
         this.dataFim = dataFim;
     }
     
-    public String getStatus() {
+    public MatriculaStatus getStatus() {
         return status;
     }
     
-    public void setStatus(String status) {
+    public void setStatus(MatriculaStatus status) {
         this.status = status;
     }
     
