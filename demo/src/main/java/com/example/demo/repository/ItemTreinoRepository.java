@@ -47,6 +47,21 @@ public interface ItemTreinoRepository extends JpaRepository<ItemTreino, Long> {
     List<ItemTreino> findBySeries(Integer series);
     
     /**
+     * Verifica se já existe um exercício no plano
+     * @param planoTreino Plano de treino
+     * @param exercicio Exercício
+     * @return true se já existe, false caso contrário
+     */
+    boolean existsByPlanoTreinoAndExercicio(PlanoTreino planoTreino, Exercicio exercicio);
+    
+    /**
+     * Conta quantos exercícios existem em um plano
+     * @param planoTreino Plano de treino
+     * @return Número de exercícios
+     */
+    long countByPlanoTreino(PlanoTreino planoTreino);
+    
+    /**
      * Busca itens por número de repetições
      * @param repeticoes Número de repetições
      * @return Lista de itens

@@ -48,6 +48,15 @@ public interface ExercicioRepository extends JpaRepository<Exercicio, Long> {
     List<Exercicio> findAllByOrderByNomeAsc();
     
     /**
+     * Busca exercícios que não estão em um plano específico
+     * @param planoTreino Plano de treino
+     * @return Lista de exercícios não incluídos no plano
+     */
+    @Query("SELECT e FROM Exercicio e WHERE e NOT IN " +
+           "(SELECT i.exercicio FROM ItemTreino i WHERE i.planoTreino = :planoTreino)")
+    List<Exercicio> findExerciciosNotInPlano(PlanoTreino planoTreino);
+    
+    /**
      * Lista exercícios de um grupo ordenados por nome
      * @param grupoMuscular Grupo muscular
      * @return Lista de exercícios ordenados
