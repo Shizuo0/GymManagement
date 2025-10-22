@@ -127,12 +127,12 @@ public class PlanoTreinoSummaryDTO {
         private String nomeExercicio;
         private Integer series;
         private Integer repeticoes;
-        private Double carga;
+        private java.math.BigDecimal carga;
         
         public ExercicioResumoDTO() {
         }
         
-        public ExercicioResumoDTO(String nomeExercicio, Integer series, Integer repeticoes, Double carga) {
+        public ExercicioResumoDTO(String nomeExercicio, Integer series, Integer repeticoes, java.math.BigDecimal carga) {
             this.nomeExercicio = nomeExercicio;
             this.series = series;
             this.repeticoes = repeticoes;
@@ -164,11 +164,11 @@ public class PlanoTreinoSummaryDTO {
             this.repeticoes = repeticoes;
         }
         
-        public Double getCarga() {
+        public java.math.BigDecimal getCarga() {
             return carga;
         }
         
-        public void setCarga(Double carga) {
+        public void setCarga(java.math.BigDecimal carga) {
             this.carga = carga;
         }
     }
