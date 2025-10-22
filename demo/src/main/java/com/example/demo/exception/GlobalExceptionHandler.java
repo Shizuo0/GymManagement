@@ -182,6 +182,136 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
     
+    // ==================== Historico Exceptions ====================
+    
+    /**
+     * Trata exceções de histórico não encontrado
+     */
+    @ExceptionHandler(HistoricoException.HistoricoNotFoundException.class)
+    public ResponseEntity<Object> handleHistoricoNotFoundException(
+            HistoricoException.HistoricoNotFoundException ex, WebRequest request) {
+        return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+    
+    /**
+     * Trata exceções de dados corrompidos no histórico
+     */
+    @ExceptionHandler(HistoricoException.DadosCorruptosException.class)
+    public ResponseEntity<Object> handleDadosCorruptosException(
+            HistoricoException.DadosCorruptosException ex, WebRequest request) {
+        return buildErrorResponse(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+    
+    /**
+     * Trata exceções de integridade de dados entre tabelas
+     */
+    @ExceptionHandler(HistoricoException.IntegridadeDadosException.class)
+    public ResponseEntity<Object> handleIntegridadeDadosException(
+            HistoricoException.IntegridadeDadosException ex, WebRequest request) {
+        return buildErrorResponse(ex.getMessage(), HttpStatus.CONFLICT);
+    }
+    
+    /**
+     * Trata exceções de dados ausentes necessários
+     */
+    @ExceptionHandler(HistoricoException.DadosAusentesException.class)
+    public ResponseEntity<Object> handleDadosAusentesException(
+            HistoricoException.DadosAusentesException ex, WebRequest request) {
+        return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+    
+    /**
+     * Trata exceções de erro na agregação de dados
+     */
+    @ExceptionHandler(HistoricoException.ErroAgregacaoException.class)
+    public ResponseEntity<Object> handleErroAgregacaoException(
+            HistoricoException.ErroAgregacaoException ex, WebRequest request) {
+        return buildErrorResponse(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+    
+    /**
+     * Trata exceções de período inválido (data início após data fim, datas futuras)
+     */
+    @ExceptionHandler(HistoricoException.PeriodoInvalidoException.class)
+    public ResponseEntity<Object> handlePeriodoInvalidoException(
+            HistoricoException.PeriodoInvalidoException ex, WebRequest request) {
+        return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+    
+    /**
+     * Trata exceções de ausência de dados no período
+     */
+    @ExceptionHandler(HistoricoException.SemDadosPeriodoException.class)
+    public ResponseEntity<Object> handleSemDadosPeriodoException(
+            HistoricoException.SemDadosPeriodoException ex, WebRequest request) {
+        return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+    
+    // ==================== Busca Global Exceptions ====================
+    
+    /**
+     * Trata exceções de nenhum resultado encontrado na busca
+     */
+    @ExceptionHandler(BuscaGlobalException.NenhumResultadoException.class)
+    public ResponseEntity<Object> handleNenhumResultadoException(
+            BuscaGlobalException.NenhumResultadoException ex, WebRequest request) {
+        return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+    
+    /**
+     * Trata exceções de critérios de busca inválidos
+     */
+    @ExceptionHandler(BuscaGlobalException.CriteriosBuscaInvalidosException.class)
+    public ResponseEntity<Object> handleCriteriosBuscaInvalidosException(
+            BuscaGlobalException.CriteriosBuscaInvalidosException ex, WebRequest request) {
+        return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+    
+    /**
+     * Trata exceções de filtro inválido
+     */
+    @ExceptionHandler(BuscaGlobalException.FiltroInvalidoException.class)
+    public ResponseEntity<Object> handleFiltroInvalidoException(
+            BuscaGlobalException.FiltroInvalidoException ex, WebRequest request) {
+        return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+    
+    /**
+     * Trata exceções de erro durante a busca
+     */
+    @ExceptionHandler(BuscaGlobalException.ErroBuscaException.class)
+    public ResponseEntity<Object> handleErroBuscaException(
+            BuscaGlobalException.ErroBuscaException ex, WebRequest request) {
+        return buildErrorResponse(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+    
+    /**
+     * Trata exceções de termo de busca inválido (muito curto, vazio)
+     */
+    @ExceptionHandler(BuscaGlobalException.TermoBuscaInvalidoException.class)
+    public ResponseEntity<Object> handleTermoBuscaInvalidoException(
+            BuscaGlobalException.TermoBuscaInvalidoException ex, WebRequest request) {
+        return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+    
+    /**
+     * Trata exceções de paginação inválida
+     */
+    @ExceptionHandler(BuscaGlobalException.PaginacaoInvalidaException.class)
+    public ResponseEntity<Object> handlePaginacaoInvalidaException(
+            BuscaGlobalException.PaginacaoInvalidaException ex, WebRequest request) {
+        return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+    
+    /**
+     * Trata exceções de muitos resultados (limite excedido)
+     */
+    @ExceptionHandler(BuscaGlobalException.MuitosResultadosException.class)
+    public ResponseEntity<Object> handleMuitosResultadosException(
+            BuscaGlobalException.MuitosResultadosException ex, WebRequest request) {
+        return buildErrorResponse(ex.getMessage(), HttpStatus.PAYLOAD_TOO_LARGE);
+    }
+    
     // ==================== Generic Exceptions ====================
     
     @ExceptionHandler(RecursoNaoEncontradoException.class)
