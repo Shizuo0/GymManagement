@@ -1,11 +1,14 @@
 package com.example.demo.repository;
 
-import com.example.demo.entity.Exercicio;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
-
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
+
+import com.example.demo.entity.Exercicio;
+import com.example.demo.entity.PlanoTreino;
 
 /**
  * Repository para operações com a entidade Exercicio
@@ -46,6 +49,22 @@ public interface ExercicioRepository extends JpaRepository<Exercicio, Long> {
      * @return Lista de exercícios ordenados
      */
     List<Exercicio> findAllByOrderByNomeAsc();
+    
+    /**
+     * Verifica se existe um exercício com o nome especificado (ignorando case)
+     * @param nome Nome do exercício
+     * @return true se existir, false caso contrário
+     */
+    boolean existsByNomeIgnoreCase(String nome);
+    
+    /**
+     * Busca exercícios que não estão em um plano específico
+     * @param planoTreino Plano de treino
+     * @return Lista de exercícios não incluídos no plano
+     */
+    @Query("SELECT e FROM Exercicio e WHERE e NOT IN " +
+           "(SELECT i.exercicio FROM ItemTreino i WHERE i.planoTreino = :planoTreino)")
+    List<Exercicio> findExerciciosNotInPlano(PlanoTreino planoTreino);
     
     /**
      * Lista exercícios de um grupo ordenados por nome

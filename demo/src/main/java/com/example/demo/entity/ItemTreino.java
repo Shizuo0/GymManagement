@@ -1,14 +1,30 @@
 package com.example.demo.entity;
 
-import jakarta.persistence.*;
 import java.math.BigDecimal;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 /**
  * Entidade que representa um Item de Treino (relacionamento N:N entre PlanoTreino e Exercicio)
  * Tabela associativa que contém informações específicas sobre cada exercício no plano
  */
 @Entity
-@Table(name = "itenstreino")
+@Table(name = "itenstreino", uniqueConstraints = {
+    @UniqueConstraint(columnNames = {"id_plano_treino", "id_exercicio"},
+        name = "uk_plano_exercicio")
+})
 public class ItemTreino {
     
     @Id
@@ -16,23 +32,31 @@ public class ItemTreino {
     @Column(name = "id_item_treino")
     private Long idItemTreino;
     
+    @NotNull(message = "O plano de treino é obrigatório")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_plano_treino", nullable = false)
     private PlanoTreino planoTreino;
     
+    @NotNull(message = "O exercício é obrigatório")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_exercicio", nullable = false)
     private Exercicio exercicio;
     
-    @Column(name = "series")
+    @NotNull(message = "O número de séries é obrigatório")
+    @Min(value = 1, message = "O número de séries deve ser pelo menos 1")
+    @Column(name = "series", nullable = false)
     private Integer series;
     
-    @Column(name = "repeticoes")
+    @NotNull(message = "O número de repetições é obrigatório")
+    @Min(value = 1, message = "O número de repetições deve ser pelo menos 1")
+    @Column(name = "repeticoes", nullable = false)
     private Integer repeticoes;
     
+    @Min(value = 0, message = "A carga não pode ser negativa")
     @Column(name = "carga", precision = 10, scale = 2)
     private BigDecimal carga;
     
+    @Size(max = 500, message = "As observações devem ter no máximo 500 caracteres")
     @Column(name = "observacoes", columnDefinition = "TEXT")
     private String observacoes;
     

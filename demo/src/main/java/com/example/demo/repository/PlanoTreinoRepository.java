@@ -1,15 +1,16 @@
 package com.example.demo.repository;
 
-import com.example.demo.entity.Aluno;
-import com.example.demo.entity.Instrutor;
-import com.example.demo.entity.PlanoTreino;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
+import com.example.demo.entity.Aluno;
+import com.example.demo.entity.Instrutor;
+import com.example.demo.entity.PlanoTreino;
 
 /**
  * Repository para operações com a entidade PlanoTreino
@@ -45,6 +46,15 @@ public interface PlanoTreinoRepository extends JpaRepository<PlanoTreino, Long> 
      * @return Lista de planos de treino
      */
     List<PlanoTreino> findByDataCriacao(LocalDate dataCriacao);
+    
+    /**
+     * Busca os planos de treino mais recentes de um aluno
+     * @param aluno Aluno
+     * @param limit Número máximo de planos a retornar
+     * @return Lista de planos de treino ordenados por data de criação decrescente
+     */
+    @Query("SELECT p FROM PlanoTreino p WHERE p.aluno = :aluno ORDER BY p.dataCriacao DESC")
+    List<PlanoTreino> findMostRecentByAluno(Aluno aluno, int limit);
     
     /**
      * Busca planos de treino criados entre duas datas

@@ -46,6 +46,8 @@ public interface ItemTreinoRepository extends JpaRepository<ItemTreino, Long> {
      */
     List<ItemTreino> findBySeries(Integer series);
     
+
+    
     /**
      * Busca itens por número de repetições
      * @param repeticoes Número de repetições
