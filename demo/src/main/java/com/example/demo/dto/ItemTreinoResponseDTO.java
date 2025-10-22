@@ -9,21 +9,25 @@ public class ItemTreinoResponseDTO {
     private String planoTreinoNome;
     private Long exercicioId;
     private String exercicioNome;
+    private String grupoMuscular;
     private Integer series;
     private Integer repeticoes;
-    private BigDecimal peso;
+    private BigDecimal carga;
+    private String observacoes;
     
     public ItemTreinoResponseDTO(Long id, Long planoTreinoId, String planoTreinoNome,
-                                Long exercicioId, String exercicioNome,
-                                Integer series, Integer repeticoes, BigDecimal peso) {
+                                Long exercicioId, String exercicioNome, String grupoMuscular,
+                                Integer series, Integer repeticoes, BigDecimal carga, String observacoes) {
         this.id = id;
         this.planoTreinoId = planoTreinoId;
         this.planoTreinoNome = planoTreinoNome;
         this.exercicioId = exercicioId;
         this.exercicioNome = exercicioNome;
+        this.grupoMuscular = grupoMuscular;
         this.series = series;
         this.repeticoes = repeticoes;
-        this.peso = peso;
+        this.carga = carga;
+        this.observacoes = observacoes;
     }
     
     // Getters e Setters
@@ -67,6 +71,14 @@ public class ItemTreinoResponseDTO {
         this.exercicioNome = exercicioNome;
     }
     
+    public String getGrupoMuscular() {
+        return grupoMuscular;
+    }
+    
+    public void setGrupoMuscular(String grupoMuscular) {
+        this.grupoMuscular = grupoMuscular;
+    }
+    
     public Integer getSeries() {
         return series;
     }
@@ -83,11 +95,19 @@ public class ItemTreinoResponseDTO {
         this.repeticoes = repeticoes;
     }
     
-    public BigDecimal getPeso() {
-        return peso;
+    public BigDecimal getCarga() {
+        return carga;
     }
     
-    public void setPeso(BigDecimal peso) {
-        this.peso = peso;
+    public void setCarga(BigDecimal carga) {
+        this.carga = carga;
+    }
+    
+    public String getObservacoes() {
+        return observacoes;
+    }
+    
+    public void setObservacoes(String observacoes) {
+        this.observacoes = observacoes;
     }
 }

@@ -21,8 +21,10 @@ public class ItemTreinoRequestDTO {
     @Min(value = 1, message = "O número de repetições deve ser maior que zero")
     private Integer repeticoes;
     
-    @Min(value = 0, message = "O peso não pode ser negativo")
-    private BigDecimal peso;
+    @Min(value = 0, message = "A carga não pode ser negativa")
+    private BigDecimal carga;
+    
+    private String observacoes;
     
     // Getters e Setters
     public Long getExercicioId() {
@@ -57,11 +59,19 @@ public class ItemTreinoRequestDTO {
         this.repeticoes = repeticoes;
     }
     
-    public BigDecimal getPeso() {
-        return peso;
+    public BigDecimal getCarga() {
+        return carga;
     }
     
-    public void setPeso(BigDecimal peso) {
-        this.peso = peso;
+    public void setCarga(BigDecimal carga) {
+        this.carga = carga;
+    }
+    
+    public String getObservacoes() {
+        return observacoes;
+    }
+    
+    public void setObservacoes(String observacoes) {
+        this.observacoes = observacoes;
     }
 }
