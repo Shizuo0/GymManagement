@@ -19,12 +19,6 @@ public class ItemTreinoService {
     @Autowired
     private ItemTreinoRepository itemTreinoRepository;
     
-    @Autowired
-    private ExercicioService exercicioService;
-    
-    @Autowired
-    private PlanoTreinoService planoTreinoService;
-    
     public ItemTreino adicionarExercicioAoPlano(ItemTreino itemTreino) {
         validarItemTreino(itemTreino);
         
