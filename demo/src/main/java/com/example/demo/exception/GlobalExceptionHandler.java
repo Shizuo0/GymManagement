@@ -115,6 +115,73 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
     
+    // ==================== Pagamento Exceptions ====================
+    
+    /**
+     * Trata exceções de pagamento não encontrado
+     */
+    @ExceptionHandler(PagamentoException.PagamentoNotFoundException.class)
+    public ResponseEntity<Object> handlePagamentoNotFoundException(
+            PagamentoException.PagamentoNotFoundException ex, WebRequest request) {
+        return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+    
+    /**
+     * Trata exceções de pagamento duplicado
+     */
+    @ExceptionHandler(PagamentoException.PagamentoDuplicadoException.class)
+    public ResponseEntity<Object> handlePagamentoDuplicadoException(
+            PagamentoException.PagamentoDuplicadoException ex, WebRequest request) {
+        return buildErrorResponse(ex.getMessage(), HttpStatus.CONFLICT);
+    }
+    
+    /**
+     * Trata exceções de validação de pagamento (valor, data, matrícula)
+     */
+    @ExceptionHandler({
+        PagamentoException.PagamentoInvalidoException.class,
+        PagamentoException.ValorInvalidoException.class,
+        PagamentoException.DataInvalidaException.class,
+        PagamentoException.MatriculaInvalidaException.class
+    })
+    public ResponseEntity<Object> handlePagamentoValidationException(
+            PagamentoException ex, WebRequest request) {
+        return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+    
+    // ==================== Frequencia Exceptions ====================
+    
+    /**
+     * Trata exceções de frequência não encontrada
+     */
+    @ExceptionHandler(FrequenciaException.FrequenciaNotFoundException.class)
+    public ResponseEntity<Object> handleFrequenciaNotFoundException(
+            FrequenciaException.FrequenciaNotFoundException ex, WebRequest request) {
+        return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+    
+    /**
+     * Trata exceções de conflito de frequência (registro duplicado)
+     */
+    @ExceptionHandler(FrequenciaException.FrequenciaConflictException.class)
+    public ResponseEntity<Object> handleFrequenciaConflictException(
+            FrequenciaException.FrequenciaConflictException ex, WebRequest request) {
+        return buildErrorResponse(ex.getMessage(), HttpStatus.CONFLICT);
+    }
+    
+    /**
+     * Trata exceções de validação de frequência (data, presença, aluno sem matrícula)
+     */
+    @ExceptionHandler({
+        FrequenciaException.FrequenciaInvalidaException.class,
+        FrequenciaException.DataInvalidaException.class,
+        FrequenciaException.AlunoSemMatriculaAtivaException.class
+    })
+    public ResponseEntity<Object> handleFrequenciaValidationException(
+            FrequenciaException ex, WebRequest request) {
+        return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+    
     // ==================== Generic Exceptions ====================
     
     @ExceptionHandler(RecursoNaoEncontradoException.class)
