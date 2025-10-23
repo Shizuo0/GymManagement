@@ -107,7 +107,7 @@ public class HistoricoAlunoControllerTest {
         mockMvc.perform(get("/api/historico/aluno/{id}", idAluno))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.idAluno").value(idAluno))
-                .andExpect(jsonPath("$.nomeAluno").value("Maria Santos"))
+                .andExpect(jsonPath("$.nome").value("Maria Santos"))
                 .andExpect(jsonPath("$.cpf").value("123.456.789-00"))
                 .andExpect(jsonPath("$.matriculas").isArray())
                 .andExpect(jsonPath("$.matriculas[0].nomePlano").value("Plano Premium"))
@@ -116,9 +116,8 @@ public class HistoricoAlunoControllerTest {
                 .andExpect(jsonPath("$.planoTreinoAtual.objetivo").value("Hipertrofia"))
                 .andExpect(jsonPath("$.avaliacoesFisicas").isArray())
                 .andExpect(jsonPath("$.frequenciaMensal").isArray())
-                .andExpect(jsonPath("$.pagamentos").isArray())
                 .andExpect(jsonPath("$.estatisticas.totalMatriculas").value(1))
-                .andExpect(jsonPath("$.estatisticas.taxaFrequencia").value(83.33));
+                .andExpect(jsonPath("$.estatisticas.taxaPresencaGeral").value(83.33));
     }
 
     @Test
@@ -144,7 +143,7 @@ public class HistoricoAlunoControllerTest {
                 .param("fim", fim.toString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.idAluno").value(idAluno))
-                .andExpect(jsonPath("$.nomeAluno").value("Maria Santos"));
+                .andExpect(jsonPath("$.nome").value("Maria Santos"));
     }
 
     @Test

@@ -312,6 +312,29 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(ex.getMessage(), HttpStatus.PAYLOAD_TOO_LARGE);
     }
     
+    // ==================== Plano Exceptions ====================
+    
+    /**
+     * Trata exceções de plano não encontrado
+     */
+    @ExceptionHandler(PlanoException.PlanoNotFoundException.class)
+    public ResponseEntity<Object> handlePlanoNotFoundException(
+            PlanoException.PlanoNotFoundException ex, WebRequest request) {
+        return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+    
+    /**
+     * Trata exceções de validação de plano
+     */
+    @ExceptionHandler({
+        PlanoException.PlanoInvalidoException.class,
+        PlanoException.PlanoInativoException.class
+    })
+    public ResponseEntity<Object> handlePlanoValidationException(
+            PlanoException ex, WebRequest request) {
+        return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+    
     // ==================== Generic Exceptions ====================
     
     @ExceptionHandler(RecursoNaoEncontradoException.class)

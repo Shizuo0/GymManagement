@@ -99,7 +99,7 @@ public class MatriculaTest {
         
         // Validações
         assertTrue(matriculaEncontrada.isPresent(), "Matrícula deve ser encontrada");
-        assertEquals("ATIVA", matriculaEncontrada.get().getStatus());
+        assertEquals(MatriculaStatus.ATIVA, matriculaEncontrada.get().getStatus());
         
         System.out.println("✅ Matrícula encontrada: " + matriculaEncontrada.get());
         System.out.println("=== TESTE CONCLUÍDO ===\n");

@@ -92,7 +92,7 @@ public class MatriculaControllerTest {
     @Test
     void criarMatricula_QuandoAlunoNaoExiste_DeveRetornarNotFound() throws Exception {
         when(alunoService.buscarPorId(1L))
-            .thenThrow(new RuntimeException("Aluno não encontrado"));
+            .thenThrow(new com.example.demo.exception.RecursoNaoEncontradoException("Aluno não encontrado"));
 
         mockMvc.perform(post("/api/matriculas")
                 .contentType(MediaType.APPLICATION_JSON)

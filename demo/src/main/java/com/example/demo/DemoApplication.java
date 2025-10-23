@@ -13,10 +13,10 @@ import java.sql.SQLException;
 @SpringBootApplication
 public class DemoApplication implements CommandLineRunner {
 
-	@Autowired
+	@Autowired(required = false)
 	private DataSource dataSource;
 
-	@Autowired
+	@Autowired(required = false)
 	private JdbcTemplate jdbcTemplate;
 
 	public static void main(String[] args) {
@@ -25,7 +25,9 @@ public class DemoApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		testDatabaseConnection();
+		if (dataSource != null) {
+			testDatabaseConnection();
+		}
 	}
 
 	private void testDatabaseConnection() {

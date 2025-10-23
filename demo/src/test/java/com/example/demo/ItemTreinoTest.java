@@ -92,8 +92,8 @@ public class ItemTreinoTest {
     public void testCriarItemTreinoSimples() {
         System.out.println("=== TESTE: Criar Item de Treino Simples ===");
         
-        // Criar item apenas com plano e exercício
-        ItemTreino item = new ItemTreino(planoTreinoTeste, exercicio2);
+        // Criar item com valores mínimos obrigatórios
+        ItemTreino item = new ItemTreino(planoTreinoTeste, exercicio2, 1, 1, BigDecimal.ZERO);
         
         // Salvar no banco
         ItemTreino itemSalvo = itemTreinoRepository.save(item);
@@ -102,8 +102,9 @@ public class ItemTreinoTest {
         assertNotNull(itemSalvo.getIdItemTreino());
         assertNotNull(itemSalvo.getPlanoTreino());
         assertNotNull(itemSalvo.getExercicio());
-        assertNull(itemSalvo.getSeries());
-        assertNull(itemSalvo.getRepeticoes());
+        assertEquals(1, itemSalvo.getSeries());
+        assertEquals(1, itemSalvo.getRepeticoes());
+        assertEquals(BigDecimal.ZERO, itemSalvo.getCarga());
         
         System.out.println("✅ Item de treino simples criado: " + itemSalvo);
         System.out.println("=== TESTE CONCLUÍDO ===\n");

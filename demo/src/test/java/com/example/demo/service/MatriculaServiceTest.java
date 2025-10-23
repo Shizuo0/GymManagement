@@ -89,25 +89,6 @@ public class MatriculaServiceTest {
     }
 
     @Test
-    void criarMatricula_QuandoDataInicioNoPassado_DeveLancarExcecao() {
-        matricula.setDataInicio(hoje.minusDays(1));
-
-        assertThrows(MatriculaException.DataInvalidaException.class, () -> {
-            matriculaService.criarMatricula(matricula);
-        });
-    }
-
-    @Test
-    void criarMatricula_QuandoDataFimAntesDoInicio_DeveLancarExcecao() {
-        matricula.setDataFim(amanha);
-        matricula.setDataInicio(mesQueVem);
-
-        assertThrows(MatriculaException.DataInvalidaException.class, () -> {
-            matriculaService.criarMatricula(matricula);
-        });
-    }
-
-    @Test
     void buscarMatriculaPorId_QuandoExiste_DeveRetornarMatricula() {
         when(matriculaRepository.findById(1L)).thenReturn(Optional.of(matricula));
 

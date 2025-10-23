@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.dto.PlanoRequestDTO;
 import com.example.demo.dto.PlanoResponseDTO;
 import com.example.demo.entity.Plano;
-import com.example.demo.exception.PlanoException;
 import com.example.demo.service.PlanoService;
 
 import jakarta.validation.Valid;
@@ -76,10 +74,5 @@ public class PlanoController {
         planoService.inativarPlano(id);
         Plano plano = planoService.buscarPlanoPorId(id);
         return ResponseEntity.ok(new PlanoResponseDTO(plano));
-    }
-    
-    @ExceptionHandler(PlanoException.class)
-    public ResponseEntity<String> handlePlanoException(PlanoException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 }

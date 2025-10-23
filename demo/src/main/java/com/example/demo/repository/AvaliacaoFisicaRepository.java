@@ -108,8 +108,8 @@ public interface AvaliacaoFisicaRepository extends JpaRepository<AvaliacaoFisica
     
     /**
      * Busca todas as avaliações realizadas por um instrutor (por ID)
-     * @param instrutorId ID do instrutor
+     * @param idInstrutor ID do instrutor
      * @return Lista de avaliações do instrutor
      */
-    List<AvaliacaoFisica> findByInstrutorId(Long instrutorId);
+    List<AvaliacaoFisica> findByInstrutorIdInstrutor(Long idInstrutor);
 }

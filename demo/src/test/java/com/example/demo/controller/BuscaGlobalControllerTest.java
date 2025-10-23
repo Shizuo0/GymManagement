@@ -105,11 +105,11 @@ public class BuscaGlobalControllerTest {
                 .andExpect(jsonPath("$.termoBusca").value("maria"))
                 .andExpect(jsonPath("$.totalResultados").value(5))
                 .andExpect(jsonPath("$.alunos").isArray())
-                .andExpect(jsonPath("$.alunos[0].nomeAluno").value("Maria Santos"))
+                .andExpect(jsonPath("$.alunos[0].nome").value("Maria Santos"))
                 .andExpect(jsonPath("$.instrutores").isArray())
-                .andExpect(jsonPath("$.instrutores[0].nomeInstrutor").value("Carlos Personal"))
+                .andExpect(jsonPath("$.instrutores[0].nome").value("Carlos Personal"))
                 .andExpect(jsonPath("$.planos").isArray())
-                .andExpect(jsonPath("$.planos[0].nomePlano").value("Plano Premium"));
+                .andExpect(jsonPath("$.planos[0].nome").value("Plano Premium"));
     }
 
     @Test
@@ -153,9 +153,9 @@ public class BuscaGlobalControllerTest {
                 .param("termo", "maria"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$[0].nomeAluno").value("Maria Santos"))
+                .andExpect(jsonPath("$[0].nome").value("Maria Santos"))
                 .andExpect(jsonPath("$[0].statusMatricula").value("ATIVA"))
-                .andExpect(jsonPath("$[1].nomeAluno").value("João Silva"));
+                .andExpect(jsonPath("$[1].nome").value("João Silva"));
     }
 
     @Test
@@ -180,7 +180,7 @@ public class BuscaGlobalControllerTest {
                 .param("termo", "carlos"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$[0].nomeInstrutor").value("Carlos Personal"))
+                .andExpect(jsonPath("$[0].nome").value("Carlos Personal"))
                 .andExpect(jsonPath("$[0].especialidade").value("Musculação"))
                 .andExpect(jsonPath("$[0].totalAlunos").value(15));
     }
@@ -206,7 +206,7 @@ public class BuscaGlobalControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.length()").value(2))
-                .andExpect(jsonPath("$[0].nomePlano").value("Plano Premium"))
+                .andExpect(jsonPath("$[0].nome").value("Plano Premium"))
                 .andExpect(jsonPath("$[0].status").value("ATIVO"))
                 .andExpect(jsonPath("$[0].totalMatriculas").value(50));
     }
