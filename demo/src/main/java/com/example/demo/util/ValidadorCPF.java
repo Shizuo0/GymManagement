@@ -2,13 +2,19 @@ package com.example.demo.util;
 
 public class ValidadorCPF {
     public static boolean isValid(String cpf) {
-        if (cpf == null || cpf.length() != 14 || !cpf.matches("\\d{3}\\.\\d{3}\\.\\d{3}-\\d{2}")) {
+        if (cpf == null) {
             return false;
         }
 
+        // Remove todos os caracteres não numéricos
         cpf = cpf.replaceAll("[^0-9]", "");
+        
+        // Verifica se tem 11 dígitos
+        if (cpf.length() != 11) {
+            return false;
+        }
 
-        // Check for known invalid CPFs
+        // Check for known invalid CPFs (todos dígitos iguais)
         if (cpf.matches("(\\d)\\1{10}")) {
             return false;
         }

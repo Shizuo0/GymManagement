@@ -20,10 +20,12 @@ public class AlunoService {
 
     @Transactional
     public Aluno cadastrarAluno(Aluno aluno) {
-        validarAluno(aluno);
+        // Formata o CPF antes de validar
+        if (aluno.getCpf() != null) {
+            aluno.setCpf(ValidadorCPF.format(aluno.getCpf()));
+        }
         
-        // Formata o CPF antes de salvar
-        aluno.setCpf(ValidadorCPF.format(aluno.getCpf()));
+        validarAluno(aluno);
         
         return alunoRepository.save(aluno);
     }
@@ -43,12 +45,17 @@ public class AlunoService {
     public Aluno atualizarAluno(Long id, Aluno alunoAtualizado) {
         Aluno alunoExistente = buscarPorId(id);
         
+        // Formata o CPF antes de validar
+        if (alunoAtualizado.getCpf() != null) {
+            alunoAtualizado.setCpf(ValidadorCPF.format(alunoAtualizado.getCpf()));
+        }
+        
         validarAluno(alunoAtualizado);
 
         // Atualiza os campos
         alunoExistente.setNome(alunoAtualizado.getNome());
         if (alunoAtualizado.getCpf() != null && !alunoAtualizado.getCpf().equals(alunoExistente.getCpf())) {
-            alunoExistente.setCpf(ValidadorCPF.format(alunoAtualizado.getCpf()));
+            alunoExistente.setCpf(alunoAtualizado.getCpf());
         }
         alunoExistente.setDataIngresso(alunoAtualizado.getDataIngresso());
 
