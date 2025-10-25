@@ -129,20 +129,21 @@ public class LoadingDialog extends JDialog {
     /**
      * Executa uma tarefa em background com diálogo de loading
      * 
-     * @param parent Frame pai
+     * @param parent Window pai
      * @param message Mensagem de loading
      * @param task Tarefa a ser executada
      * @param onComplete Ação a ser executada após conclusão (opcional)
      * @param onError Ação a ser executada em caso de erro (opcional)
      */
     public static void executeWithLoading(
-            Frame parent,
+            Window parent,
             String message,
             BackgroundTask task,
             Runnable onComplete,
             java.util.function.Consumer<Exception> onError) {
         
-        LoadingDialog dialog = new LoadingDialog(parent, message);
+        Frame frameParent = parent instanceof Frame ? (Frame) parent : null;
+        LoadingDialog dialog = new LoadingDialog(frameParent, message);
         
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
             private Exception exception = null;

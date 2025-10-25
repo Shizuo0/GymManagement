@@ -1,5 +1,7 @@
 package com.example.demo.ui;
 
+import com.example.demo.ui.panels.AlunoPanel;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -32,8 +34,17 @@ public class GymManagementUI extends JFrame {
         tabbedPane.setBackground(BACKGROUND_SECONDARY);
         tabbedPane.setForeground(TEXT_PRIMARY);
         
-        // Painéis serão adicionados nos próximos commits
+        // Adiciona painéis
         addWelcomePanel();
+        addAlunoPanel();
+    }
+    
+    /**
+     * Adiciona o painel de alunos
+     */
+    private void addAlunoPanel() {
+        AlunoPanel alunoPanel = new AlunoPanel();
+        tabbedPane.addTab("👤 Alunos", alunoPanel);
     }
     
     /**
