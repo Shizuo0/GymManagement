@@ -5,6 +5,9 @@ import com.example.demo.ui.panels.PlanoPanel;
 import com.example.demo.ui.panels.MatriculaPanel;
 import com.example.demo.ui.panels.PagamentoPanel;
 import com.example.demo.ui.panels.FrequenciaPanel;
+import com.example.demo.ui.panels.ExercicioPanel;
+import com.example.demo.ui.panels.PlanoTreinoPanel;
+import com.example.demo.ui.panels.ItemTreinoPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -45,6 +48,9 @@ public class GymManagementUI extends JFrame {
         addMatriculaPanel();
         addPagamentoPanel();
         addFrequenciaPanel();
+        addExercicioPanel();
+        addPlanoTreinoPanel();
+        addItemTreinoPanel();
     }
     
     /**
@@ -85,6 +91,30 @@ public class GymManagementUI extends JFrame {
     private void addFrequenciaPanel() {
         FrequenciaPanel frequenciaPanel = new FrequenciaPanel();
         tabbedPane.addTab("📊 Frequência", frequenciaPanel);
+    }
+    
+    /**
+     * Adiciona o painel de exercícios
+     */
+    private void addExercicioPanel() {
+        ExercicioPanel exercicioPanel = new ExercicioPanel();
+        tabbedPane.addTab("💪 Exercícios", exercicioPanel);
+    }
+    
+    /**
+     * Adiciona o painel de planos de treino
+     */
+    private void addPlanoTreinoPanel() {
+        PlanoTreinoPanel planoTreinoPanel = new PlanoTreinoPanel();
+        tabbedPane.addTab("📋 Treinos", planoTreinoPanel);
+    }
+    
+    /**
+     * Adiciona o painel de itens de treino
+     */
+    private void addItemTreinoPanel() {
+        ItemTreinoPanel itemTreinoPanel = new ItemTreinoPanel();
+        tabbedPane.addTab("🏋️ Exercícios/Treino", itemTreinoPanel);
     }
     
     /**
