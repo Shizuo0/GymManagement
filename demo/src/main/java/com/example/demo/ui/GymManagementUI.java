@@ -2,6 +2,7 @@ package com.example.demo.ui;
 
 import com.example.demo.ui.panels.AlunoPanel;
 import com.example.demo.ui.panels.PlanoPanel;
+import com.example.demo.ui.panels.MatriculaPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -39,6 +40,7 @@ public class GymManagementUI extends JFrame {
         addWelcomePanel();
         addAlunoPanel();
         addPlanoPanel();
+        addMatriculaPanel();
     }
     
     /**
@@ -55,6 +57,14 @@ public class GymManagementUI extends JFrame {
     private void addPlanoPanel() {
         PlanoPanel planoPanel = new PlanoPanel();
         tabbedPane.addTab("💳 Planos", planoPanel);
+    }
+    
+    /**
+     * Adiciona o painel de matrículas
+     */
+    private void addMatriculaPanel() {
+        MatriculaPanel matriculaPanel = new MatriculaPanel();
+        tabbedPane.addTab("📝 Matrículas", matriculaPanel);
     }
     
     /**
