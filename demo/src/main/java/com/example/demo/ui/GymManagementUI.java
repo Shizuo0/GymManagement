@@ -8,6 +8,8 @@ import com.example.demo.ui.panels.FrequenciaPanel;
 import com.example.demo.ui.panels.ExercicioPanel;
 import com.example.demo.ui.panels.PlanoTreinoPanel;
 import com.example.demo.ui.panels.ItemTreinoPanel;
+import com.example.demo.ui.panels.DashboardPanel;
+import com.example.demo.ui.panels.BuscaGlobalPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -42,7 +44,8 @@ public class GymManagementUI extends JFrame {
         tabbedPane.setForeground(TEXT_PRIMARY);
         
         // Adiciona painéis
-        addWelcomePanel();
+        addDashboardPanel();
+        addBuscaGlobalPanel();
         addAlunoPanel();
         addPlanoPanel();
         addMatriculaPanel();
@@ -51,6 +54,22 @@ public class GymManagementUI extends JFrame {
         addExercicioPanel();
         addPlanoTreinoPanel();
         addItemTreinoPanel();
+    }
+    
+    /**
+     * Adiciona o painel de dashboard
+     */
+    private void addDashboardPanel() {
+        DashboardPanel dashboardPanel = new DashboardPanel();
+        tabbedPane.addTab("📊 Dashboard", dashboardPanel);
+    }
+    
+    /**
+     * Adiciona o painel de busca global
+     */
+    private void addBuscaGlobalPanel() {
+        BuscaGlobalPanel buscaPanel = new BuscaGlobalPanel();
+        tabbedPane.addTab("🔍 Busca Global", buscaPanel);
     }
     
     /**
@@ -115,35 +134,6 @@ public class GymManagementUI extends JFrame {
     private void addItemTreinoPanel() {
         ItemTreinoPanel itemTreinoPanel = new ItemTreinoPanel();
         tabbedPane.addTab("🏋️ Exercícios/Treino", itemTreinoPanel);
-    }
-    
-    /**
-     * Adiciona o painel de boas-vindas temporário
-     */
-    private void addWelcomePanel() {
-        JPanel welcomePanel = new JPanel(new BorderLayout());
-        welcomePanel.setBackground(PANEL_BACKGROUND);
-        
-        JLabel welcomeLabel = new JLabel(
-            "<html><div style='text-align: center; color: #FFFFFF;'>" +
-            "<h1 style='color: #4169E1;'>🏋️ Bem-vindo ao Sistema de Gestão de Academia</h1>" +
-            "<p style='color: #AEAEB2; font-size: 14px;'>Sistema moderno com design escuro e azul royal</p>" +
-            "<p style='margin-top: 30px; color: #6495ED;'><strong>Funcionalidades em breve:</strong></p>" +
-            "<ul style='text-align: left; margin: 20px 100px; color: #FFFFFF; line-height: 2;'>" +
-            "<li>📋 Gestão de Alunos</li>" +
-            "<li>💳 Gestão de Planos</li>" +
-            "<li>✅ Gestão de Matrículas</li>" +
-            "<li>💰 Controle de Pagamentos</li>" +
-            "<li>📊 Registro de Frequência</li>" +
-            "<li>💪 Planos de Treino</li>" +
-            "</ul>" +
-            "</div></html>",
-            SwingConstants.CENTER
-        );
-        welcomeLabel.setFont(FONT_REGULAR);
-        
-        welcomePanel.add(welcomeLabel, BorderLayout.CENTER);
-        tabbedPane.addTab("🏠 Início", welcomePanel);
     }
     
     /**

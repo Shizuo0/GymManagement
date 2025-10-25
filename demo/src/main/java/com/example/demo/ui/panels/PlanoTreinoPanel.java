@@ -528,7 +528,6 @@ public class PlanoTreinoPanel extends JPanel {
         
         // Abrir dialog para gerenciar itens
         MessageDialog.showInfo(this, "Funcionalidade de gerenciamento de exercícios será implementada no ItemTreinoPanel.");
-        // TODO: Implementar ItemTreinoDialog ou abrir ItemTreinoPanel com filtro
     }
     
     // ========== FILTROS E BUSCA ==========
