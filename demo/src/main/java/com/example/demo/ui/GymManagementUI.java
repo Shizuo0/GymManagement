@@ -4,6 +4,7 @@ import com.example.demo.ui.panels.AlunoPanel;
 import com.example.demo.ui.panels.PlanoPanel;
 import com.example.demo.ui.panels.MatriculaPanel;
 import com.example.demo.ui.panels.PagamentoPanel;
+import com.example.demo.ui.panels.FrequenciaPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -43,6 +44,7 @@ public class GymManagementUI extends JFrame {
         addPlanoPanel();
         addMatriculaPanel();
         addPagamentoPanel();
+        addFrequenciaPanel();
     }
     
     /**
@@ -75,6 +77,14 @@ public class GymManagementUI extends JFrame {
     private void addPagamentoPanel() {
         PagamentoPanel pagamentoPanel = new PagamentoPanel();
         tabbedPane.addTab("💰 Pagamentos", pagamentoPanel);
+    }
+    
+    /**
+     * Adiciona o painel de frequências
+     */
+    private void addFrequenciaPanel() {
+        FrequenciaPanel frequenciaPanel = new FrequenciaPanel();
+        tabbedPane.addTab("📊 Frequência", frequenciaPanel);
     }
     
     /**
