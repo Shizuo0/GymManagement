@@ -278,7 +278,7 @@ public class PlanoPanel extends JPanel {
             SwingUtilities.getWindowAncestor(this),
             "Carregando planos...",
             () -> {
-                String response = apiClient.get("/api/planos");
+                String response = apiClient.get("/planos");
                 List<PlanoResponseDTO> planos = apiClient.fromJsonArray(response, PlanoResponseDTO.class);
                 
                 SwingUtilities.invokeLater(() -> {
@@ -323,7 +323,7 @@ public class PlanoPanel extends JPanel {
             SwingUtilities.getWindowAncestor(this),
             "Carregando dados...",
             () -> {
-                String response = apiClient.get("/api/planos/" + id);
+                String response = apiClient.get("/planos/" + id);
                 PlanoResponseDTO plano = apiClient.fromJson(response, PlanoResponseDTO.class);
                 
                 SwingUtilities.invokeLater(() -> {
@@ -406,9 +406,9 @@ public class PlanoPanel extends JPanel {
             isEditMode ? "Atualizando plano..." : "Cadastrando plano...",
             () -> {
                 if (isEditMode) {
-                    apiClient.put("/api/planos/" + currentPlanoId, plano);
+                    apiClient.put("/planos/" + currentPlanoId, plano);
                 } else {
-                    apiClient.post("/api/planos", plano);
+                    apiClient.post("/planos", plano);
                 }
             },
             () -> {
@@ -491,7 +491,7 @@ public class PlanoPanel extends JPanel {
             SwingUtilities.getWindowAncestor(this),
             "Excluindo plano...",
             () -> {
-                apiClient.delete("/api/planos/" + id);
+                apiClient.delete("/planos/" + id);
             },
             () -> {
                 MessageDialog.showSuccess(this, MSG_SUCCESS_DELETE);
@@ -525,8 +525,8 @@ public class PlanoPanel extends JPanel {
             SwingUtilities.getWindowAncestor(this),
             "Ativando plano...",
             () -> {
-                apiClient.put("/api/planos/" + id + "/ativar", null);
-                String response = apiClient.get("/api/planos/" + id);
+                apiClient.put("/planos/" + id + "/ativar", null);
+                String response = apiClient.get("/planos/" + id);
                 PlanoResponseDTO plano = apiClient.fromJson(response, PlanoResponseDTO.class);
                 
                 SwingUtilities.invokeLater(() -> {
@@ -574,8 +574,8 @@ public class PlanoPanel extends JPanel {
             SwingUtilities.getWindowAncestor(this),
             "Inativando plano...",
             () -> {
-                apiClient.put("/api/planos/" + id + "/inativar", null);
-                String response = apiClient.get("/api/planos/" + id);
+                apiClient.put("/planos/" + id + "/inativar", null);
+                String response = apiClient.get("/planos/" + id);
                 PlanoResponseDTO plano = apiClient.fromJson(response, PlanoResponseDTO.class);
                 
                 SwingUtilities.invokeLater(() -> {
@@ -608,7 +608,7 @@ public class PlanoPanel extends JPanel {
             SwingUtilities.getWindowAncestor(this),
             "Buscando planos...",
             () -> {
-                String response = apiClient.get("/api/planos");
+                String response = apiClient.get("/planos");
                 List<PlanoResponseDTO> todosPlanos = apiClient.fromJsonArray(response, PlanoResponseDTO.class);
                 List<PlanoResponseDTO> filtrados = todosPlanos.stream()
                     .filter(p -> p.getNome().toLowerCase().contains(termo))

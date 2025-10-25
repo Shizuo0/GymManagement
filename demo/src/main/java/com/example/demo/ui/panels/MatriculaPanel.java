@@ -304,7 +304,7 @@ public class MatriculaPanel extends JPanel {
             SwingUtilities.getWindowAncestor(this),
             "Carregando matrículas...",
             () -> {
-                String response = apiClient.get("/api/matriculas");
+                String response = apiClient.get("/matriculas");
                 List<MatriculaResponseDTO> matriculas = apiClient.fromJsonArray(response, MatriculaResponseDTO.class);
                 
                 SwingUtilities.invokeLater(() -> {
@@ -344,7 +344,7 @@ public class MatriculaPanel extends JPanel {
                 });
                 
                 // Carregar planos ativos
-                String planosJson = apiClient.get("/api/planos");
+                String planosJson = apiClient.get("/planos");
                 List<PlanoResponseDTO> planos = apiClient.fromJsonArray(planosJson, PlanoResponseDTO.class);
                 
                 SwingUtilities.invokeLater(() -> {
@@ -395,7 +395,7 @@ public class MatriculaPanel extends JPanel {
             SwingUtilities.getWindowAncestor(this),
             "Carregando dados...",
             () -> {
-                String response = apiClient.get("/api/matriculas/" + id);
+                String response = apiClient.get("/matriculas/" + id);
                 MatriculaResponseDTO matricula = apiClient.fromJson(response, MatriculaResponseDTO.class);
                 
                 SwingUtilities.invokeLater(() -> {
@@ -490,9 +490,9 @@ public class MatriculaPanel extends JPanel {
             isEditMode ? "Atualizando matrícula..." : "Cadastrando matrícula...",
             () -> {
                 if (isEditMode) {
-                    apiClient.put("/api/matriculas/" + currentMatriculaId, matriculaData);
+                    apiClient.put("/matriculas/" + currentMatriculaId, matriculaData);
                 } else {
-                    apiClient.post("/api/matriculas", matriculaData);
+                    apiClient.post("/matriculas", matriculaData);
                 }
             },
             () -> {
@@ -567,7 +567,7 @@ public class MatriculaPanel extends JPanel {
             SwingUtilities.getWindowAncestor(this),
             "Excluindo matrícula...",
             () -> {
-                apiClient.delete("/api/matriculas/" + id);
+                apiClient.delete("/matriculas/" + id);
             },
             () -> {
                 MessageDialog.showSuccess(this, MSG_SUCCESS_DELETE);
@@ -596,8 +596,8 @@ public class MatriculaPanel extends JPanel {
             SwingUtilities.getWindowAncestor(this),
             "Ativando matrícula...",
             () -> {
-                apiClient.put("/api/matriculas/" + id + "/ativar", null);
-                String response = apiClient.get("/api/matriculas/" + id);
+                apiClient.put("/matriculas/" + id + "/ativar", null);
+                String response = apiClient.get("/matriculas/" + id);
                 MatriculaResponseDTO matricula = apiClient.fromJson(response, MatriculaResponseDTO.class);
                 
                 SwingUtilities.invokeLater(() -> {
@@ -639,8 +639,8 @@ public class MatriculaPanel extends JPanel {
             SwingUtilities.getWindowAncestor(this),
             "Inativando matrícula...",
             () -> {
-                apiClient.put("/api/matriculas/" + id + "/inativar", null);
-                String response = apiClient.get("/api/matriculas/" + id);
+                apiClient.put("/matriculas/" + id + "/inativar", null);
+                String response = apiClient.get("/matriculas/" + id);
                 MatriculaResponseDTO matricula = apiClient.fromJson(response, MatriculaResponseDTO.class);
                 
                 SwingUtilities.invokeLater(() -> {
@@ -683,8 +683,8 @@ public class MatriculaPanel extends JPanel {
             SwingUtilities.getWindowAncestor(this),
             "Cancelando matrícula...",
             () -> {
-                apiClient.put("/api/matriculas/" + id + "/cancelar", null);
-                String response = apiClient.get("/api/matriculas/" + id);
+                apiClient.put("/matriculas/" + id + "/cancelar", null);
+                String response = apiClient.get("/matriculas/" + id);
                 MatriculaResponseDTO matricula = apiClient.fromJson(response, MatriculaResponseDTO.class);
                 
                 SwingUtilities.invokeLater(() -> {
@@ -717,7 +717,7 @@ public class MatriculaPanel extends JPanel {
             SwingUtilities.getWindowAncestor(this),
             "Buscando matrículas...",
             () -> {
-                String response = apiClient.get("/api/matriculas");
+                String response = apiClient.get("/matriculas");
                 List<MatriculaResponseDTO> todasMatriculas = apiClient.fromJsonArray(response, MatriculaResponseDTO.class);
                 List<MatriculaResponseDTO> filtradas = todasMatriculas.stream()
                     .filter(m -> m.getNomeAluno().toLowerCase().contains(termo))
@@ -755,7 +755,7 @@ public class MatriculaPanel extends JPanel {
             SwingUtilities.getWindowAncestor(this),
             "Filtrando matrículas...",
             () -> {
-                String response = apiClient.get("/api/matriculas/status/" + statusSelecionado);
+                String response = apiClient.get("/matriculas/status/" + statusSelecionado);
                 List<MatriculaResponseDTO> matriculas = apiClient.fromJsonArray(response, MatriculaResponseDTO.class);
                 
                 SwingUtilities.invokeLater(() -> {

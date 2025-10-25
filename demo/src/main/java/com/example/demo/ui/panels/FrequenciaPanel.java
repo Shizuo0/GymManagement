@@ -85,6 +85,9 @@ public class FrequenciaPanel extends JPanel {
         splitPane.setRightComponent(createFormPanel());
         
         add(splitPane, BorderLayout.CENTER);
+        
+        // Atualiza os botões após todos os componentes serem inicializados
+        updateButtons();
     }
     
     private JPanel createListPanel() {
@@ -141,7 +144,6 @@ public class FrequenciaPanel extends JPanel {
         buttonPanel.add(btnExcluir);
         
         panel.add(buttonPanel, BorderLayout.SOUTH);
-        updateButtons();
         
         return panel;
     }
@@ -332,7 +334,7 @@ public class FrequenciaPanel extends JPanel {
             SwingUtilities.getWindowAncestor(this),
             "Carregando alunos...",
             () -> {
-                String response = apiClient.get("/api/alunos");
+                String response = apiClient.get("/alunos");
                 List<AlunoDTO> alunos = apiClient.fromJsonArray(response, AlunoDTO.class);
                 
                 SwingUtilities.invokeLater(() -> {
@@ -363,7 +365,7 @@ public class FrequenciaPanel extends JPanel {
             SwingUtilities.getWindowAncestor(this),
             "Carregando frequências...",
             () -> {
-                String response = apiClient.get("/api/frequencias");
+                String response = apiClient.get("/frequencias");
                 List<FrequenciaResponseDTO> frequencias = apiClient.fromJsonArray(response, FrequenciaResponseDTO.class);
                 
                 SwingUtilities.invokeLater(() -> {
@@ -418,7 +420,7 @@ public class FrequenciaPanel extends JPanel {
             SwingUtilities.getWindowAncestor(this),
             "Carregando dados...",
             () -> {
-                String response = apiClient.get("/api/frequencias/" + currentFrequenciaId);
+                String response = apiClient.get("/frequencias/" + currentFrequenciaId);
                 FrequenciaResponseDTO frequencia = apiClient.fromJson(response, FrequenciaResponseDTO.class);
                 
                 SwingUtilities.invokeLater(() -> {
@@ -460,7 +462,7 @@ public class FrequenciaPanel extends JPanel {
                 SwingUtilities.getWindowAncestor(this),
                 "Excluindo registro...",
                 () -> {
-                    apiClient.delete("/api/frequencias/" + id);
+                    apiClient.delete("/frequencias/" + id);
                     SwingUtilities.invokeLater(() -> {
                         MessageDialog.showSuccess(this, "Frequência excluída com sucesso!");
                         loadFrequencias();
@@ -503,9 +505,9 @@ public class FrequenciaPanel extends JPanel {
             isEditMode ? "Atualizando registro..." : "Registrando presença...",
             () -> {
                 if (isEditMode) {
-                    apiClient.put("/api/frequencias/" + currentFrequenciaId, jsonData);
+                    apiClient.put("/frequencias/" + currentFrequenciaId, jsonData);
                 } else {
-                    apiClient.post("/api/frequencias", jsonData);
+                    apiClient.post("/frequencias", jsonData);
                 }
                 
                 SwingUtilities.invokeLater(() -> {
@@ -553,7 +555,7 @@ public class FrequenciaPanel extends JPanel {
             SwingUtilities.getWindowAncestor(this),
             "Buscando frequências...",
             () -> {
-                String response = apiClient.get("/api/frequencias");
+                String response = apiClient.get("/frequencias");
                 List<FrequenciaResponseDTO> todasFrequencias = apiClient.fromJsonArray(response, FrequenciaResponseDTO.class);
                 
                 // Filtrar localmente pelo nome do aluno
@@ -764,7 +766,7 @@ public class FrequenciaPanel extends JPanel {
                 Map<String, Object> taxaData = apiClient.fromJson(responseTaxa, Map.class);
                 
                 // Buscar total de presenças
-                String responseTotal = apiClient.get("/api/frequencias/aluno/" + alunoSel.getId() + "/total-presencas");
+                String responseTotal = apiClient.get("/frequencias/aluno/" + alunoSel.getId() + "/total-presencas");
                 Long totalPresencas = Long.parseLong(responseTotal);
                 
                 // Buscar frequências do período

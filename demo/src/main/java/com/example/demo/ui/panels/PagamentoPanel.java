@@ -303,7 +303,7 @@ public class PagamentoPanel extends JPanel {
             SwingUtilities.getWindowAncestor(this),
             "Carregando pagamentos...",
             () -> {
-                String response = apiClient.get("/api/pagamentos");
+                String response = apiClient.get("/pagamentos");
                 List<PagamentoResponseDTO> pagamentos = apiClient.fromJsonArray(response, PagamentoResponseDTO.class);
                 
                 SwingUtilities.invokeLater(() -> {
@@ -328,7 +328,7 @@ public class PagamentoPanel extends JPanel {
             SwingUtilities.getWindowAncestor(this),
             "Carregando matrículas...",
             () -> {
-                String response = apiClient.get("/api/matriculas");
+                String response = apiClient.get("/matriculas");
                 List<MatriculaResponseDTO> matriculas = apiClient.fromJsonArray(response, MatriculaResponseDTO.class);
                 
                 SwingUtilities.invokeLater(() -> {
@@ -385,7 +385,7 @@ public class PagamentoPanel extends JPanel {
             SwingUtilities.getWindowAncestor(this),
             "Carregando dados...",
             () -> {
-                String response = apiClient.get("/api/pagamentos/" + id);
+                String response = apiClient.get("/pagamentos/" + id);
                 PagamentoResponseDTO pagamento = apiClient.fromJson(response, PagamentoResponseDTO.class);
                 
                 SwingUtilities.invokeLater(() -> {
@@ -469,9 +469,9 @@ public class PagamentoPanel extends JPanel {
             isEditMode ? "Atualizando pagamento..." : "Registrando pagamento...",
             () -> {
                 if (isEditMode) {
-                    apiClient.put("/api/pagamentos/" + currentPagamentoId, pagamentoData);
+                    apiClient.put("/pagamentos/" + currentPagamentoId, pagamentoData);
                 } else {
-                    apiClient.post("/api/pagamentos", pagamentoData);
+                    apiClient.post("/pagamentos", pagamentoData);
                 }
             },
             () -> {
@@ -549,7 +549,7 @@ public class PagamentoPanel extends JPanel {
             SwingUtilities.getWindowAncestor(this),
             "Excluindo pagamento...",
             () -> {
-                apiClient.delete("/api/pagamentos/" + id);
+                apiClient.delete("/pagamentos/" + id);
             },
             () -> {
                 MessageDialog.showSuccess(this, MSG_SUCCESS_DELETE);
@@ -579,10 +579,10 @@ public class PagamentoPanel extends JPanel {
             SwingUtilities.getWindowAncestor(this),
             "Carregando histórico...",
             () -> {
-                String response = apiClient.get("/api/pagamentos/matricula/" + idMatricula);
+                String response = apiClient.get("/pagamentos/matricula/" + idMatricula);
                 List<PagamentoResponseDTO> historico = apiClient.fromJsonArray(response, PagamentoResponseDTO.class);
                 
-                String totalResponse = apiClient.get("/api/pagamentos/matricula/" + idMatricula + "/total");
+                String totalResponse = apiClient.get("/pagamentos/matricula/" + idMatricula + "/total");
                 BigDecimal total = new BigDecimal(totalResponse.replace("\"", ""));
                 
                 SwingUtilities.invokeLater(() -> {
@@ -605,7 +605,7 @@ public class PagamentoPanel extends JPanel {
     private Long getIdMatriculaFromSelection() {
         try {
             Long id = (Long) table.getSelectedRowValue(0);
-            String response = apiClient.get("/api/pagamentos/" + id);
+            String response = apiClient.get("/pagamentos/" + id);
             PagamentoResponseDTO pagamento = apiClient.fromJson(response, PagamentoResponseDTO.class);
             return pagamento.getIdMatricula();
         } catch (Exception e) {
@@ -677,7 +677,7 @@ public class PagamentoPanel extends JPanel {
             SwingUtilities.getWindowAncestor(this),
             "Buscando pagamentos...",
             () -> {
-                String response = apiClient.get("/api/pagamentos");
+                String response = apiClient.get("/pagamentos");
                 List<PagamentoResponseDTO> todosPagamentos = apiClient.fromJsonArray(response, PagamentoResponseDTO.class);
                 List<PagamentoResponseDTO> filtrados = todosPagamentos.stream()
                     .filter(p -> p.getNomeAluno().toLowerCase().contains(termo))
@@ -715,7 +715,7 @@ public class PagamentoPanel extends JPanel {
             SwingUtilities.getWindowAncestor(this),
             "Filtrando pagamentos...",
             () -> {
-                String response = apiClient.get("/api/pagamentos/forma-pagamento/" + formaSelecionada);
+                String response = apiClient.get("/pagamentos/forma-pagamento/" + formaSelecionada);
                 List<PagamentoResponseDTO> pagamentos = apiClient.fromJsonArray(response, PagamentoResponseDTO.class);
                 
                 SwingUtilities.invokeLater(() -> {
@@ -745,7 +745,7 @@ public class PagamentoPanel extends JPanel {
     
     private void carregarTotalPago(Long idMatricula) {
         try {
-            String response = apiClient.get("/api/pagamentos/matricula/" + idMatricula + "/total");
+            String response = apiClient.get("/pagamentos/matricula/" + idMatricula + "/total");
             BigDecimal total = new BigDecimal(response.replace("\"", ""));
             lblTotalPago.setText(currencyFormat.format(total));
         } catch (Exception e) {

@@ -38,6 +38,8 @@ public class DashboardPanel extends JPanel {
     
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     
+    private boolean dataLoaded = false;
+    
     public DashboardPanel() {
         this.apiClient = new ApiClient();
         
@@ -46,7 +48,24 @@ public class DashboardPanel extends JPanel {
         setBorder(new EmptyBorder(PADDING_LARGE, PADDING_LARGE, PADDING_LARGE, PADDING_LARGE));
         
         initializeUI();
-        loadDashboardData();
+        
+        // Carregar dados apenas quando o painel for exibido pela primeira vez
+        addAncestorListener(new javax.swing.event.AncestorListener() {
+            @Override
+            public void ancestorAdded(javax.swing.event.AncestorEvent event) {
+                if (!dataLoaded) {
+                    dataLoaded = true;
+                    // Aguardar um pouco para garantir que a janela está totalmente visível
+                    SwingUtilities.invokeLater(() -> loadDashboardData());
+                }
+            }
+            
+            @Override
+            public void ancestorRemoved(javax.swing.event.AncestorEvent event) {}
+            
+            @Override
+            public void ancestorMoved(javax.swing.event.AncestorEvent event) {}
+        });
     }
     
     private void initializeUI() {
@@ -94,69 +113,69 @@ public class DashboardPanel extends JPanel {
         panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 300));
         
         // Card 1: Total de Alunos
+        lblTotalAlunos = new JLabel("0");
         JPanel cardAlunos = createStatCard(
             "👤 Total de Alunos",
-            "0",
+            lblTotalAlunos,
             "Alunos cadastrados no sistema",
             PRIMARY_COLOR
         );
-        lblTotalAlunos = (JLabel) ((JPanel) cardAlunos.getComponent(1)).getComponent(0);
         panel.add(cardAlunos);
         
         // Card 2: Matrículas Ativas
+        lblMatriculasAtivas = new JLabel("0");
         JPanel cardMatriculas = createStatCard(
             "📝 Matrículas Ativas",
-            "0",
+            lblMatriculasAtivas,
             "Alunos com matrícula ativa",
             SUCCESS_COLOR
         );
-        lblMatriculasAtivas = (JLabel) ((JPanel) cardMatriculas.getComponent(1)).getComponent(0);
         panel.add(cardMatriculas);
         
         // Card 3: Receita Mensal
+        lblReceitaMensal = new JLabel("R$ 0,00");
         JPanel cardReceita = createStatCard(
             "💰 Receita do Mês",
-            "R$ 0,00",
+            lblReceitaMensal,
             "Pagamentos recebidos este mês",
             new Color(255, 193, 7) // Amarelo/Dourado
         );
-        lblReceitaMensal = (JLabel) ((JPanel) cardReceita.getComponent(1)).getComponent(0);
         panel.add(cardReceita);
         
         // Card 4: Frequência Média
+        lblFrequenciaMedia = new JLabel("0%");
         JPanel cardFrequencia = createStatCard(
             "📊 Frequência Média",
-            "0%",
+            lblFrequenciaMedia,
             "Taxa de presença dos alunos",
             new Color(103, 58, 183) // Roxo
         );
-        lblFrequenciaMedia = (JLabel) ((JPanel) cardFrequencia.getComponent(1)).getComponent(0);
         panel.add(cardFrequencia);
         
         // Card 5: Total de Exercícios
+        lblTotalExercicios = new JLabel("0");
         JPanel cardExercicios = createStatCard(
             "💪 Exercícios",
-            "0",
+            lblTotalExercicios,
             "Exercícios cadastrados",
             new Color(233, 30, 99) // Rosa
         );
-        lblTotalExercicios = (JLabel) ((JPanel) cardExercicios.getComponent(1)).getComponent(0);
         panel.add(cardExercicios);
         
         // Card 6: Planos de Treino
+        lblPlanosTreino = new JLabel("0");
         JPanel cardPlanos = createStatCard(
             "📋 Planos de Treino",
-            "0",
+            lblPlanosTreino,
             "Planos ativos no sistema",
             new Color(0, 150, 136) // Teal
         );
-        lblPlanosTreino = (JLabel) ((JPanel) cardPlanos.getComponent(1)).getComponent(0);
         panel.add(cardPlanos);
         
         return panel;
     }
     
-    private JPanel createStatCard(String title, String value, String subtitle, Color accentColor) {
+    private JPanel createStatCard(String title, JLabel lblValue, String subtitle, Color accentColor) {
         JPanel card = new JPanel();
         card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
         card.setBackground(CARD_BACKGROUND);
@@ -179,7 +198,6 @@ public class DashboardPanel extends JPanel {
         valuePanel.setBackground(CARD_BACKGROUND);
         valuePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         
-        JLabel lblValue = new JLabel(value);
         lblValue.setFont(new Font("Segoe UI", Font.BOLD, 32));
         lblValue.setForeground(accentColor);
         valuePanel.add(lblValue);
@@ -348,7 +366,7 @@ public class DashboardPanel extends JPanel {
     
     private int loadTotalAlunos() {
         try {
-            String response = apiClient.get("/api/alunos");
+            String response = apiClient.get("/alunos");
             List<AlunoDTO> alunos = apiClient.fromJsonArray(response, AlunoDTO.class);
             return alunos.size();
         } catch (Exception ex) {
@@ -358,7 +376,7 @@ public class DashboardPanel extends JPanel {
     
     private int loadMatriculasAtivas() {
         try {
-            String response = apiClient.get("/api/matriculas");
+            String response = apiClient.get("/matriculas");
             List<MatriculaResponseDTO> matriculas = apiClient.fromJsonArray(response, MatriculaResponseDTO.class);
             return (int) matriculas.stream()
                 .filter(m -> m.getStatus() != null && m.getStatus().name().equals("ATIVA"))
@@ -370,7 +388,7 @@ public class DashboardPanel extends JPanel {
     
     private BigDecimal loadReceitaMensal() {
         try {
-            String response = apiClient.get("/api/pagamentos");
+            String response = apiClient.get("/pagamentos");
             List<PagamentoResponseDTO> pagamentos = apiClient.fromJsonArray(response, PagamentoResponseDTO.class);
             
             LocalDate hoje = LocalDate.now();
@@ -390,7 +408,7 @@ public class DashboardPanel extends JPanel {
     
     private double loadFrequenciaMedia() {
         try {
-            String response = apiClient.get("/api/frequencias");
+            String response = apiClient.get("/frequencias");
             List<FrequenciaResponseDTO> frequencias = apiClient.fromJsonArray(response, FrequenciaResponseDTO.class);
             
             if (frequencias.isEmpty()) {
@@ -409,7 +427,7 @@ public class DashboardPanel extends JPanel {
     
     private int loadTotalExercicios() {
         try {
-            String response = apiClient.get("/api/exercicios");
+            String response = apiClient.get("/exercicios");
             List<ExercicioResponseDTO> exercicios = apiClient.fromJsonArray(response, ExercicioResponseDTO.class);
             return exercicios.size();
         } catch (Exception ex) {
@@ -419,7 +437,7 @@ public class DashboardPanel extends JPanel {
     
     private int loadPlanosTreino() {
         try {
-            String response = apiClient.get("/api/planos-treino");
+            String response = apiClient.get("/planos-treino");
             List<PlanoTreinoResponseDTO> planos = apiClient.fromJsonArray(response, PlanoTreinoResponseDTO.class);
             return planos.size();
         } catch (Exception ex) {
@@ -433,7 +451,7 @@ public class DashboardPanel extends JPanel {
         
         try {
             // Últimas matrículas
-            String responseMatriculas = apiClient.get("/api/matriculas");
+            String responseMatriculas = apiClient.get("/matriculas");
             List<MatriculaResponseDTO> matriculas = apiClient.fromJsonArray(responseMatriculas, MatriculaResponseDTO.class);
             
             sb.append("📝 Últimas Matrículas:\n");
@@ -450,7 +468,7 @@ public class DashboardPanel extends JPanel {
             sb.append("\n");
             
             // Últimos pagamentos
-            String responsePagamentos = apiClient.get("/api/pagamentos");
+            String responsePagamentos = apiClient.get("/pagamentos");
             List<PagamentoResponseDTO> pagamentos = apiClient.fromJsonArray(responsePagamentos, PagamentoResponseDTO.class);
             
             sb.append("💰 Últimos Pagamentos:\n");
@@ -468,7 +486,7 @@ public class DashboardPanel extends JPanel {
             sb.append("\n");
             
             // Últimos planos de treino
-            String responsePlanos = apiClient.get("/api/planos-treino");
+            String responsePlanos = apiClient.get("/planos-treino");
             List<PlanoTreinoResponseDTO> planos = apiClient.fromJsonArray(responsePlanos, PlanoTreinoResponseDTO.class);
             
             sb.append("📋 Últimos Planos de Treino:\n");

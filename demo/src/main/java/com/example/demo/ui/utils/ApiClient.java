@@ -26,7 +26,12 @@ public class ApiClient {
      * Construtor padrão - conecta ao backend local
      */
     public ApiClient() {
-        this("http://localhost:8080/api");
+        // Força uso de IPv4 para evitar problemas de conexão
+        System.setProperty("java.net.preferIPv4Stack", "true");
+        this.baseUrl = "http://127.0.0.1:5000/api";
+        this.objectMapper = new ObjectMapper();
+        this.objectMapper.registerModule(new JavaTimeModule());
+        this.objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     }
     
     /**
@@ -103,6 +108,7 @@ public class ApiClient {
             // Cria conexão
             @SuppressWarnings("deprecation")
             URL url = new URL(baseUrl + endpoint);
+            System.out.println("[ApiClient] " + method + " " + url.toString()); // DEBUG
             connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod(method);
             connection.setRequestProperty("Content-Type", "application/json");
@@ -136,8 +142,11 @@ public class ApiClient {
             }
             
         } catch (IOException e) {
+            System.err.println("[ApiClient] ERRO: " + e.getClass().getName() + " - " + e.getMessage()); // DEBUG
+            e.printStackTrace(); // DEBUG
             throw new ApiException(
-                "Erro de conexão com o servidor: " + e.getMessage(),
+                "Erro de conexão com o servidor: " + e.getMessage() + 
+                "\nVerifique se o backend está rodando em " + baseUrl,
                 0,
                 e.getMessage()
             );

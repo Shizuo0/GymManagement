@@ -280,7 +280,7 @@ public class BuscaGlobalPanel extends JPanel {
     
     private int buscarAlunos(String termo) {
         try {
-            String response = apiClient.get("/api/alunos");
+            String response = apiClient.get("/alunos");
             List<AlunoDTO> alunos = apiClient.fromJsonArray(response, AlunoDTO.class);
             
             List<AlunoDTO> filtrados = alunos.stream()
@@ -314,7 +314,7 @@ public class BuscaGlobalPanel extends JPanel {
     
     private int buscarPlanos(String termo) {
         try {
-            String response = apiClient.get("/api/planos");
+            String response = apiClient.get("/planos");
             List<PlanoResponseDTO> planos = apiClient.fromJsonArray(response, PlanoResponseDTO.class);
             
             List<PlanoResponseDTO> filtrados = planos.stream()
@@ -350,7 +350,7 @@ public class BuscaGlobalPanel extends JPanel {
     
     private int buscarMatriculas(String termo) {
         try {
-            String response = apiClient.get("/api/matriculas");
+            String response = apiClient.get("/matriculas");
             List<MatriculaResponseDTO> matriculas = apiClient.fromJsonArray(response, MatriculaResponseDTO.class);
             
             List<MatriculaResponseDTO> filtrados = matriculas.stream()
@@ -386,7 +386,7 @@ public class BuscaGlobalPanel extends JPanel {
     
     private int buscarPagamentos(String termo) {
         try {
-            String response = apiClient.get("/api/pagamentos");
+            String response = apiClient.get("/pagamentos");
             List<PagamentoResponseDTO> pagamentos = apiClient.fromJsonArray(response, PagamentoResponseDTO.class);
             
             List<PagamentoResponseDTO> filtrados = pagamentos.stream()
@@ -423,7 +423,7 @@ public class BuscaGlobalPanel extends JPanel {
     
     private int buscarExercicios(String termo) {
         try {
-            String response = apiClient.get("/api/exercicios");
+            String response = apiClient.get("/exercicios");
             List<ExercicioResponseDTO> exercicios = apiClient.fromJsonArray(response, ExercicioResponseDTO.class);
             
             List<ExercicioResponseDTO> filtrados = exercicios.stream()
@@ -456,7 +456,7 @@ public class BuscaGlobalPanel extends JPanel {
     
     private int buscarPlanosTreino(String termo) {
         try {
-            String response = apiClient.get("/api/planos-treino");
+            String response = apiClient.get("/planos-treino");
             List<PlanoTreinoResponseDTO> planos = apiClient.fromJsonArray(response, PlanoTreinoResponseDTO.class);
             
             List<PlanoTreinoResponseDTO> filtrados = planos.stream()

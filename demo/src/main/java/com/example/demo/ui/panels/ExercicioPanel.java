@@ -83,6 +83,9 @@ public class ExercicioPanel extends JPanel {
         splitPane.setRightComponent(createFormPanel());
         
         add(splitPane, BorderLayout.CENTER);
+        
+        // Atualiza os botões após todos os componentes serem inicializados
+        updateButtons();
     }
     
     private JPanel createListPanel() {
@@ -160,7 +163,6 @@ public class ExercicioPanel extends JPanel {
         buttonPanel.add(btnExcluir);
         
         panel.add(buttonPanel, BorderLayout.SOUTH);
-        updateButtons();
         
         return panel;
     }
@@ -241,7 +243,7 @@ public class ExercicioPanel extends JPanel {
             SwingUtilities.getWindowAncestor(this),
             "Carregando exercícios...",
             () -> {
-                String response = apiClient.get("/api/exercicios");
+                String response = apiClient.get("/exercicios");
                 List<ExercicioResponseDTO> exercicios = apiClient.fromJsonArray(response, ExercicioResponseDTO.class);
                 
                 SwingUtilities.invokeLater(() -> {
@@ -293,7 +295,7 @@ public class ExercicioPanel extends JPanel {
             SwingUtilities.getWindowAncestor(this),
             "Carregando dados...",
             () -> {
-                String response = apiClient.get("/api/exercicios/" + currentExercicioId);
+                String response = apiClient.get("/exercicios/" + currentExercicioId);
                 ExercicioResponseDTO exercicio = apiClient.fromJson(response, ExercicioResponseDTO.class);
                 
                 SwingUtilities.invokeLater(() -> {
@@ -334,7 +336,7 @@ public class ExercicioPanel extends JPanel {
                 SwingUtilities.getWindowAncestor(this),
                 "Excluindo exercício...",
                 () -> {
-                    apiClient.delete("/api/exercicios/" + id);
+                    apiClient.delete("/exercicios/" + id);
                     SwingUtilities.invokeLater(() -> {
                         MessageDialog.showSuccess(this, "Exercício excluído com sucesso!");
                         loadExercicios();
@@ -375,9 +377,9 @@ public class ExercicioPanel extends JPanel {
             isEditMode ? "Atualizando exercício..." : "Cadastrando exercício...",
             () -> {
                 if (isEditMode) {
-                    apiClient.put("/api/exercicios/" + currentExercicioId, jsonData);
+                    apiClient.put("/exercicios/" + currentExercicioId, jsonData);
                 } else {
-                    apiClient.post("/api/exercicios", jsonData);
+                    apiClient.post("/exercicios", jsonData);
                 }
                 
                 SwingUtilities.invokeLater(() -> {
@@ -425,7 +427,7 @@ public class ExercicioPanel extends JPanel {
             SwingUtilities.getWindowAncestor(this),
             "Buscando exercícios...",
             () -> {
-                String response = apiClient.get("/api/exercicios");
+                String response = apiClient.get("/exercicios");
                 List<ExercicioResponseDTO> todosExercicios = apiClient.fromJsonArray(response, ExercicioResponseDTO.class);
                 
                 // Filtrar localmente pelo nome
@@ -467,7 +469,7 @@ public class ExercicioPanel extends JPanel {
             SwingUtilities.getWindowAncestor(this),
             "Filtrando exercícios...",
             () -> {
-                String response = apiClient.get("/api/exercicios/grupo/" + grupoSelecionado);
+                String response = apiClient.get("/exercicios/grupo/" + grupoSelecionado);
                 List<ExercicioResponseDTO> exercicios = apiClient.fromJsonArray(response, ExercicioResponseDTO.class);
                 
                 SwingUtilities.invokeLater(() -> {
@@ -485,7 +487,7 @@ public class ExercicioPanel extends JPanel {
             error -> {
                 // Se o endpoint não existir, filtrar localmente
                 try {
-                    String response = apiClient.get("/api/exercicios");
+                    String response = apiClient.get("/exercicios");
                     List<ExercicioResponseDTO> todosExercicios = apiClient.fromJsonArray(response, ExercicioResponseDTO.class);
                     
                     List<ExercicioResponseDTO> filtrados = todosExercicios.stream()

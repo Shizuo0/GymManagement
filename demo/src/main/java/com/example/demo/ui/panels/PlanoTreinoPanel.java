@@ -79,6 +79,9 @@ public class PlanoTreinoPanel extends JPanel {
         splitPane.setRightComponent(createFormPanel());
         
         add(splitPane, BorderLayout.CENTER);
+        
+        // Atualiza os botões após todos os componentes serem inicializados
+        updateButtons();
     }
     
     private JPanel createListPanel() {
@@ -149,7 +152,6 @@ public class PlanoTreinoPanel extends JPanel {
         buttonPanel.add(btnGerenciarItens);
         
         panel.add(buttonPanel, BorderLayout.SOUTH);
-        updateButtons();
         
         return panel;
     }
@@ -290,7 +292,7 @@ public class PlanoTreinoPanel extends JPanel {
             SwingUtilities.getWindowAncestor(this),
             "Carregando planos de treino...",
             () -> {
-                String response = apiClient.get("/api/planos-treino");
+                String response = apiClient.get("/planos-treino");
                 List<PlanoTreinoResponseDTO> planos = apiClient.fromJsonArray(response, PlanoTreinoResponseDTO.class);
                 
                 SwingUtilities.invokeLater(() -> {
@@ -330,7 +332,7 @@ public class PlanoTreinoPanel extends JPanel {
     
     private void loadAlunos() {
         try {
-            String response = apiClient.get("/api/alunos");
+            String response = apiClient.get("/alunos");
             List<AlunoDTO> alunos = apiClient.fromJsonArray(response, AlunoDTO.class);
             
             cmbAluno.removeAllItems();
@@ -345,7 +347,7 @@ public class PlanoTreinoPanel extends JPanel {
     
     private void loadInstrutores() {
         try {
-            String response = apiClient.get("/api/instrutores");
+            String response = apiClient.get("/instrutores");
             List<InstrutorDTO> instrutores = apiClient.fromJsonArray(response, InstrutorDTO.class);
             
             cmbInstrutor.removeAllItems();
@@ -382,7 +384,7 @@ public class PlanoTreinoPanel extends JPanel {
             SwingUtilities.getWindowAncestor(this),
             "Carregando dados...",
             () -> {
-                String response = apiClient.get("/api/planos-treino/" + currentPlanoId);
+                String response = apiClient.get("/planos-treino/" + currentPlanoId);
                 PlanoTreinoResponseDTO plano = apiClient.fromJson(response, PlanoTreinoResponseDTO.class);
                 
                 SwingUtilities.invokeLater(() -> {
@@ -424,7 +426,7 @@ public class PlanoTreinoPanel extends JPanel {
                 SwingUtilities.getWindowAncestor(this),
                 "Excluindo plano...",
                 () -> {
-                    apiClient.delete("/api/planos-treino/" + id);
+                    apiClient.delete("/planos-treino/" + id);
                     SwingUtilities.invokeLater(() -> {
                         MessageDialog.showSuccess(this, "Plano de treino excluído com sucesso!");
                         loadPlanosTreino();
@@ -483,9 +485,9 @@ public class PlanoTreinoPanel extends JPanel {
             isEditMode ? "Atualizando plano..." : "Criando plano...",
             () -> {
                 if (isEditMode) {
-                    apiClient.put("/api/planos-treino/" + currentPlanoId, json.toString());
+                    apiClient.put("/planos-treino/" + currentPlanoId, json.toString());
                 } else {
-                    apiClient.post("/api/planos-treino", json.toString());
+                    apiClient.post("/planos-treino", json.toString());
                 }
                 
                 SwingUtilities.invokeLater(() -> {
@@ -544,7 +546,7 @@ public class PlanoTreinoPanel extends JPanel {
             SwingUtilities.getWindowAncestor(this),
             "Buscando planos...",
             () -> {
-                String response = apiClient.get("/api/planos-treino");
+                String response = apiClient.get("/planos-treino");
                 List<PlanoTreinoResponseDTO> todosPlanos = apiClient.fromJsonArray(response, PlanoTreinoResponseDTO.class);
                 
                 // Filtrar localmente

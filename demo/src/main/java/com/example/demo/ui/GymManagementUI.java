@@ -196,7 +196,8 @@ public class GymManagementUI extends JFrame {
             UIManager.put("TabbedPane.borderHighlightColor", BORDER_COLOR);
             UIManager.put("TabbedPane.darkShadow", BACKGROUND_COLOR);
             
-            SwingUtilities.updateComponentTreeUI(this);
+            // ❌ REMOVIDO: SwingUtilities.updateComponentTreeUI(this) causava loop infinito
+            // A UI já aplica as propriedades do UIManager automaticamente
         } catch (Exception e) {
             System.err.println("Não foi possível aplicar o tema escuro: " + e.getMessage());
         }
@@ -218,13 +219,6 @@ public class GymManagementUI extends JFrame {
     }
     
     /**
-     * Exibe a interface
-     */
-    public void show() {
-        setVisible(true);
-    }
-    
-    /**
      * Método main para executar a aplicação
      */
     public static void main(String[] args) {
@@ -234,7 +228,7 @@ public class GymManagementUI extends JFrame {
         
         SwingUtilities.invokeLater(() -> {
             GymManagementUI mainWindow = new GymManagementUI();
-            mainWindow.show();
+            mainWindow.setVisible(true);
         });
     }
 }

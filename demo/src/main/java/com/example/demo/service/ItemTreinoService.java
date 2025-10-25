@@ -65,6 +65,10 @@ public class ItemTreinoService {
                 "Item de treino não encontrado com ID: " + id));
     }
     
+    public List<ItemTreino> listarTodos() {
+        return itemTreinoRepository.findAll();
+    }
+    
     public List<ItemTreino> listarExerciciosDoPlano(PlanoTreino planoTreino) {
         return itemTreinoRepository.findByPlanoTreino(planoTreino);
     }

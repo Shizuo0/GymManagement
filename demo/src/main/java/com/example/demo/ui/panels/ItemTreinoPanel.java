@@ -74,6 +74,9 @@ public class ItemTreinoPanel extends JPanel {
         splitPane.setRightComponent(createFormPanel());
         
         add(splitPane, BorderLayout.CENTER);
+        
+        // Atualiza os botões após todos os componentes serem inicializados
+        updateButtons();
     }
     
     private JPanel createListPanel() {
@@ -148,7 +151,6 @@ public class ItemTreinoPanel extends JPanel {
         
         // Carregar planos para o filtro
         loadPlanosForFilter();
-        updateButtons();
         
         return panel;
     }
@@ -303,7 +305,7 @@ public class ItemTreinoPanel extends JPanel {
             SwingUtilities.getWindowAncestor(this),
             "Carregando itens de treino...",
             () -> {
-                String response = apiClient.get("/api/itens-treino");
+                String response = apiClient.get("/itens-treino");
                 List<ItemTreinoResponseDTO> itens = apiClient.fromJsonArray(response, ItemTreinoResponseDTO.class);
                 
                 SwingUtilities.invokeLater(() -> {
@@ -345,7 +347,7 @@ public class ItemTreinoPanel extends JPanel {
     
     private void loadPlanosForFilter() {
         try {
-            String response = apiClient.get("/api/planos-treino");
+            String response = apiClient.get("/planos-treino");
             List<PlanoTreinoResponseDTO> planos = apiClient.fromJsonArray(response, PlanoTreinoResponseDTO.class);
             
             cmbFiltroPlano.removeAllItems();
@@ -361,7 +363,7 @@ public class ItemTreinoPanel extends JPanel {
     
     private void loadPlanosForForm() {
         try {
-            String response = apiClient.get("/api/planos-treino");
+            String response = apiClient.get("/planos-treino");
             List<PlanoTreinoResponseDTO> planos = apiClient.fromJsonArray(response, PlanoTreinoResponseDTO.class);
             
             cmbPlano.removeAllItems();
@@ -377,7 +379,7 @@ public class ItemTreinoPanel extends JPanel {
     
     private void loadExercicios() {
         try {
-            String response = apiClient.get("/api/exercicios");
+            String response = apiClient.get("/exercicios");
             List<ExercicioResponseDTO> exercicios = apiClient.fromJsonArray(response, ExercicioResponseDTO.class);
             
             cmbExercicio.removeAllItems();
@@ -415,7 +417,7 @@ public class ItemTreinoPanel extends JPanel {
             SwingUtilities.getWindowAncestor(this),
             "Carregando dados...",
             () -> {
-                String response = apiClient.get("/api/itens-treino/" + currentItemId);
+                String response = apiClient.get("/itens-treino/" + currentItemId);
                 ItemTreinoResponseDTO item = apiClient.fromJson(response, ItemTreinoResponseDTO.class);
                 
                 SwingUtilities.invokeLater(() -> {
@@ -456,7 +458,7 @@ public class ItemTreinoPanel extends JPanel {
                 SwingUtilities.getWindowAncestor(this),
                 "Excluindo item...",
                 () -> {
-                    apiClient.delete("/api/itens-treino/" + id);
+                    apiClient.delete("/itens-treino/" + id);
                     SwingUtilities.invokeLater(() -> {
                         MessageDialog.showSuccess(this, "Item excluído com sucesso!");
                         loadItensTreino();
@@ -517,9 +519,9 @@ public class ItemTreinoPanel extends JPanel {
             isEditMode ? "Atualizando item..." : "Adicionando exercício...",
             () -> {
                 if (isEditMode) {
-                    apiClient.put("/api/itens-treino/" + currentItemId, json.toString());
+                    apiClient.put("/itens-treino/" + currentItemId, json.toString());
                 } else {
-                    apiClient.post("/api/itens-treino", json.toString());
+                    apiClient.post("/itens-treino", json.toString());
                 }
                 
                 SwingUtilities.invokeLater(() -> {
@@ -567,7 +569,7 @@ public class ItemTreinoPanel extends JPanel {
             SwingUtilities.getWindowAncestor(this),
             "Filtrando itens...",
             () -> {
-                String response = apiClient.get("/api/itens-treino/plano/" + selectedPlano.getId());
+                String response = apiClient.get("/itens-treino/plano/" + selectedPlano.getId());
                 List<ItemTreinoResponseDTO> itens = apiClient.fromJsonArray(response, ItemTreinoResponseDTO.class);
                 
                 SwingUtilities.invokeLater(() -> {
@@ -580,7 +582,7 @@ public class ItemTreinoPanel extends JPanel {
             error -> {
                 // Se o endpoint não existir, filtrar localmente
                 try {
-                    String response = apiClient.get("/api/itens-treino");
+                    String response = apiClient.get("/itens-treino");
                     List<ItemTreinoResponseDTO> todosItens = apiClient.fromJsonArray(response, ItemTreinoResponseDTO.class);
                     
                     List<ItemTreinoResponseDTO> filtrados = todosItens.stream()
