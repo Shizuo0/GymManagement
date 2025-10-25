@@ -3,15 +3,17 @@ package com.example.demo.ui;
 import javax.swing.*;
 import java.awt.*;
 
+import static com.example.demo.ui.utils.UIConstants.*;
+
 /**
  * Classe principal do frontend JFrame do sistema de gestão de academia.
- * Implementa a interface principal com navegação por abas e design moderno.
+ * Implementa a interface principal com navegação por abas e design moderno escuro.
  */
 public class GymManagementUI extends JFrame {
     
-    private static final String TITLE = "Sistema de Gestão de Academia";
-    private static final int DEFAULT_WIDTH = 1200;
-    private static final int DEFAULT_HEIGHT = 700;
+    private static final String TITLE = "🏋️ Sistema de Gestão de Academia";
+    private static final int DEFAULT_WIDTH = 1400;
+    private static final int DEFAULT_HEIGHT = 800;
     
     private JTabbedPane tabbedPane;
     
@@ -26,7 +28,9 @@ public class GymManagementUI extends JFrame {
      */
     private void initializeUI() {
         tabbedPane = new JTabbedPane(JTabbedPane.TOP);
-        tabbedPane.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        tabbedPane.setFont(FONT_REGULAR);
+        tabbedPane.setBackground(BACKGROUND_SECONDARY);
+        tabbedPane.setForeground(TEXT_PRIMARY);
         
         // Painéis serão adicionados nos próximos commits
         addWelcomePanel();
@@ -37,24 +41,25 @@ public class GymManagementUI extends JFrame {
      */
     private void addWelcomePanel() {
         JPanel welcomePanel = new JPanel(new BorderLayout());
+        welcomePanel.setBackground(PANEL_BACKGROUND);
         
         JLabel welcomeLabel = new JLabel(
-            "<html><div style='text-align: center;'>" +
-            "<h1>Bem-vindo ao Sistema de Gestão de Academia</h1>" +
-            "<p>Sistema em desenvolvimento - Frontend JFrame</p>" +
-            "<p style='margin-top: 20px;'>Funcionalidades em breve:</p>" +
-            "<ul style='text-align: left; margin: 20px;'>" +
-            "<li>Gestão de Alunos</li>" +
-            "<li>Gestão de Planos</li>" +
-            "<li>Gestão de Matrículas</li>" +
-            "<li>Controle de Pagamentos</li>" +
-            "<li>Registro de Frequência</li>" +
-            "<li>Planos de Treino</li>" +
+            "<html><div style='text-align: center; color: #FFFFFF;'>" +
+            "<h1 style='color: #4169E1;'>🏋️ Bem-vindo ao Sistema de Gestão de Academia</h1>" +
+            "<p style='color: #AEAEB2; font-size: 14px;'>Sistema moderno com design escuro e azul royal</p>" +
+            "<p style='margin-top: 30px; color: #6495ED;'><strong>Funcionalidades em breve:</strong></p>" +
+            "<ul style='text-align: left; margin: 20px 100px; color: #FFFFFF; line-height: 2;'>" +
+            "<li>📋 Gestão de Alunos</li>" +
+            "<li>💳 Gestão de Planos</li>" +
+            "<li>✅ Gestão de Matrículas</li>" +
+            "<li>💰 Controle de Pagamentos</li>" +
+            "<li>📊 Registro de Frequência</li>" +
+            "<li>💪 Planos de Treino</li>" +
             "</ul>" +
             "</div></html>",
             SwingConstants.CENTER
         );
-        welcomeLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        welcomeLabel.setFont(FONT_REGULAR);
         
         welcomePanel.add(welcomeLabel, BorderLayout.CENTER);
         tabbedPane.addTab("🏠 Início", welcomePanel);
@@ -64,7 +69,8 @@ public class GymManagementUI extends JFrame {
      * Configura o layout da janela
      */
     private void setupLayout() {
-        setLayout(new BorderLayout(10, 10));
+        setLayout(new BorderLayout(0, 0));
+        getContentPane().setBackground(BACKGROUND_COLOR);
         add(tabbedPane, BorderLayout.CENTER);
     }
     
@@ -74,7 +80,7 @@ public class GymManagementUI extends JFrame {
     private void configureWindow() {
         setTitle(TITLE);
         setSize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
-        setMinimumSize(new Dimension(1000, 600));
+        setMinimumSize(new Dimension(1200, 700));
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         
@@ -85,19 +91,43 @@ public class GymManagementUI extends JFrame {
             System.err.println("Não foi possível carregar o ícone da aplicação");
         }
         
-        // Aplica Look and Feel do sistema
-        applySystemLookAndFeel();
+        // Aplica Look and Feel do sistema com tema escuro
+        applyDarkTheme();
     }
     
     /**
-     * Aplica o Look and Feel do sistema operacional
+     * Aplica o tema escuro customizado
      */
-    private void applySystemLookAndFeel() {
+    private void applyDarkTheme() {
         try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            // Define propriedades do UIManager para tema escuro
+            UIManager.put("control", CARD_BACKGROUND);
+            UIManager.put("info", CARD_BACKGROUND);
+            UIManager.put("nimbusBase", BACKGROUND_SECONDARY);
+            UIManager.put("nimbusAlertYellow", WARNING_COLOR);
+            UIManager.put("nimbusDisabledText", TEXT_TERTIARY);
+            UIManager.put("nimbusFocus", PRIMARY_COLOR);
+            UIManager.put("nimbusGreen", SUCCESS_COLOR);
+            UIManager.put("nimbusInfoBlue", INFO_COLOR);
+            UIManager.put("nimbusLightBackground", PANEL_BACKGROUND);
+            UIManager.put("nimbusOrange", WARNING_COLOR);
+            UIManager.put("nimbusRed", ERROR_COLOR);
+            UIManager.put("nimbusSelectedText", TEXT_ON_PRIMARY);
+            UIManager.put("nimbusSelectionBackground", PRIMARY_COLOR);
+            UIManager.put("text", TEXT_PRIMARY);
+            
+            // Cores de componentes
+            UIManager.put("Panel.background", PANEL_BACKGROUND);
+            UIManager.put("OptionPane.background", CARD_BACKGROUND);
+            UIManager.put("TabbedPane.background", BACKGROUND_SECONDARY);
+            UIManager.put("TabbedPane.selected", PRIMARY_COLOR);
+            UIManager.put("TabbedPane.contentAreaColor", PANEL_BACKGROUND);
+            UIManager.put("TabbedPane.borderHighlightColor", BORDER_COLOR);
+            UIManager.put("TabbedPane.darkShadow", BACKGROUND_COLOR);
+            
             SwingUtilities.updateComponentTreeUI(this);
         } catch (Exception e) {
-            System.err.println("Não foi possível aplicar o Look and Feel do sistema: " + e.getMessage());
+            System.err.println("Não foi possível aplicar o tema escuro: " + e.getMessage());
         }
     }
     
