@@ -1,6 +1,7 @@
 package com.example.demo.ui;
 
 import com.example.demo.ui.panels.AlunoPanel;
+import com.example.demo.ui.panels.PlanoPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -37,6 +38,7 @@ public class GymManagementUI extends JFrame {
         // Adiciona painéis
         addWelcomePanel();
         addAlunoPanel();
+        addPlanoPanel();
     }
     
     /**
@@ -45,6 +47,14 @@ public class GymManagementUI extends JFrame {
     private void addAlunoPanel() {
         AlunoPanel alunoPanel = new AlunoPanel();
         tabbedPane.addTab("👤 Alunos", alunoPanel);
+    }
+    
+    /**
+     * Adiciona o painel de planos
+     */
+    private void addPlanoPanel() {
+        PlanoPanel planoPanel = new PlanoPanel();
+        tabbedPane.addTab("💳 Planos", planoPanel);
     }
     
     /**
