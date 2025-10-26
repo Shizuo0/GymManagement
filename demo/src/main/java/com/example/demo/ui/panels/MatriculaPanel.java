@@ -22,6 +22,7 @@ import javax.swing.border.EmptyBorder;
 
 import com.example.demo.dto.MatriculaResponseDTO;
 import com.example.demo.dto.PlanoResponseDTO;
+import com.example.demo.ui.GymManagementUI;
 import com.example.demo.ui.components.CustomButton;
 import com.example.demo.ui.components.CustomComboBox;
 import com.example.demo.ui.components.CustomDatePicker;
@@ -52,7 +53,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 /**
  * Panel para gerenciamento de Matrículas
  */
-public class MatriculaPanel extends JPanel {
+public class MatriculaPanel extends JPanel implements RefreshablePanel {
     
     private final ApiClient apiClient;
     private final DateTimeFormatter dateFormatter;
@@ -85,6 +86,7 @@ public class MatriculaPanel extends JPanel {
     private CustomButton btnSalvar;
     private CustomButton btnCancelarForm;
     private CustomButton btnBuscar;
+    private CustomButton btnAtualizar;
     
     // Controle de estado
     private Long currentMatriculaId;
@@ -197,6 +199,7 @@ public class MatriculaPanel extends JPanel {
         btnAtivar = new CustomButton("Ativar", CustomButton.ButtonType.SUCCESS);
         btnInativar = new CustomButton("Inativar", CustomButton.ButtonType.WARNING);
         btnCancelar = new CustomButton("Cancelar Matrícula", CustomButton.ButtonType.DANGER);
+        btnAtualizar = new CustomButton("↻ Atualizar", CustomButton.ButtonType.PRIMARY);
         
         btnNovo.addActionListener(e -> newMatricula());
         btnEditar.addActionListener(e -> editMatricula());
@@ -204,6 +207,7 @@ public class MatriculaPanel extends JPanel {
         btnAtivar.addActionListener(e -> ativarMatricula());
         btnInativar.addActionListener(e -> inativarMatricula());
         btnCancelar.addActionListener(e -> cancelarMatricula());
+        btnAtualizar.addActionListener(e -> loadMatriculas());
         
         btnEditar.setEnabled(false);
         btnExcluir.setEnabled(false);
@@ -218,6 +222,8 @@ public class MatriculaPanel extends JPanel {
         actionPanel.add(btnAtivar);
         actionPanel.add(btnInativar);
         actionPanel.add(btnCancelar);
+        actionPanel.add(Box.createHorizontalStrut(PADDING_MEDIUM));
+        actionPanel.add(btnAtualizar);
         
         panel.add(actionPanel, BorderLayout.SOUTH);
         
@@ -267,6 +273,7 @@ public class MatriculaPanel extends JPanel {
         datePickerInicio = new CustomDatePicker();
         datePickerInicio.setAlignmentX(Component.LEFT_ALIGNMENT);
         datePickerInicio.setMaximumSize(new Dimension(Integer.MAX_VALUE, TEXTFIELD_HEIGHT));
+        datePickerInicio.setMinDate(LocalDate.now()); // Bloquear datas passadas
         datePickerInicio.addPropertyChangeListener("date", evt -> calcularDataFim());
         formFields.add(datePickerInicio);
         formFields.add(Box.createVerticalStrut(PADDING_MEDIUM));
@@ -415,7 +422,7 @@ public class MatriculaPanel extends JPanel {
                 matricula.getNomePlano(),
                 matricula.getDataInicio().format(dateFormatter),
                 matricula.getDataFim().format(dateFormatter),
-                matricula.getStatus()
+                matricula.getStatus() != null ? matricula.getStatus().name() : "DESCONHECIDO"
             });
         }
     }
@@ -538,6 +545,7 @@ public class MatriculaPanel extends JPanel {
                 MessageDialog.showSuccess(this, isEditMode ? MSG_SUCCESS_UPDATE : MSG_SUCCESS_SAVE);
                 cancelForm();
                 loadMatriculas();
+                notifyParentToRefresh();
             },
             error -> {
                 if (error instanceof ApiException) {
@@ -946,6 +954,32 @@ public class MatriculaPanel extends JPanel {
         @Override
         public String toString() {
             return nome + " (" + duracaoMeses + " meses)";
+        }
+    }
+    
+    // ========== REFRESH E NOTIFICAÇÕES ==========
+    
+    /**
+     * Implementação de RefreshablePanel - atualiza os dados do painel
+     */
+    @Override
+    public void refreshData() {
+        loadMatriculas();
+        loadComboBoxData();
+    }
+    
+    /**
+     * Notifica o GymManagementUI para atualizar outros painéis
+     */
+    private void notifyParentToRefresh() {
+        // Busca o GymManagementUI na hierarquia de componentes
+        java.awt.Container parent = getParent();
+        while (parent != null && !(parent instanceof GymManagementUI)) {
+            parent = parent.getParent();
+        }
+        
+        if (parent instanceof GymManagementUI) {
+            ((GymManagementUI) parent).notifyDataChanged();
         }
     }
 }

@@ -19,6 +19,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
 import com.example.demo.dto.ExercicioResponseDTO;
+import com.example.demo.dto.ItemTreinoRequestDTO;
 import com.example.demo.dto.ItemTreinoResponseDTO;
 import com.example.demo.dto.PlanoTreinoResponseDTO;
 import com.example.demo.ui.components.CustomButton;
@@ -526,37 +527,34 @@ public class ItemTreinoPanel extends JPanel {
         String cargaStr = txtCarga.getText().trim();
         String observacoes = txtObservacoes.getText().trim();
         
-        // Criar JSON manualmente
-        StringBuilder json = new StringBuilder();
-        json.append("{");
-        json.append("\"planoTreinoId\":").append(selectedPlano.getId()).append(",");
-        json.append("\"exercicioId\":").append(selectedExercicio.getId()).append(",");
-        json.append("\"series\":").append(series).append(",");
-        json.append("\"repeticoes\":").append(repeticoes);
+        // Criar DTO em vez de JSON manual
+        ItemTreinoRequestDTO dto = new ItemTreinoRequestDTO();
+        dto.setPlanoTreinoId(selectedPlano.getId());
+        dto.setExercicioId(selectedExercicio.getId());
+        dto.setSeries(series);
+        dto.setRepeticoes(repeticoes);
         
         if (!cargaStr.isEmpty()) {
             try {
                 BigDecimal carga = new BigDecimal(cargaStr.replace(",", "."));
-                json.append(",\"carga\":").append(carga);
+                dto.setCarga(carga);
             } catch (NumberFormatException ex) {
                 // Ignorar se não for número válido
             }
         }
         
         if (!observacoes.isEmpty()) {
-            json.append(",\"observacoes\":\"").append(observacoes.replace("\"", "\\\"")).append("\"");
+            dto.setObservacoes(observacoes);
         }
-        
-        json.append("}");
         
         LoadingDialog.executeWithLoading(
             SwingUtilities.getWindowAncestor(this),
             isEditMode ? "Atualizando item..." : "Adicionando exercício...",
             () -> {
                 if (isEditMode) {
-                    apiClient.put("/itens-treino/" + currentItemId, json.toString());
+                    apiClient.put("/itens-treino/" + currentItemId, dto);
                 } else {
-                    apiClient.post("/itens-treino", json.toString());
+                    apiClient.post("/itens-treino", dto);
                 }
                 
                 SwingUtilities.invokeLater(() -> {

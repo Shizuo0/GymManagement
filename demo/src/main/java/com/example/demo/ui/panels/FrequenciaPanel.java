@@ -27,7 +27,9 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
 import com.example.demo.dto.AlunoDTO;
+import com.example.demo.dto.FrequenciaRequestDTO;
 import com.example.demo.dto.FrequenciaResponseDTO;
+import com.example.demo.ui.GymManagementUI;
 import com.example.demo.ui.components.CustomButton;
 import com.example.demo.ui.components.CustomComboBox;
 import com.example.demo.ui.components.CustomDatePicker;
@@ -63,7 +65,7 @@ import static com.example.demo.ui.utils.UIConstants.TEXT_SECONDARY;
  * Panel para gerenciamento de Frequências (registro de presença dos alunos)
  * COMMIT 7: FrequenciaPanel com registro de presença, filtros por data/aluno/período, e estatísticas
  */
-public class FrequenciaPanel extends JPanel {
+public class FrequenciaPanel extends JPanel implements RefreshablePanel {
     
     private final ApiClient apiClient;
     private final DateTimeFormatter dateFormatter;
@@ -540,22 +542,20 @@ public class FrequenciaPanel extends JPanel {
         LocalDate dataFreq = dataFrequencia.getLocalDate();
         Boolean presenca = rbPresente.isSelected();
         
-        // Criar JSON manualmente
-        String jsonData = String.format(
-            "{\"idAluno\":%d,\"data\":\"%s\",\"presenca\":%b}",
-            alunoSelecionado.getId(),
-            dataFreq,
-            presenca
-        );
+        // Criar DTO
+        FrequenciaRequestDTO dto = new FrequenciaRequestDTO();
+        dto.setIdAluno(alunoSelecionado.getId());
+        dto.setData(dataFreq);
+        dto.setPresenca(presenca);
         
         LoadingDialog.executeWithLoading(
             SwingUtilities.getWindowAncestor(this),
             isEditMode ? "Atualizando registro..." : "Registrando presença...",
             () -> {
                 if (isEditMode) {
-                    apiClient.put("/frequencias/" + currentFrequenciaId, jsonData);
+                    apiClient.put("/frequencias/" + currentFrequenciaId, dto);
                 } else {
-                    apiClient.post("/frequencias", jsonData);
+                    apiClient.post("/frequencias", dto);
                 }
                 
                 SwingUtilities.invokeLater(() -> {
@@ -565,6 +565,7 @@ public class FrequenciaPanel extends JPanel {
                     );
                     cancelarEdicao();
                     loadFrequencias();
+                    notifyParentToRefresh();
                 });
             },
             () -> {
@@ -999,6 +1000,32 @@ public class FrequenciaPanel extends JPanel {
     private void hideFormPanel() {
         splitPane.remove(formPanel);
         formPanel.setVisible(false);
+    }
+    
+    // ========== REFRESH E NOTIFICAÇÕES ==========
+    
+    /**
+     * Implementação de RefreshablePanel - atualiza os dados do painel
+     */
+    @Override
+    public void refreshData() {
+        loadAlunos();
+        loadFrequencias();
+    }
+    
+    /**
+     * Notifica o GymManagementUI para atualizar outros painéis
+     */
+    private void notifyParentToRefresh() {
+        // Busca o GymManagementUI na hierarquia de componentes
+        java.awt.Container parent = getParent();
+        while (parent != null && !(parent instanceof GymManagementUI)) {
+            parent = parent.getParent();
+        }
+        
+        if (parent instanceof GymManagementUI) {
+            ((GymManagementUI) parent).notifyDataChanged();
+        }
     }
     
     // ========== CLASSE AUXILIAR ==========

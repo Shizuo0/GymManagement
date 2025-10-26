@@ -1,6 +1,7 @@
 package com.example.demo.ui.panels;
 
 import com.example.demo.dto.InstrutorDTO;
+import com.example.demo.ui.GymManagementUI;
 import com.example.demo.ui.components.*;
 import com.example.demo.ui.utils.ApiClient;
 import com.example.demo.ui.utils.ApiException;
@@ -11,7 +12,7 @@ import java.util.List;
 
 import static com.example.demo.ui.utils.UIConstants.*;
 
-public class InstrutorPanel extends JPanel {
+public class InstrutorPanel extends JPanel implements RefreshablePanel {
     
     private final ApiClient apiClient;
     private CustomTable table;
@@ -270,6 +271,7 @@ public class InstrutorPanel extends JPanel {
             () -> {
                 MessageDialog.showSuccess(this, isNew ? MSG_SUCCESS_SAVE : MSG_SUCCESS_UPDATE);
                 loadInstrutores();
+                notifyParentToRefresh();
             },
             error -> {
                 if (error instanceof ApiException) {
@@ -309,5 +311,30 @@ public class InstrutorPanel extends JPanel {
         boolean hasSelection = table.hasSelection();
         btnEditar.setEnabled(hasSelection);
         btnExcluir.setEnabled(hasSelection);
+    }
+    
+    // ========== REFRESH E NOTIFICAÇÕES ==========
+    
+    /**
+     * Implementação de RefreshablePanel - atualiza os dados do painel
+     */
+    @Override
+    public void refreshData() {
+        loadInstrutores();
+    }
+    
+    /**
+     * Notifica o GymManagementUI para atualizar outros painéis
+     */
+    private void notifyParentToRefresh() {
+        // Busca o GymManagementUI na hierarquia de componentes
+        java.awt.Container parent = getParent();
+        while (parent != null && !(parent instanceof GymManagementUI)) {
+            parent = parent.getParent();
+        }
+        
+        if (parent instanceof GymManagementUI) {
+            ((GymManagementUI) parent).notifyDataChanged();
+        }
     }
 }

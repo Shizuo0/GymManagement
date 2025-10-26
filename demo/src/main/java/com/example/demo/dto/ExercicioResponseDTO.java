@@ -6,6 +6,10 @@ public class ExercicioResponseDTO {
     private String nome;
     private String grupoMuscular;
     
+    // Construtor padrão (necessário para Jackson)
+    public ExercicioResponseDTO() {
+    }
+    
     public ExercicioResponseDTO(Long id, String nome, String grupoMuscular) {
         this.id = id;
         this.nome = nome;

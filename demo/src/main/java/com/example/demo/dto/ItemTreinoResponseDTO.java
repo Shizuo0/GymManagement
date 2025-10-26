@@ -15,6 +15,10 @@ public class ItemTreinoResponseDTO {
     private BigDecimal carga;
     private String observacoes;
     
+    // Construtor padrão (necessário para Jackson)
+    public ItemTreinoResponseDTO() {
+    }
+    
     public ItemTreinoResponseDTO(Long id, Long planoTreinoId, String planoTreinoNome,
                                 Long exercicioId, String exercicioNome, String grupoMuscular,
                                 Integer series, Integer repeticoes, BigDecimal carga, String observacoes) {

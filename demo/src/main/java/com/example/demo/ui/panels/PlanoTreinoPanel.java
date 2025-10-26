@@ -21,7 +21,9 @@ import javax.swing.border.EmptyBorder;
 
 import com.example.demo.dto.AlunoDTO;
 import com.example.demo.dto.InstrutorDTO;
+import com.example.demo.dto.PlanoTreinoRequestDTO;
 import com.example.demo.dto.PlanoTreinoResponseDTO;
+import com.example.demo.ui.GymManagementUI;
 import com.example.demo.ui.components.CustomButton;
 import com.example.demo.ui.components.CustomComboBox;
 import com.example.demo.ui.components.CustomDatePicker;
@@ -43,7 +45,7 @@ import static com.example.demo.ui.utils.UIConstants.PADDING_LARGE;
 import static com.example.demo.ui.utils.UIConstants.PADDING_MEDIUM;
 import static com.example.demo.ui.utils.UIConstants.PADDING_SMALL;
 import static com.example.demo.ui.utils.UIConstants.PANEL_BACKGROUND;
-import static com.example.demo.ui.utils.UIConstants.PRIMARY_COLOR;
+import static com.example.demo.ui.utils.UIConstants.SURFACE_COLOR;
 import static com.example.demo.ui.utils.UIConstants.TEXTFIELD_HEIGHT;
 import static com.example.demo.ui.utils.UIConstants.TEXT_PRIMARY;
 
@@ -51,7 +53,7 @@ import static com.example.demo.ui.utils.UIConstants.TEXT_PRIMARY;
  * Panel para gerenciamento de Planos de Treino
  * COMMIT 8: PlanoTreinoPanel - Gerenciar planos de treino vinculados a alunos e instrutores
  */
-public class PlanoTreinoPanel extends JPanel {
+public class PlanoTreinoPanel extends JPanel implements RefreshablePanel {
     
     private final ApiClient apiClient;
     
@@ -79,6 +81,7 @@ public class PlanoTreinoPanel extends JPanel {
     private CustomButton btnSalvar;
     private CustomButton btnCancelar;
     private CustomButton btnGerenciarItens;
+    private CustomButton btnAtualizar;
     
     // Estado
     private Long currentPlanoId;
@@ -172,17 +175,21 @@ public class PlanoTreinoPanel extends JPanel {
         btnEditar = new CustomButton("Editar", CustomButton.ButtonType.SECONDARY);
         btnExcluir = new CustomButton("X Excluir", CustomButton.ButtonType.DANGER);
         btnGerenciarItens = new CustomButton("Gerenciar Exercícios", CustomButton.ButtonType.SECONDARY);
+        btnAtualizar = new CustomButton("↻ Atualizar", CustomButton.ButtonType.PRIMARY);
         
         btnNovo.addActionListener(e -> novoPlano());
         btnEditar.addActionListener(e -> editarPlano());
         btnExcluir.addActionListener(e -> excluirPlano());
         btnGerenciarItens.addActionListener(e -> gerenciarItens());
+        btnAtualizar.addActionListener(e -> loadPlanosTreino());
         
         buttonPanel.add(btnNovo);
         buttonPanel.add(btnEditar);
         buttonPanel.add(btnExcluir);
         buttonPanel.add(Box.createHorizontalStrut(PADDING_LARGE));
         buttonPanel.add(btnGerenciarItens);
+        buttonPanel.add(Box.createHorizontalStrut(PADDING_LARGE));
+        buttonPanel.add(btnAtualizar);
         
         panel.add(buttonPanel, BorderLayout.SOUTH);
         
@@ -275,11 +282,11 @@ public class PlanoTreinoPanel extends JPanel {
         txtDescricao = new JTextArea(4, 30);
         txtDescricao.setFont(FONT_REGULAR);
         txtDescricao.setForeground(TEXT_PRIMARY);
-        txtDescricao.setBackground(CARD_BACKGROUND);
-        txtDescricao.setCaretColor(PRIMARY_COLOR);
+        txtDescricao.setBackground(SURFACE_COLOR);
+        txtDescricao.setCaretColor(TEXT_PRIMARY);
         txtDescricao.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(BORDER_COLOR, 2),
-            BorderFactory.createEmptyBorder(PADDING_SMALL, PADDING_MEDIUM, PADDING_SMALL, PADDING_MEDIUM)
+            BorderFactory.createLineBorder(BORDER_COLOR),
+            BorderFactory.createEmptyBorder(PADDING_SMALL, PADDING_SMALL, PADDING_SMALL, PADDING_SMALL)
         ));
         txtDescricao.setLineWrap(true);
         txtDescricao.setWrapStyleWord(true);
@@ -493,49 +500,42 @@ public class PlanoTreinoPanel extends JPanel {
         String descricao = txtDescricao.getText().trim();
         String duracaoStr = txtDuracaoSemanas.getText().trim();
         
-        // Criar JSON manualmente
-        StringBuilder json = new StringBuilder();
-        json.append("{");
-        json.append("\"idAluno\":").append(selectedAluno.getId()).append(",");
-        json.append("\"idInstrutor\":").append(selectedInstrutor.getId()).append(",");
-        json.append("\"dataCriacao\":\"").append(data.toString()).append("\"");
-        
-        if (!descricao.isEmpty()) {
-            json.append(",\"descricao\":\"").append(descricao.replace("\"", "\\\"")).append("\"");
-        }
+        // Criar DTO
+        PlanoTreinoRequestDTO dto = new PlanoTreinoRequestDTO();
+        dto.setIdAluno(selectedAluno.getId());
+        dto.setIdInstrutor(selectedInstrutor.getId());
+        dto.setDataCriacao(data);
+        dto.setDescricao(descricao.isEmpty() ? null : descricao);
         
         if (!duracaoStr.isEmpty()) {
             try {
                 int duracao = Integer.parseInt(duracaoStr);
-                json.append(",\"duracaoSemanas\":").append(duracao);
+                dto.setDuracaoSemanas(duracao);
             } catch (NumberFormatException ex) {
-                // Ignorar se não for número válido
+                MessageDialog.showWarning(this, "Duração em semanas deve ser um número válido.");
+                return;
             }
         }
-        
-        json.append("}");
         
         LoadingDialog.executeWithLoading(
             SwingUtilities.getWindowAncestor(this),
             isEditMode ? "Atualizando plano..." : "Criando plano...",
             () -> {
                 if (isEditMode) {
-                    apiClient.put("/planos-treino/" + currentPlanoId, json.toString());
+                    apiClient.put("/planos-treino/" + currentPlanoId, dto);
                 } else {
-                    apiClient.post("/planos-treino", json.toString());
+                    apiClient.post("/planos-treino", dto);
                 }
-                
-                SwingUtilities.invokeLater(() -> {
-                    MessageDialog.showSuccess(
-                        this,
-                        isEditMode ? "Plano atualizado com sucesso!" : "Plano criado com sucesso!"
-                    );
-                    cancelarEdicao();
-                    loadPlanosTreino();
-                });
             },
             () -> {
-                // Sucesso
+                // Ação de sucesso (executada no EDT)
+                MessageDialog.showSuccess(
+                    this,
+                    isEditMode ? "Plano atualizado com sucesso!" : "Plano criado com sucesso!"
+                );
+                cancelarEdicao();
+                refreshData();
+                notifyParentToRefresh();
             },
             error -> {
                 if (error instanceof ApiException) {
@@ -764,6 +764,33 @@ public class PlanoTreinoPanel extends JPanel {
         @Override
         public String toString() {
             return nome;
+        }
+    }
+    
+    // ========== REFRESH E NOTIFICAÇÕES ==========
+    
+    /**
+     * Implementação de RefreshablePanel - atualiza os dados do painel
+     */
+    @Override
+    public void refreshData() {
+        loadAlunos();
+        loadInstrutores();
+        loadPlanosTreino();
+    }
+    
+    /**
+     * Notifica o GymManagementUI para atualizar outros painéis
+     */
+    private void notifyParentToRefresh() {
+        // Busca o GymManagementUI na hierarquia de componentes
+        java.awt.Container parent = getParent();
+        while (parent != null && !(parent instanceof GymManagementUI)) {
+            parent = parent.getParent();
+        }
+        
+        if (parent instanceof GymManagementUI) {
+            ((GymManagementUI) parent).notifyDataChanged();
         }
     }
 }

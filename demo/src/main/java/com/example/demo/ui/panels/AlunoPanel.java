@@ -1,6 +1,8 @@
 package com.example.demo.ui.panels;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -9,14 +11,15 @@ import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
+import javax.swing.border.EmptyBorder;
 
 import com.example.demo.dto.AlunoDTO;
+import com.example.demo.ui.GymManagementUI;
 import com.example.demo.ui.components.CustomButton;
 import com.example.demo.ui.components.CustomDatePicker;
 import com.example.demo.ui.components.CustomTable;
@@ -25,73 +28,28 @@ import com.example.demo.ui.components.LoadingDialog;
 import com.example.demo.ui.components.MessageDialog;
 import com.example.demo.ui.utils.ApiClient;
 import com.example.demo.ui.utils.ApiException;
-import static com.example.demo.ui.utils.UIConstants.BORDER_COLOR;
-import static com.example.demo.ui.utils.UIConstants.CARD_BACKGROUND;
-import static com.example.demo.ui.utils.UIConstants.FONT_LABEL;
-import static com.example.demo.ui.utils.UIConstants.FONT_SUBTITLE;
-import static com.example.demo.ui.utils.UIConstants.FONT_TITLE;
-import static com.example.demo.ui.utils.UIConstants.MSG_SUCCESS_DELETE;
-import static com.example.demo.ui.utils.UIConstants.MSG_SUCCESS_SAVE;
-import static com.example.demo.ui.utils.UIConstants.MSG_SUCCESS_UPDATE;
-import static com.example.demo.ui.utils.UIConstants.PADDING_LARGE;
-import static com.example.demo.ui.utils.UIConstants.PADDING_MEDIUM;
-import static com.example.demo.ui.utils.UIConstants.PADDING_SMALL;
-import static com.example.demo.ui.utils.UIConstants.PANEL_BACKGROUND;
-import static com.example.demo.ui.utils.UIConstants.PRIMARY_COLOR;
-import static com.example.demo.ui.utils.UIConstants.TEXT_PRIMARY;
+import static com.example.demo.ui.utils.UIConstants.*;
 import com.example.demo.ui.utils.ValidationUtils;
 
-/**
- * Panel para gerenciamento completo de alunos (CRUD).
- * Implementa listagem, cadastro, edição e exclusão com validações.
- */
-public class AlunoPanel extends JPanel {
+public class AlunoPanel extends JPanel implements RefreshablePanel {
     
-    // Componentes de UI
+    private final ApiClient apiClient;
     private CustomTable table;
-    private CustomTextField txtNome;
-    private CustomTextField txtCPF;
-    private CustomDatePicker datePicker;
     private CustomTextField txtBusca;
+    private CustomButton btnNovo, btnEditar, btnExcluir, btnAtualizar;
     
-    private CustomButton btnAdicionar;
-    private CustomButton btnEditar;
-    private CustomButton btnExcluir;
-    private CustomButton btnSalvar;
-    private CustomButton btnCancelar;
-    private CustomButton btnBuscar;
-    private CustomButton btnLimparBusca;
-    
-    private JPanel formPanel;
-    private JPanel listPanel;
-    private JSplitPane splitPane;
-    
-    // Estado
-    private ApiClient apiClient;
-    private boolean isEditMode = false;
-    private Long currentAlunoId = null;
-    
-    /**
-     * Construtor
-     */
     public AlunoPanel() {
         this.apiClient = new ApiClient();
-        initializeComponents();
+        initComponents();
         setupLayout();
-        
-        // Defer loading para evitar problemas com LoadingDialog
-        SwingUtilities.invokeLater(this::loadAlunos);
+        loadAlunos();
     }
     
-    /**
-     * Inicializa os componentes
-     */
-    private void initializeComponents() {
+    private void initComponents() {
         setBackground(PANEL_BACKGROUND);
         setLayout(new BorderLayout(PADDING_LARGE, PADDING_LARGE));
         setBorder(BorderFactory.createEmptyBorder(PADDING_LARGE, PADDING_LARGE, PADDING_LARGE, PADDING_LARGE));
         
-        // Inicializa tabela
         String[] columns = {"ID", "Nome", "CPF", "Data de Ingresso"};
         table = new CustomTable(columns);
         table.setColumnWidth(0, 60);
@@ -101,174 +59,59 @@ public class AlunoPanel extends JPanel {
         table.centerColumn(2);
         table.centerColumn(3);
         
-        // Listener para seleção na tabela
         table.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 updateButtonStates();
             }
         });
         
-        // Inicializa campos do formulário
-        txtNome = new CustomTextField("Nome completo do aluno", 30);
-        txtCPF = CustomTextField.createCPFField("000.000.000-00");
-        datePicker = new CustomDatePicker(LocalDate.now());
         txtBusca = new CustomTextField("Buscar por nome ou CPF", 25);
+        txtBusca.addActionListener(e -> buscarAlunos());
         
-        // Inicializa botões
-        btnAdicionar = CustomButton.createAddButton("Novo");
+        btnNovo = CustomButton.createAddButton("Novo");
         btnEditar = CustomButton.createEditButton("Editar");
         btnExcluir = CustomButton.createDeleteButton("Excluir");
-        btnSalvar = CustomButton.createSaveButton("Salvar");
-        btnCancelar = CustomButton.createCancelButton("Cancelar");
-        btnBuscar = CustomButton.createSearchButton("Buscar");
-        btnLimparBusca = CustomButton.createRefreshButton("Limpar");
+        btnAtualizar = CustomButton.createRefreshButton("Atualizar");
         
-        // Adiciona actions aos botões
-        btnAdicionar.addActionListener(e -> showFormForNew());
-        btnEditar.addActionListener(e -> showFormForEdit());
-        btnExcluir.addActionListener(e -> deleteAluno());
-        btnSalvar.addActionListener(e -> saveAluno());
-        btnCancelar.addActionListener(e -> cancelForm());
-        btnBuscar.addActionListener(e -> buscarAlunos());
-        btnLimparBusca.addActionListener(e -> limparBusca());
+        btnNovo.addActionListener(e -> showDialog(null));
+        btnEditar.addActionListener(e -> editarAluno());
+        btnExcluir.addActionListener(e -> excluirAluno());
+        btnAtualizar.addActionListener(e -> loadAlunos());
         
-        // Enter key nos campos de busca
-        txtBusca.addActionListener(e -> buscarAlunos());
+        updateButtonStates();
     }
     
-    /**
-     * Configura o layout do panel
-     */
     private void setupLayout() {
-        // Panel de lista (esquerda)
-        listPanel = createListPanel();
+        JPanel topPanel = new JPanel(new BorderLayout(PADDING_MEDIUM, PADDING_MEDIUM));
+        topPanel.setBackground(PANEL_BACKGROUND);
         
-        // Panel de formulário (direita)
-        formPanel = createFormPanel();
-        formPanel.setVisible(false);
-        
-        // Split pane
-        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, listPanel, formPanel);
-        splitPane.setDividerLocation(700);
-        splitPane.setResizeWeight(0.6);
-        splitPane.setBackground(PANEL_BACKGROUND);
-        splitPane.setBorder(null);
-        
-        add(splitPane, BorderLayout.CENTER);
-    }
-    
-    /**
-     * Cria o panel de listagem
-     */
-    private JPanel createListPanel() {
-        JPanel panel = new JPanel(new BorderLayout(PADDING_MEDIUM, PADDING_MEDIUM));
-        panel.setBackground(PANEL_BACKGROUND);
-        
-        // Título
         JLabel title = new JLabel("Gerenciamento de Alunos");
         title.setFont(FONT_TITLE);
         title.setForeground(TEXT_PRIMARY);
+        topPanel.add(title, BorderLayout.WEST);
         
-        // Panel de busca
-        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, PADDING_MEDIUM, 0));
+        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, PADDING_SMALL, 0));
         searchPanel.setBackground(PANEL_BACKGROUND);
         searchPanel.add(txtBusca);
-        searchPanel.add(btnBuscar);
-        searchPanel.add(btnLimparBusca);
+        searchPanel.add(CustomButton.createSearchButton("Buscar"));
+        topPanel.add(searchPanel, BorderLayout.EAST);
         
-        // Panel superior (título + busca)
-        JPanel topPanel = new JPanel(new BorderLayout(PADDING_MEDIUM, PADDING_MEDIUM));
-        topPanel.setBackground(PANEL_BACKGROUND);
-        topPanel.add(title, BorderLayout.NORTH);
-        topPanel.add(searchPanel, BorderLayout.CENTER);
-        
-        // Tabela com scroll
         JScrollPane scrollPane = new JScrollPane(table);
-        scrollPane.getViewport().setBackground(PANEL_BACKGROUND);
         scrollPane.setBorder(BorderFactory.createLineBorder(BORDER_COLOR, 1));
+        scrollPane.getViewport().setBackground(PANEL_BACKGROUND);
         
-        // Panel de botões
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, PADDING_MEDIUM, PADDING_MEDIUM));
         buttonPanel.setBackground(PANEL_BACKGROUND);
-        buttonPanel.add(btnAdicionar);
+        buttonPanel.add(btnNovo);
         buttonPanel.add(btnEditar);
         buttonPanel.add(btnExcluir);
+        buttonPanel.add(btnAtualizar);
         
-        // Monta o panel
-        panel.add(topPanel, BorderLayout.NORTH);
-        panel.add(scrollPane, BorderLayout.CENTER);
-        panel.add(buttonPanel, BorderLayout.SOUTH);
-        
-        return panel;
+        add(topPanel, BorderLayout.NORTH);
+        add(scrollPane, BorderLayout.CENTER);
+        add(buttonPanel, BorderLayout.SOUTH);
     }
     
-    /**
-     * Cria o panel de formulário
-     */
-    private JPanel createFormPanel() {
-        JPanel panel = new JPanel(new BorderLayout(PADDING_MEDIUM, PADDING_MEDIUM));
-        panel.setBackground(CARD_BACKGROUND);
-        panel.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(BORDER_COLOR, 2),
-            BorderFactory.createEmptyBorder(PADDING_LARGE, PADDING_LARGE, PADDING_LARGE, PADDING_LARGE)
-        ));
-        
-        // Título
-        JLabel title = new JLabel("Cadastro de Aluno");
-        title.setFont(FONT_SUBTITLE);
-        title.setForeground(PRIMARY_COLOR);
-        
-        // Panel de campos
-        JPanel fieldsPanel = new JPanel();
-        fieldsPanel.setLayout(new BoxLayout(fieldsPanel, BoxLayout.Y_AXIS));
-        fieldsPanel.setBackground(CARD_BACKGROUND);
-        
-        // Campo Nome
-        fieldsPanel.add(createFieldPanel("Nome *", txtNome));
-        fieldsPanel.add(Box.createVerticalStrut(PADDING_MEDIUM));
-        
-        // Campo CPF
-        fieldsPanel.add(createFieldPanel("CPF *", txtCPF));
-        fieldsPanel.add(Box.createVerticalStrut(PADDING_MEDIUM));
-        
-        // Campo Data de Ingresso
-        fieldsPanel.add(createFieldPanel("Data de Ingresso *", datePicker));
-        fieldsPanel.add(Box.createVerticalStrut(PADDING_LARGE));
-        
-        // Panel de botões
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, PADDING_MEDIUM, 0));
-        buttonPanel.setBackground(CARD_BACKGROUND);
-        buttonPanel.add(btnCancelar);
-        buttonPanel.add(btnSalvar);
-        
-        // Monta o panel
-        panel.add(title, BorderLayout.NORTH);
-        panel.add(fieldsPanel, BorderLayout.CENTER);
-        panel.add(buttonPanel, BorderLayout.SOUTH);
-        
-        return panel;
-    }
-    
-    /**
-     * Cria um panel para um campo do formulário
-     */
-    private JPanel createFieldPanel(String labelText, JComponent field) {
-        JPanel panel = new JPanel(new BorderLayout(PADDING_SMALL, PADDING_SMALL));
-        panel.setBackground(CARD_BACKGROUND);
-        
-        JLabel label = new JLabel(labelText);
-        label.setFont(FONT_LABEL);
-        label.setForeground(TEXT_PRIMARY);
-        
-        panel.add(label, BorderLayout.NORTH);
-        panel.add(field, BorderLayout.CENTER);
-        
-        return panel;
-    }
-    
-    /**
-     * Carrega todos os alunos
-     */
     private void loadAlunos() {
         LoadingDialog.executeWithLoading(
             SwingUtilities.getWindowAncestor(this),
@@ -281,9 +124,7 @@ public class AlunoPanel extends JPanel {
                     updateTable(alunos);
                 });
             },
-            () -> {
-                // Sucesso
-            },
+            () -> {},
             error -> {
                 if (error instanceof ApiException) {
                     MessageDialog.showError(this, ((ApiException) error).getUserFriendlyMessage());
@@ -294,9 +135,6 @@ public class AlunoPanel extends JPanel {
         );
     }
     
-    /**
-     * Atualiza a tabela com os alunos
-     */
     private void updateTable(List<AlunoDTO> alunos) {
         table.clearRows();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -314,58 +152,26 @@ public class AlunoPanel extends JPanel {
         updateButtonStates();
     }
     
-    /**
-     * Mostra o formulário para novo aluno
-     */
-    private void showFormForNew() {
-        isEditMode = false;
-        currentAlunoId = null;
-        clearForm();
-        
-        // Garante que o formPanel está no splitPane
-        splitPane.setRightComponent(formPanel);
-        splitPane.setResizeWeight(0.6);
-        splitPane.setDividerLocation(0.6);
-        
-        formPanel.setVisible(true);
-        txtNome.requestFocus();
-    }
-    
-    /**
-     * Mostra o formulário para edição
-     */
-    private void showFormForEdit() {
+    private void editarAluno() {
         if (!table.hasSelection()) {
             MessageDialog.showWarning(this, "Selecione um aluno para editar.");
             return;
         }
         
-        isEditMode = true;
-        currentAlunoId = (Long) table.getSelectedRowValue(0);
+        Long id = (Long) table.getSelectedRowValue(0);
         
-        // Carrega os dados do aluno
         LoadingDialog.executeWithLoading(
             SwingUtilities.getWindowAncestor(this),
             "Carregando dados do aluno...",
             () -> {
-                String response = apiClient.get("/alunos/" + currentAlunoId);
+                String response = apiClient.get("/alunos/" + id);
                 AlunoDTO aluno = apiClient.fromJson(response, AlunoDTO.class);
                 
                 SwingUtilities.invokeLater(() -> {
-                    populateForm(aluno);
-                    
-                    // Garante que o formPanel está no splitPane
-                    splitPane.setRightComponent(formPanel);
-                    splitPane.setResizeWeight(0.6);
-                    splitPane.setDividerLocation(0.6);
-                    
-                    formPanel.setVisible(true);
-                    txtNome.requestFocus();
+                    showDialog(aluno);
                 });
             },
-            () -> {
-                // Sucesso
-            },
+            () -> {},
             error -> {
                 if (error instanceof ApiException) {
                     MessageDialog.showError(this, ((ApiException) error).getUserFriendlyMessage());
@@ -376,104 +182,17 @@ public class AlunoPanel extends JPanel {
         );
     }
     
-    /**
-     * Popula o formulário com dados do aluno
-     */
-    private void populateForm(AlunoDTO aluno) {
-        txtNome.setText(aluno.getNome());
-        txtCPF.setText(aluno.getCpf());
-        if (aluno.getDataIngresso() != null) {
-            datePicker.setLocalDate(aluno.getDataIngresso());
-        }
-    }
-    
-    /**
-     * Salva o aluno (novo ou editado)
-     */
-    private void saveAluno() {
-        // Validações
-        if (!validateForm()) {
-            return;
-        }
-        
-        // Cria o DTO
-        AlunoDTO aluno = new AlunoDTO();
-        aluno.setNome(txtNome.getText().trim());
-        aluno.setCpf(ValidationUtils.unformatCPF(txtCPF.getText()));
-        aluno.setDataIngresso(datePicker.getLocalDate());
-        
-        if (isEditMode) {
-            aluno.setIdAluno(currentAlunoId);
-        }
-        
-        LoadingDialog.executeWithLoading(
-            SwingUtilities.getWindowAncestor(this),
-            isEditMode ? "Atualizando aluno..." : "Cadastrando aluno...",
-            () -> {
-                if (isEditMode) {
-                    apiClient.put("/alunos/" + currentAlunoId, aluno);
-                } else {
-                    apiClient.post("/alunos", aluno);
-                }
-            },
-            () -> {
-                MessageDialog.showSuccess(this, 
-                    isEditMode ? MSG_SUCCESS_UPDATE : MSG_SUCCESS_SAVE);
-                cancelForm();
-                loadAlunos();
-            },
-            error -> {
-                if (error instanceof ApiException) {
-                    MessageDialog.showError(this, ((ApiException) error).getUserFriendlyMessage());
-                } else {
-                    MessageDialog.showError(this, "Erro ao salvar aluno: " + error.getMessage());
-                }
-            }
-        );
-    }
-    
-    /**
-     * Valida o formulário
-     */
-    private boolean validateForm() {
-        // Limpa marcações anteriores
-        txtNome.markAsValid();
-        txtCPF.markAsValid();
-        
-        boolean isValid = true;
-        
-        // Valida nome
-        if (txtNome.getText().trim().isEmpty()) {
-            txtNome.markAsInvalid();
-            MessageDialog.showError(this, "O nome é obrigatório.");
-            txtNome.requestFocus();
-            return false;
-        }
-        
-        // Valida CPF
-        if (!ValidationUtils.validateCPFField(txtCPF)) {
-            txtCPF.markAsInvalid();
-            txtCPF.requestFocus();
-            return false;
-        }
-        
-        return isValid;
-    }
-    
-    /**
-     * Exclui o aluno selecionado
-     */
-    private void deleteAluno() {
+    private void excluirAluno() {
         if (!table.hasSelection()) {
             MessageDialog.showWarning(this, "Selecione um aluno para excluir.");
             return;
         }
         
+        Long id = (Long) table.getSelectedRowValue(0);
+        
         if (!MessageDialog.showDeleteConfirmation(this)) {
             return;
         }
-        
-        Long id = (Long) table.getSelectedRowValue(0);
         
         LoadingDialog.executeWithLoading(
             SwingUtilities.getWindowAncestor(this),
@@ -484,6 +203,7 @@ public class AlunoPanel extends JPanel {
             () -> {
                 MessageDialog.showSuccess(this, MSG_SUCCESS_DELETE);
                 loadAlunos();
+                notifyParentToRefresh();
             },
             error -> {
                 if (error instanceof ApiException) {
@@ -495,9 +215,131 @@ public class AlunoPanel extends JPanel {
         );
     }
     
-    /**
-     * Busca alunos por nome ou CPF
-     */
+    private void showDialog(AlunoDTO aluno) {
+        boolean isNew = (aluno == null);
+        
+        JDialog dialog = new JDialog(
+            (java.awt.Frame) SwingUtilities.getWindowAncestor(this),
+            isNew ? "Novo Aluno" : "Editar Aluno",
+            true
+        );
+        dialog.setLayout(new BorderLayout());
+        
+        JPanel formPanel = new JPanel();
+        formPanel.setLayout(new BoxLayout(formPanel, BoxLayout.Y_AXIS));
+        formPanel.setBackground(CARD_BACKGROUND);
+        formPanel.setBorder(new EmptyBorder(PADDING_LARGE, PADDING_LARGE, PADDING_LARGE, PADDING_LARGE));
+        
+        CustomTextField txtNome = new CustomTextField("Nome completo do aluno", 30);
+        CustomTextField txtCPF = CustomTextField.createCPFField("000.000.000-00");
+        CustomDatePicker datePicker = new CustomDatePicker(LocalDate.now());
+        
+        if (!isNew) {
+            txtNome.setText(aluno.getNome());
+            txtCPF.setText(aluno.getCpf());
+            if (aluno.getDataIngresso() != null) {
+                datePicker.setLocalDate(aluno.getDataIngresso());
+            }
+        }
+        
+        formPanel.add(createFieldPanel("Nome *", txtNome));
+        formPanel.add(Box.createVerticalStrut(PADDING_MEDIUM));
+        formPanel.add(createFieldPanel("CPF *", txtCPF));
+        formPanel.add(Box.createVerticalStrut(PADDING_MEDIUM));
+        formPanel.add(createFieldPanel("Data de Ingresso *", datePicker));
+        formPanel.add(Box.createVerticalStrut(PADDING_LARGE));
+        
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, PADDING_MEDIUM, 0));
+        buttonPanel.setBackground(CARD_BACKGROUND);
+        
+        CustomButton btnCancelar = CustomButton.createCancelButton("Cancelar");
+        CustomButton btnSalvar = CustomButton.createSaveButton("Salvar");
+        
+        btnCancelar.addActionListener(e -> dialog.dispose());
+        
+        btnSalvar.addActionListener(e -> {
+            txtNome.markAsValid();
+            txtCPF.markAsValid();
+            
+            if (txtNome.getText().trim().isEmpty()) {
+                txtNome.markAsInvalid();
+                MessageDialog.showError(dialog, "O nome é obrigatório.");
+                txtNome.requestFocus();
+                return;
+            }
+            
+            if (!ValidationUtils.validateCPFField(txtCPF)) {
+                txtCPF.markAsInvalid();
+                txtCPF.requestFocus();
+                return;
+            }
+            
+            AlunoDTO dto = new AlunoDTO();
+            dto.setNome(txtNome.getText().trim());
+            dto.setCpf(ValidationUtils.unformatCPF(txtCPF.getText()));
+            dto.setDataIngresso(datePicker.getLocalDate());
+            
+            if (!isNew) {
+                dto.setIdAluno(aluno.getIdAluno());
+            }
+            
+            dialog.dispose();
+            salvarAluno(dto, isNew);
+        });
+        
+        buttonPanel.add(btnCancelar);
+        buttonPanel.add(btnSalvar);
+        
+        formPanel.add(buttonPanel);
+        
+        dialog.add(formPanel);
+        dialog.setSize(500, 400);
+        dialog.setLocationRelativeTo(SwingUtilities.getWindowAncestor(this));
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialog.setVisible(true);
+    }
+    
+    private JPanel createFieldPanel(String labelText, Component field) {
+        JPanel panel = new JPanel(new BorderLayout(PADDING_SMALL, PADDING_SMALL));
+        panel.setBackground(CARD_BACKGROUND);
+        panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 80));
+        
+        JLabel label = new JLabel(labelText);
+        label.setFont(FONT_LABEL);
+        label.setForeground(TEXT_PRIMARY);
+        
+        panel.add(label, BorderLayout.NORTH);
+        panel.add(field, BorderLayout.CENTER);
+        
+        return panel;
+    }
+    
+    private void salvarAluno(AlunoDTO dto, boolean isNew) {
+        LoadingDialog.executeWithLoading(
+            SwingUtilities.getWindowAncestor(this),
+            isNew ? "Cadastrando aluno..." : "Atualizando aluno...",
+            () -> {
+                if (isNew) {
+                    apiClient.post("/alunos", dto);
+                } else {
+                    apiClient.put("/alunos/" + dto.getIdAluno(), dto);
+                }
+            },
+            () -> {
+                MessageDialog.showSuccess(this, isNew ? MSG_SUCCESS_SAVE : MSG_SUCCESS_UPDATE);
+                loadAlunos();
+                notifyParentToRefresh();
+            },
+            error -> {
+                if (error instanceof ApiException) {
+                    MessageDialog.showError(this, ((ApiException) error).getUserFriendlyMessage());
+                } else {
+                    MessageDialog.showError(this, "Erro ao salvar aluno: " + error.getMessage());
+                }
+            }
+        );
+    }
+    
     private void buscarAlunos() {
         String termo = txtBusca.getText().trim();
         
@@ -513,7 +355,6 @@ public class AlunoPanel extends JPanel {
                 String response = apiClient.get("/alunos");
                 List<AlunoDTO> alunos = apiClient.fromJsonArray(response, AlunoDTO.class);
                 
-                // Filtra localmente
                 List<AlunoDTO> filtered = alunos.stream()
                     .filter(a -> 
                         a.getNome().toLowerCase().contains(termo.toLowerCase()) ||
@@ -528,9 +369,7 @@ public class AlunoPanel extends JPanel {
                     }
                 });
             },
-            () -> {
-                // Sucesso
-            },
+            () -> {},
             error -> {
                 if (error instanceof ApiException) {
                     MessageDialog.showError(this, ((ApiException) error).getUserFriendlyMessage());
@@ -541,44 +380,21 @@ public class AlunoPanel extends JPanel {
         );
     }
     
-    /**
-     * Limpa a busca e recarrega todos os alunos
-     */
-    private void limparBusca() {
-        txtBusca.clear();
-        loadAlunos();
-    }
-    
-    /**
-     * Cancela a edição e fecha o formulário
-     */
-    private void cancelForm() {
-        clearForm();
-        
-        // Remove o formPanel do splitPane
-        splitPane.remove(formPanel);
-        splitPane.setDividerLocation(1.0);
-        
-        formPanel.setVisible(false);
-        isEditMode = false;
-        currentAlunoId = null;
-    }
-    
-    /**
-     * Limpa o formulário
-     */
-    private void clearForm() {
-        txtNome.clear();
-        txtCPF.clear();
-        datePicker.setToday();
-    }
-    
-    /**
-     * Atualiza o estado dos botões
-     */
     private void updateButtonStates() {
         boolean hasSelection = table.hasSelection();
         btnEditar.setEnabled(hasSelection);
         btnExcluir.setEnabled(hasSelection);
+    }
+    
+    @Override
+    public void refreshData() {
+        loadAlunos();
+    }
+    
+    private void notifyParentToRefresh() {
+        Component parent = SwingUtilities.getWindowAncestor(this);
+        if (parent instanceof GymManagementUI) {
+            ((GymManagementUI) parent).notifyDataChanged();
+        }
     }
 }

@@ -20,6 +20,7 @@ import com.example.demo.ui.panels.MatriculaPanel;
 import com.example.demo.ui.panels.PagamentoPanel;
 import com.example.demo.ui.panels.PlanoPanel;
 import com.example.demo.ui.panels.PlanoTreinoPanel;
+import com.example.demo.ui.panels.RefreshablePanel;
 import static com.example.demo.ui.utils.UIConstants.BACKGROUND_COLOR;
 import static com.example.demo.ui.utils.UIConstants.BACKGROUND_SECONDARY;
 import static com.example.demo.ui.utils.UIConstants.BORDER_COLOR;
@@ -46,6 +47,17 @@ public class GymManagementUI extends JFrame {
     private static final int DEFAULT_HEIGHT = 900;
     
     private JTabbedPane tabbedPane;
+    
+    // Referências aos painéis para atualização
+    private AlunoPanel alunoPanel;
+    private InstrutorPanel instrutorPanel;
+    private ExercicioPanel exercicioPanel;
+    private PlanoPanel planoPanel;
+    private PlanoTreinoPanel planoTreinoPanel;
+    private ItemTreinoPanel itemTreinoPanel;
+    private MatriculaPanel matriculaPanel;
+    private PagamentoPanel pagamentoPanel;
+    private FrequenciaPanel frequenciaPanel;
     
     public GymManagementUI() {
         initializeUI();
@@ -96,7 +108,7 @@ public class GymManagementUI extends JFrame {
      * Adiciona o painel de alunos
      */
     private void addAlunoPanel() {
-        AlunoPanel alunoPanel = new AlunoPanel();
+        alunoPanel = new AlunoPanel();
         tabbedPane.addTab("Alunos", alunoPanel);
     }
     
@@ -104,7 +116,7 @@ public class GymManagementUI extends JFrame {
      * Adiciona o painel de instrutores
      */
     private void addInstrutorPanel() {
-        InstrutorPanel instrutorPanel = new InstrutorPanel();
+        instrutorPanel = new InstrutorPanel();
         tabbedPane.addTab("Instrutores", instrutorPanel);
     }
     
@@ -112,7 +124,7 @@ public class GymManagementUI extends JFrame {
      * Adiciona o painel de planos
      */
     private void addPlanoPanel() {
-        PlanoPanel planoPanel = new PlanoPanel();
+        planoPanel = new PlanoPanel();
         tabbedPane.addTab("Planos", planoPanel);
     }
     
@@ -120,7 +132,7 @@ public class GymManagementUI extends JFrame {
      * Adiciona o painel de matrículas
      */
     private void addMatriculaPanel() {
-        MatriculaPanel matriculaPanel = new MatriculaPanel();
+        matriculaPanel = new MatriculaPanel();
         tabbedPane.addTab("Matrículas", matriculaPanel);
     }
     
@@ -128,7 +140,7 @@ public class GymManagementUI extends JFrame {
      * Adiciona o painel de pagamentos
      */
     private void addPagamentoPanel() {
-        PagamentoPanel pagamentoPanel = new PagamentoPanel();
+        pagamentoPanel = new PagamentoPanel();
         tabbedPane.addTab("Pagamentos", pagamentoPanel);
     }
     
@@ -136,7 +148,7 @@ public class GymManagementUI extends JFrame {
      * Adiciona o painel de frequências
      */
     private void addFrequenciaPanel() {
-        FrequenciaPanel frequenciaPanel = new FrequenciaPanel();
+        frequenciaPanel = new FrequenciaPanel();
         tabbedPane.addTab("Frequência", frequenciaPanel);
     }
     
@@ -144,7 +156,7 @@ public class GymManagementUI extends JFrame {
      * Adiciona o painel de exercícios
      */
     private void addExercicioPanel() {
-        ExercicioPanel exercicioPanel = new ExercicioPanel();
+        exercicioPanel = new ExercicioPanel();
         tabbedPane.addTab("Exercícios", exercicioPanel);
     }
     
@@ -152,7 +164,7 @@ public class GymManagementUI extends JFrame {
      * Adiciona o painel de planos de treino
      */
     private void addPlanoTreinoPanel() {
-        PlanoTreinoPanel planoTreinoPanel = new PlanoTreinoPanel();
+        planoTreinoPanel = new PlanoTreinoPanel();
         tabbedPane.addTab("Planos de Treino", planoTreinoPanel);
     }
     
@@ -160,7 +172,7 @@ public class GymManagementUI extends JFrame {
      * Adiciona o painel de itens de treino
      */
     private void addItemTreinoPanel() {
-        ItemTreinoPanel itemTreinoPanel = new ItemTreinoPanel();
+        itemTreinoPanel = new ItemTreinoPanel();
         tabbedPane.addTab("Exercícios do Plano", itemTreinoPanel);
     }
     
@@ -246,6 +258,44 @@ public class GymManagementUI extends JFrame {
         } else {
             tabbedPane.addTab(title, panel);
         }
+    }
+    
+    /**
+     * Notifica todos os painéis que implementam RefreshablePanel para atualizar seus dados.
+     * Este método é chamado quando dados no sistema são alterados (criação, edição, exclusão)
+     * para garantir que todos os painéis reflitam as mudanças.
+     */
+    public void notifyDataChanged() {
+        SwingUtilities.invokeLater(() -> {
+            // Atualiza todos os painéis que implementam RefreshablePanel
+            if (alunoPanel instanceof RefreshablePanel) {
+                ((RefreshablePanel) alunoPanel).refreshData();
+            }
+            if (instrutorPanel instanceof RefreshablePanel) {
+                ((RefreshablePanel) instrutorPanel).refreshData();
+            }
+            if (exercicioPanel instanceof RefreshablePanel) {
+                ((RefreshablePanel) exercicioPanel).refreshData();
+            }
+            if (planoPanel instanceof RefreshablePanel) {
+                ((RefreshablePanel) planoPanel).refreshData();
+            }
+            if (planoTreinoPanel instanceof RefreshablePanel) {
+                ((RefreshablePanel) planoTreinoPanel).refreshData();
+            }
+            if (itemTreinoPanel instanceof RefreshablePanel) {
+                ((RefreshablePanel) itemTreinoPanel).refreshData();
+            }
+            if (matriculaPanel instanceof RefreshablePanel) {
+                ((RefreshablePanel) matriculaPanel).refreshData();
+            }
+            if (pagamentoPanel instanceof RefreshablePanel) {
+                ((RefreshablePanel) pagamentoPanel).refreshData();
+            }
+            if (frequenciaPanel instanceof RefreshablePanel) {
+                ((RefreshablePanel) frequenciaPanel).refreshData();
+            }
+        });
     }
     
     /**

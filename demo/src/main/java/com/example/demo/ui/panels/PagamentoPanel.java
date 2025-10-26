@@ -1,342 +1,91 @@
 package com.example.demo.ui.panels;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Frame;
-import java.math.BigDecimal;
-import java.text.NumberFormat;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JComponent;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.SwingUtilities;
-import javax.swing.border.EmptyBorder;
-
-import com.example.demo.dto.MatriculaResponseDTO;
 import com.example.demo.dto.PagamentoResponseDTO;
-import com.example.demo.ui.components.CustomButton;
-import com.example.demo.ui.components.CustomComboBox;
-import com.example.demo.ui.components.CustomDatePicker;
-import com.example.demo.ui.components.CustomTable;
-import com.example.demo.ui.components.CustomTextField;
-import com.example.demo.ui.components.LoadingDialog;
-import com.example.demo.ui.components.MessageDialog;
+import com.example.demo.dto.PagamentoRequestDTO;
+import com.example.demo.dto.MatriculaResponseDTO;
+import com.example.demo.enums.MatriculaStatus;
+import com.example.demo.ui.GymManagementUI;
+import com.example.demo.ui.components.*;
 import com.example.demo.ui.utils.ApiClient;
 import com.example.demo.ui.utils.ApiException;
-import static com.example.demo.ui.utils.UIConstants.BACKGROUND_COLOR;
-import static com.example.demo.ui.utils.UIConstants.BORDER_COLOR;
-import static com.example.demo.ui.utils.UIConstants.CARD_BACKGROUND;
-import static com.example.demo.ui.utils.UIConstants.FONT_LABEL;
-import static com.example.demo.ui.utils.UIConstants.FONT_REGULAR;
-import static com.example.demo.ui.utils.UIConstants.FONT_SMALL;
-import static com.example.demo.ui.utils.UIConstants.FONT_SUBTITLE;
-import static com.example.demo.ui.utils.UIConstants.FONT_TITLE;
-import static com.example.demo.ui.utils.UIConstants.PADDING_LARGE;
-import static com.example.demo.ui.utils.UIConstants.PADDING_MEDIUM;
-import static com.example.demo.ui.utils.UIConstants.PADDING_SMALL;
-import static com.example.demo.ui.utils.UIConstants.PANEL_BACKGROUND;
-import static com.example.demo.ui.utils.UIConstants.SUCCESS_COLOR;
-import static com.example.demo.ui.utils.UIConstants.TEXTFIELD_HEIGHT;
-import static com.example.demo.ui.utils.UIConstants.TEXT_PRIMARY;
-import static com.example.demo.ui.utils.UIConstants.TEXT_SECONDARY;
 
-/**
- * Panel para gerenciamento de Pagamentos
- */
-public class PagamentoPanel extends JPanel {
+import javax.swing.*;
+import java.awt.*;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.example.demo.ui.utils.UIConstants.*;
+
+public class PagamentoPanel extends JPanel implements RefreshablePanel {
     
     private final ApiClient apiClient;
-    private final DateTimeFormatter dateFormatter;
-    private final NumberFormat currencyFormat;
-    
-    // Componentes da tabela
     private CustomTable table;
-    private CustomComboBox<String> cmbFiltroForma;
-    private CustomTextField txtBusca;
-    
-    // Painéis
-    private JSplitPane splitPane;
-    private JPanel formPanel;
-    
-    // Componentes do formulário
-    private CustomComboBox<MatriculaItem> cmbMatricula;
-    private CustomDatePicker datePickerPagamento;
-    private CustomTextField txtValor;
-    private CustomComboBox<String> cmbFormaPagamento;
-    private JLabel lblInfoMatricula;
-    private JLabel lblTotalPago;
-    
-    // Botões
-    private CustomButton btnNovo;
-    private CustomButton btnEditar;
-    private CustomButton btnExcluir;
-    private CustomButton btnHistorico;
-    private CustomButton btnSalvar;
-    private CustomButton btnCancelar;
-    private CustomButton btnBuscar;
-    
-    // Controle de estado
-    private Long currentPagamentoId;
-    private boolean isEditMode;
-    
-    // Mensagens
-    private static final String MSG_SUCCESS_SAVE = "Pagamento registrado com sucesso!";
-    private static final String MSG_SUCCESS_UPDATE = "Pagamento atualizado com sucesso!";
-    private static final String MSG_SUCCESS_DELETE = "Pagamento excluído com sucesso!";
-    
-    // Formas de pagamento
-    private static final String[] FORMAS_PAGAMENTO = {
-        "PIX", "DINHEIRO", "CARTAO_CREDITO", "CARTAO_DEBITO", "TRANSFERENCIA"
-    };
+    private CustomButton btnNovo, btnEditar, btnExcluir, btnAtualizar;
     
     public PagamentoPanel() {
         this.apiClient = new ApiClient();
-        this.dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        this.currencyFormat = NumberFormat.getCurrencyInstance(Locale.of("pt", "BR"));
-        
+        initComponents();
+        setupLayout();
+        loadPagamentos();
+    }
+    
+    private void initComponents() {
+        setBackground(PANEL_BACKGROUND);
         setLayout(new BorderLayout(PADDING_LARGE, PADDING_LARGE));
-        setBackground(BACKGROUND_COLOR);
-        setBorder(new EmptyBorder(PADDING_LARGE, PADDING_LARGE, PADDING_LARGE, PADDING_LARGE));
+        setBorder(BorderFactory.createEmptyBorder(PADDING_LARGE, PADDING_LARGE, PADDING_LARGE, PADDING_LARGE));
         
-        initializeUI();
-        
-        // Carregar dados após a UI estar visível
-        SwingUtilities.invokeLater(() -> {
-            loadPagamentos();
-            loadMatriculas();
-        });
-    }
-    
-    private void initializeUI() {
-        // Split pane: tabela à esquerda, formulário à direita
-        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-        splitPane.setResizeWeight(0.6);
-        splitPane.setDividerSize(PADDING_MEDIUM);
-        splitPane.setBorder(null);
-        splitPane.setBackground(BACKGROUND_COLOR);
-        
-        splitPane.setLeftComponent(createListPanel());
-        formPanel = createFormPanel();
-        splitPane.setRightComponent(formPanel);
-        
-        add(splitPane, BorderLayout.CENTER);
-        
-        // Oculta o formulário na inicialização
-        hideFormPanel();
-    }
-    
-    private JPanel createListPanel() {
-        JPanel panel = new JPanel(new BorderLayout(0, PADDING_MEDIUM));
-        panel.setBackground(BACKGROUND_COLOR);
-        
-        // Cabeçalho com título e filtros
-        JPanel headerPanel = new JPanel(new BorderLayout(PADDING_MEDIUM, 0));
-        headerPanel.setBackground(BACKGROUND_COLOR);
-        
-        JLabel lblTitle = new JLabel("Pagamentos");
-        lblTitle.setFont(FONT_TITLE);
-        lblTitle.setForeground(TEXT_PRIMARY);
-        headerPanel.add(lblTitle, BorderLayout.WEST);
-        
-        // Painel de busca e filtros
-        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, PADDING_SMALL, 0));
-        searchPanel.setBackground(BACKGROUND_COLOR);
-        
-        JLabel lblFiltro = new JLabel("Forma:");
-        lblFiltro.setFont(FONT_REGULAR);
-        lblFiltro.setForeground(TEXT_PRIMARY);
-        
-        String[] filtrosForma = new String[FORMAS_PAGAMENTO.length + 1];
-        filtrosForma[0] = "Todas";
-        System.arraycopy(FORMAS_PAGAMENTO, 0, filtrosForma, 1, FORMAS_PAGAMENTO.length);
-        
-        cmbFiltroForma = new CustomComboBox<>(filtrosForma);
-        cmbFiltroForma.setFont(FONT_REGULAR);
-        cmbFiltroForma.addActionListener(e -> filtrarPorForma());
-        
-        txtBusca = new CustomTextField("Buscar por aluno...", 15);
-        btnBuscar = new CustomButton("[ ? ]", CustomButton.ButtonType.PRIMARY);
-        btnBuscar.addActionListener(e -> buscarPagamentos());
-        
-        searchPanel.add(lblFiltro);
-        searchPanel.add(cmbFiltroForma);
-        searchPanel.add(Box.createHorizontalStrut(PADDING_MEDIUM));
-        searchPanel.add(txtBusca);
-        searchPanel.add(btnBuscar);
-        
-        headerPanel.add(searchPanel, BorderLayout.EAST);
-        panel.add(headerPanel, BorderLayout.NORTH);
-        
-        // Tabela
-        String[] colunas = {"ID", "Aluno", "Plano", "Data", "Valor", "Forma"};
-        table = new CustomTable(colunas);
-        table.setPreferredScrollableViewportSize(new Dimension(700, 400));
+        String[] columns = {"ID", "Aluno", "Plano", "Data Pag.", "Valor", "Forma Pag."};
+        table = new CustomTable(columns);
+        table.setColumnWidth(0, 60);
+        table.setColumnWidth(3, 100);
+        table.setColumnWidth(4, 100);
+        table.setColumnWidth(5, 130);
+        table.centerColumn(0);
+        table.centerColumn(3);
+        table.centerColumn(4);
         table.getSelectionModel().addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting()) {
-                onPagamentoSelected();
-            }
+            if (!e.getValueIsAdjusting()) updateButtonStates();
         });
+        
+        btnNovo = CustomButton.createAddButton("Novo");
+        btnEditar = CustomButton.createEditButton("Editar");
+        btnExcluir = CustomButton.createDeleteButton("Excluir");
+        btnAtualizar = CustomButton.createRefreshButton("Atualizar");
+        
+        btnNovo.addActionListener(e -> showDialog(null));
+        btnEditar.addActionListener(e -> editarPagamento());
+        btnExcluir.addActionListener(e -> excluirPagamento());
+        btnAtualizar.addActionListener(e -> loadPagamentos());
+        
+        updateButtonStates();
+    }
+    
+    private void setupLayout() {
+        JPanel topPanel = new JPanel(new BorderLayout(PADDING_MEDIUM, PADDING_MEDIUM));
+        topPanel.setBackground(PANEL_BACKGROUND);
+        
+        JLabel title = new JLabel("Gerenciamento de Pagamentos");
+        title.setFont(FONT_TITLE);
+        title.setForeground(TEXT_PRIMARY);
+        topPanel.add(title, BorderLayout.CENTER);
         
         JScrollPane scrollPane = new JScrollPane(table);
+        scrollPane.setBorder(BorderFactory.createLineBorder(BORDER_COLOR, 1));
         scrollPane.getViewport().setBackground(PANEL_BACKGROUND);
-        scrollPane.setBorder(BorderFactory.createEmptyBorder());
-        panel.add(scrollPane, BorderLayout.CENTER);
         
-        // Botões de ação
-        JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, PADDING_SMALL, 0));
-        actionPanel.setBackground(BACKGROUND_COLOR);
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, PADDING_MEDIUM, PADDING_MEDIUM));
+        buttonPanel.setBackground(PANEL_BACKGROUND);
+        buttonPanel.add(btnNovo);
+        buttonPanel.add(btnEditar);
+        buttonPanel.add(btnExcluir);
+        buttonPanel.add(btnAtualizar);
         
-        btnNovo = new CustomButton("+ Novo Pagamento", CustomButton.ButtonType.SUCCESS);
-        btnEditar = new CustomButton("Editar", CustomButton.ButtonType.PRIMARY);
-        btnExcluir = new CustomButton("X Excluir", CustomButton.ButtonType.DANGER);
-        btnHistorico = new CustomButton("Ver Histórico", CustomButton.ButtonType.DEFAULT);
-        
-        btnNovo.addActionListener(e -> newPagamento());
-        btnEditar.addActionListener(e -> editPagamento());
-        btnExcluir.addActionListener(e -> deletePagamento());
-        btnHistorico.addActionListener(e -> mostrarHistorico());
-        
-        btnEditar.setEnabled(false);
-        btnExcluir.setEnabled(false);
-        btnHistorico.setEnabled(false);
-        
-        actionPanel.add(btnNovo);
-        actionPanel.add(btnEditar);
-        actionPanel.add(btnExcluir);
-        actionPanel.add(Box.createHorizontalStrut(PADDING_MEDIUM));
-        actionPanel.add(btnHistorico);
-        
-        panel.add(actionPanel, BorderLayout.SOUTH);
-        
-        return panel;
-    }
-    
-    private JPanel createFormPanel() {
-        JPanel panel = new JPanel(new BorderLayout(0, PADDING_MEDIUM));
-        panel.setBackground(CARD_BACKGROUND);
-        panel.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(BORDER_COLOR),
-            new EmptyBorder(PADDING_LARGE, PADDING_LARGE, PADDING_LARGE, PADDING_LARGE)
-        ));
-        
-        // Título
-        JLabel lblFormTitle = new JLabel("Registro de Pagamento");
-        lblFormTitle.setFont(FONT_SUBTITLE);
-        lblFormTitle.setForeground(TEXT_PRIMARY);
-        panel.add(lblFormTitle, BorderLayout.NORTH);
-        
-        // Campos do formulário
-        JPanel formFields = new JPanel();
-        formFields.setLayout(new BoxLayout(formFields, BoxLayout.Y_AXIS));
-        formFields.setBackground(CARD_BACKGROUND);
-        
-        // Matrícula
-        formFields.add(createLabel("Matrícula *"));
-        cmbMatricula = new CustomComboBox<>();
-        cmbMatricula.setFont(FONT_REGULAR);
-        cmbMatricula.setAlignmentX(Component.LEFT_ALIGNMENT);
-        cmbMatricula.setMaximumSize(new Dimension(Integer.MAX_VALUE, TEXTFIELD_HEIGHT));
-        cmbMatricula.addActionListener(e -> atualizarInfoMatricula());
-        formFields.add(cmbMatricula);
-        formFields.add(Box.createVerticalStrut(PADDING_SMALL));
-        
-        // Info da matrícula
-        lblInfoMatricula = new JLabel(" ");
-        lblInfoMatricula.setFont(FONT_SMALL);
-        lblInfoMatricula.setForeground(TEXT_SECONDARY);
-        lblInfoMatricula.setAlignmentX(Component.LEFT_ALIGNMENT);
-        formFields.add(lblInfoMatricula);
-        formFields.add(Box.createVerticalStrut(PADDING_MEDIUM));
-        
-        // Data do Pagamento
-        formFields.add(createLabel("Data do Pagamento *"));
-        datePickerPagamento = new CustomDatePicker();
-        datePickerPagamento.setAlignmentX(Component.LEFT_ALIGNMENT);
-        datePickerPagamento.setMaximumSize(new Dimension(Integer.MAX_VALUE, TEXTFIELD_HEIGHT));
-        formFields.add(datePickerPagamento);
-        formFields.add(Box.createVerticalStrut(PADDING_MEDIUM));
-        
-        // Valor Pago
-        formFields.add(createLabel("Valor Pago (R$) *"));
-        txtValor = new CustomTextField("Ex: 150.00", 15);
-        formFields.add(createFieldComponent(txtValor));
-        formFields.add(Box.createVerticalStrut(PADDING_MEDIUM));
-        
-        // Forma de Pagamento
-        formFields.add(createLabel("Forma de Pagamento *"));
-        cmbFormaPagamento = new CustomComboBox<>(FORMAS_PAGAMENTO);
-        cmbFormaPagamento.setFont(FONT_REGULAR);
-        cmbFormaPagamento.setAlignmentX(Component.LEFT_ALIGNMENT);
-        cmbFormaPagamento.setMaximumSize(new Dimension(Integer.MAX_VALUE, TEXTFIELD_HEIGHT));
-        formFields.add(cmbFormaPagamento);
-        formFields.add(Box.createVerticalStrut(PADDING_LARGE));
-        
-        // Total Pago (informativo)
-        JPanel totalPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, PADDING_SMALL, 0));
-        totalPanel.setBackground(CARD_BACKGROUND);
-        totalPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        
-        JLabel lblTotalLabel = new JLabel("Total Pago nesta Matrícula:");
-        lblTotalLabel.setFont(FONT_REGULAR);
-        lblTotalLabel.setForeground(TEXT_SECONDARY);
-        
-        lblTotalPago = new JLabel("R$ 0,00");
-        lblTotalPago.setFont(FONT_SUBTITLE);
-        lblTotalPago.setForeground(SUCCESS_COLOR);
-        
-        totalPanel.add(lblTotalLabel);
-        totalPanel.add(lblTotalPago);
-        totalPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
-        formFields.add(totalPanel);
-        
-        panel.add(formFields, BorderLayout.CENTER);
-        
-        // Botões do formulário
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, PADDING_SMALL, 0));
-        buttonPanel.setBackground(CARD_BACKGROUND);
-        
-        btnSalvar = new CustomButton("Salvar", CustomButton.ButtonType.SUCCESS);
-        btnCancelar = new CustomButton("Cancelar", CustomButton.ButtonType.DEFAULT);
-        
-        btnSalvar.addActionListener(e -> savePagamento());
-        btnCancelar.addActionListener(e -> cancelForm());
-        
-        buttonPanel.add(btnCancelar);
-        buttonPanel.add(btnSalvar);
-        
-        panel.add(buttonPanel, BorderLayout.SOUTH);
-        
-        setFormEnabled(false);
-        
-        return panel;
-    }
-    
-    private JLabel createLabel(String text) {
-        JLabel label = new JLabel(text);
-        label.setFont(FONT_LABEL);
-        label.setForeground(TEXT_PRIMARY);
-        label.setAlignmentX(Component.LEFT_ALIGNMENT);
-        return label;
-    }
-    
-    private JComponent createFieldComponent(JComponent component) {
-        component.setAlignmentX(Component.LEFT_ALIGNMENT);
-        component.setMaximumSize(new Dimension(Integer.MAX_VALUE, TEXTFIELD_HEIGHT));
-        return component;
+        add(topPanel, BorderLayout.NORTH);
+        add(scrollPane, BorderLayout.CENTER);
+        add(buttonPanel, BorderLayout.SOUTH);
     }
     
     private void loadPagamentos() {
@@ -346,14 +95,9 @@ public class PagamentoPanel extends JPanel {
             () -> {
                 String response = apiClient.get("/pagamentos");
                 List<PagamentoResponseDTO> pagamentos = apiClient.fromJsonArray(response, PagamentoResponseDTO.class);
-                
-                SwingUtilities.invokeLater(() -> {
-                    updateTable(pagamentos);
-                });
+                SwingUtilities.invokeLater(() -> updateTable(pagamentos));
             },
-            () -> {
-                // Sucesso
-            },
+            () -> {},
             error -> {
                 if (error instanceof ApiException) {
                     MessageDialog.showError(this, ((ApiException) error).getUserFriendlyMessage());
@@ -364,59 +108,39 @@ public class PagamentoPanel extends JPanel {
         );
     }
     
-    private void loadMatriculas() {
-        LoadingDialog.executeWithLoading(
-            SwingUtilities.getWindowAncestor(this),
-            "Carregando matrículas...",
-            () -> {
-                String response = apiClient.get("/matriculas");
-                List<MatriculaResponseDTO> matriculas = apiClient.fromJsonArray(response, MatriculaResponseDTO.class);
-                
-                SwingUtilities.invokeLater(() -> {
-                    cmbMatricula.removeAllItems();
-                    for (MatriculaResponseDTO matricula : matriculas) {
-                        // Adicionar apenas matrículas ATIVAS
-                        if ("ATIVA".equals(matricula.getStatus().toString())) {
-                            cmbMatricula.addItem(new MatriculaItem(
-                                matricula.getId(),
-                                matricula.getNomeAluno(),
-                                matricula.getNomePlano(),
-                                matricula.getIdPlano()
-                            ));
-                        }
-                    }
-                });
-            },
-            () -> {
-                // Sucesso
-            },
-            error -> {
-                if (error instanceof ApiException) {
-                    MessageDialog.showError(this, ((ApiException) error).getUserFriendlyMessage());
-                } else {
-                    MessageDialog.showError(this, "Erro ao carregar matrículas: " + error.getMessage());
-                }
-            }
-        );
-    }
-    
     private void updateTable(List<PagamentoResponseDTO> pagamentos) {
         table.clearRows();
-        for (PagamentoResponseDTO pagamento : pagamentos) {
-            table.addRow(new Object[]{
-                pagamento.getIdPagamento(),
-                pagamento.getNomeAluno(),
-                pagamento.getNomePlano(),
-                pagamento.getDataPagamento().format(dateFormatter),
-                currencyFormat.format(pagamento.getValorPago()),
-                formatarFormaPagamento(pagamento.getFormaPagamento())
-            });
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        
+        for (PagamentoResponseDTO pag : pagamentos) {
+            Object[] row = {
+                pag.getIdPagamento(),
+                pag.getNomeAluno(),
+                pag.getNomePlano(),
+                pag.getDataPagamento() != null ? pag.getDataPagamento().format(formatter) : "",
+                pag.getValorPago(),
+                formatFormaPagamento(pag.getFormaPagamento())
+            };
+            table.addRow(row);
         }
+        updateButtonStates();
     }
     
-    private void onPagamentoSelected() {
+    private String formatFormaPagamento(String forma) {
+        if (forma == null) return "";
+        return switch (forma) {
+            case "CARTAO_CREDITO" -> "Cartão Crédito";
+            case "CARTAO_DEBITO" -> "Cartão Débito";
+            case "TRANSFERENCIA" -> "Transferência";
+            case "DINHEIRO" -> "Dinheiro";
+            case "PIX" -> "PIX";
+            default -> forma;
+        };
+    }
+    
+    private void editarPagamento() {
         if (!table.hasSelection()) {
-            clearSelection();
+            MessageDialog.showWarning(this, "Selecione um pagamento para editar.");
             return;
         }
         
@@ -427,467 +151,292 @@ public class PagamentoPanel extends JPanel {
             "Carregando dados...",
             () -> {
                 String response = apiClient.get("/pagamentos/" + id);
-                PagamentoResponseDTO pagamento = apiClient.fromJson(response, PagamentoResponseDTO.class);
-                
-                SwingUtilities.invokeLater(() -> {
-                    populateForm(pagamento);
-                    updateButtons();
-                });
+                PagamentoResponseDTO pag = apiClient.fromJson(response, PagamentoResponseDTO.class);
+                SwingUtilities.invokeLater(() -> showDialog(pag));
             },
-            () -> {
-                // Sucesso
-            },
+            () -> {},
             error -> {
                 if (error instanceof ApiException) {
                     MessageDialog.showError(this, ((ApiException) error).getUserFriendlyMessage());
                 } else {
-                    MessageDialog.showError(this, "Erro ao carregar pagamento: " + error.getMessage());
+                    MessageDialog.showError(this, "Erro ao carregar: " + error.getMessage());
                 }
             }
         );
     }
     
-    private void populateForm(PagamentoResponseDTO pagamento) {
-        currentPagamentoId = pagamento.getIdPagamento();
-        
-        // Selecionar matrícula
-        for (int i = 0; i < cmbMatricula.getItemCount(); i++) {
-            if (cmbMatricula.getItemAt(i).getId().equals(pagamento.getIdMatricula())) {
-                cmbMatricula.setSelectedIndex(i);
-                break;
-            }
-        }
-        
-        datePickerPagamento.setLocalDate(pagamento.getDataPagamento());
-        txtValor.setText(pagamento.getValorPago().toString());
-        cmbFormaPagamento.setSelectedItem(pagamento.getFormaPagamento());
-        
-        carregarTotalPago(pagamento.getIdMatricula());
-        
-        setFormEnabled(false);
-        isEditMode = false;
-    }
-    
-    private void newPagamento() {
-        clearForm();
-        setFormEnabled(true);
-        isEditMode = false;
-        currentPagamentoId = null;
-        table.clearSelection();
-        
-        // Definir data como hoje
-        datePickerPagamento.setLocalDate(LocalDate.now());
-        
-        showFormPanel();
-        updateButtons();
-    }
-    
-    private void editPagamento() {
-        if (!table.hasSelection()) {
-            MessageDialog.showWarning(this, "Selecione um pagamento para editar.");
-            return;
-        }
-        
-        setFormEnabled(true);
-        isEditMode = true;
-        showFormPanel();
-        updateButtons();
-    }
-    
-    private void savePagamento() {
-        if (!validateForm()) {
-            return;
-        }
-        
-        MatriculaItem matricula = (MatriculaItem) cmbMatricula.getSelectedItem();
-        
-        Map<String, Object> pagamentoData = new HashMap<>();
-        pagamentoData.put("idMatricula", matricula.getId());
-        pagamentoData.put("dataPagamento", datePickerPagamento.getLocalDate().toString());
-        pagamentoData.put("valorPago", new BigDecimal(txtValor.getText().trim().replace(",", ".")));
-        pagamentoData.put("formaPagamento", cmbFormaPagamento.getSelectedItem().toString());
-        
-        LoadingDialog.executeWithLoading(
-            SwingUtilities.getWindowAncestor(this),
-            isEditMode ? "Atualizando pagamento..." : "Registrando pagamento...",
-            () -> {
-                if (isEditMode) {
-                    apiClient.put("/pagamentos/" + currentPagamentoId, pagamentoData);
-                } else {
-                    apiClient.post("/pagamentos", pagamentoData);
-                }
-            },
-            () -> {
-                MessageDialog.showSuccess(this, isEditMode ? MSG_SUCCESS_UPDATE : MSG_SUCCESS_SAVE);
-                cancelForm();
-                loadPagamentos();
-            },
-            error -> {
-                if (error instanceof ApiException) {
-                    MessageDialog.showError(this, ((ApiException) error).getUserFriendlyMessage());
-                } else {
-                    MessageDialog.showError(this, "Erro ao salvar pagamento: " + error.getMessage());
-                }
-            }
-        );
-    }
-    
-    private boolean validateForm() {
-        // Validar seleção de matrícula
-        if (cmbMatricula.getSelectedItem() == null) {
-            MessageDialog.showError(this, "Selecione uma matrícula.");
-            cmbMatricula.requestFocus();
-            return false;
-        }
-        
-        // Validar data
-        LocalDate dataPagamento = datePickerPagamento.getLocalDate();
-        if (dataPagamento == null) {
-            MessageDialog.showError(this, "Informe a data do pagamento.");
-            datePickerPagamento.requestFocus();
-            return false;
-        }
-        
-        // Validar que data não é futura
-        if (dataPagamento.isAfter(LocalDate.now())) {
-            MessageDialog.showError(this, "A data do pagamento não pode ser futura.");
-            datePickerPagamento.requestFocus();
-            return false;
-        }
-        
-        // Validar valor
-        String valorText = txtValor.getText().trim().replace(",", ".");
-        try {
-            BigDecimal valor = new BigDecimal(valorText);
-            if (valor.compareTo(BigDecimal.ZERO) <= 0) {
-                txtValor.markAsInvalid();
-                MessageDialog.showError(this, "O valor deve ser maior que zero.");
-                txtValor.requestFocus();
-                return false;
-            }
-            txtValor.markAsValid();
-        } catch (NumberFormatException e) {
-            txtValor.markAsInvalid();
-            MessageDialog.showError(this, "Valor inválido. Use o formato: 99.99");
-            txtValor.requestFocus();
-            return false;
-        }
-        
-        return true;
-    }
-    
-    private void deletePagamento() {
+    private void excluirPagamento() {
         if (!table.hasSelection()) {
             MessageDialog.showWarning(this, "Selecione um pagamento para excluir.");
             return;
         }
         
-        if (!MessageDialog.showDeleteConfirmation(this)) {
-            return;
-        }
-        
         Long id = (Long) table.getSelectedRowValue(0);
+        String aluno = (String) table.getSelectedRowValue(1);
+        
+        int confirm = JOptionPane.showConfirmDialog(
+            this,
+            "Deseja realmente excluir o pagamento do aluno " + aluno + "?",
+            "Confirmar Exclusão",
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.WARNING_MESSAGE
+        );
+        
+        if (confirm != JOptionPane.YES_OPTION) return;
         
         LoadingDialog.executeWithLoading(
             SwingUtilities.getWindowAncestor(this),
             "Excluindo pagamento...",
+            () -> apiClient.delete("/pagamentos/" + id),
             () -> {
-                apiClient.delete("/pagamentos/" + id);
-            },
-            () -> {
-                MessageDialog.showSuccess(this, MSG_SUCCESS_DELETE);
-                clearSelection();
+                MessageDialog.showSuccess(this, "Pagamento excluído com sucesso!");
                 loadPagamentos();
+                notifyParentToRefresh();
             },
             error -> {
                 if (error instanceof ApiException) {
                     MessageDialog.showError(this, ((ApiException) error).getUserFriendlyMessage());
                 } else {
-                    MessageDialog.showError(this, "Erro ao excluir pagamento: " + error.getMessage());
+                    MessageDialog.showError(this, "Erro ao excluir: " + error.getMessage());
                 }
             }
         );
     }
     
-    private void mostrarHistorico() {
-        if (!table.hasSelection()) {
-            MessageDialog.showWarning(this, "Selecione um pagamento para ver o histórico da matrícula.");
-            return;
-        }
+    private void showDialog(PagamentoResponseDTO pagamento) {
+        JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this),
+            pagamento == null ? "Novo Pagamento" : "Editar Pagamento", true);
+        dialog.setLayout(new BorderLayout());
         
-        Long idMatricula = getIdMatriculaFromSelection();
-        if (idMatricula == null) return;
+        JPanel content = new JPanel();
+        content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
+        content.setBackground(CARD_BACKGROUND);
+        content.setBorder(BorderFactory.createEmptyBorder(PADDING_LARGE, PADDING_LARGE, PADDING_LARGE, PADDING_LARGE));
         
-        LoadingDialog.executeWithLoading(
-            SwingUtilities.getWindowAncestor(this),
-            "Carregando histórico...",
-            () -> {
-                String response = apiClient.get("/pagamentos/matricula/" + idMatricula);
-                List<PagamentoResponseDTO> historico = apiClient.fromJsonArray(response, PagamentoResponseDTO.class);
-                
-                String totalResponse = apiClient.get("/pagamentos/matricula/" + idMatricula + "/total");
-                BigDecimal total = new BigDecimal(totalResponse.replace("\"", ""));
-                
-                SwingUtilities.invokeLater(() -> {
-                    exibirDialogoHistorico(historico, total);
-                });
-            },
-            () -> {
-                // Sucesso
-            },
-            error -> {
-                if (error instanceof ApiException) {
-                    MessageDialog.showError(this, ((ApiException) error).getUserFriendlyMessage());
-                } else {
-                    MessageDialog.showError(this, "Erro ao carregar histórico: " + error.getMessage());
+        // Carregar matrículas
+        List<MatriculaItem> matriculas = carregarMatriculas();
+        
+        // Matrícula
+        JLabel lblMatricula = new JLabel("Matrícula *");
+        lblMatricula.setForeground(TEXT_PRIMARY);
+        lblMatricula.setFont(FONT_REGULAR);
+        lblMatricula.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        JComboBox<MatriculaItem> cmbMatricula = new JComboBox<>(matriculas.toArray(new MatriculaItem[0]));
+        cmbMatricula.setMaximumSize(new Dimension(Integer.MAX_VALUE, 35));
+        cmbMatricula.setAlignmentX(Component.LEFT_ALIGNMENT);
+        if (pagamento != null) {
+            for (int i = 0; i < cmbMatricula.getItemCount(); i++) {
+                if (cmbMatricula.getItemAt(i).id.equals(pagamento.getIdMatricula())) {
+                    cmbMatricula.setSelectedIndex(i);
+                    break;
                 }
             }
-        );
-    }
-    
-    private Long getIdMatriculaFromSelection() {
-        try {
-            Long id = (Long) table.getSelectedRowValue(0);
-            String response = apiClient.get("/pagamentos/" + id);
-            PagamentoResponseDTO pagamento = apiClient.fromJson(response, PagamentoResponseDTO.class);
-            return pagamento.getIdMatricula();
-        } catch (Exception e) {
-            MessageDialog.showError(this, "Erro ao obter ID da matrícula.");
-            return null;
         }
-    }
-    
-    private void exibirDialogoHistorico(List<PagamentoResponseDTO> historico, BigDecimal total) {
-        JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Histórico de Pagamentos", true);
-        dialog.setSize(700, 500);
+        
+        content.add(lblMatricula);
+        content.add(Box.createVerticalStrut(PADDING_SMALL));
+        content.add(cmbMatricula);
+        content.add(Box.createVerticalStrut(PADDING_MEDIUM));
+        
+        // Data Pagamento
+        JLabel lblData = new JLabel("Data Pagamento *");
+        lblData.setForeground(TEXT_PRIMARY);
+        lblData.setFont(FONT_REGULAR);
+        lblData.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        CustomDatePicker dpData = new CustomDatePicker();
+        dpData.setAlignmentX(Component.LEFT_ALIGNMENT);
+        if (pagamento != null && pagamento.getDataPagamento() != null) {
+            dpData.setLocalDate(pagamento.getDataPagamento());
+        } else {
+            dpData.setLocalDate(LocalDate.now());
+        }
+        
+        content.add(lblData);
+        content.add(Box.createVerticalStrut(PADDING_SMALL));
+        content.add(dpData);
+        content.add(Box.createVerticalStrut(PADDING_MEDIUM));
+        
+        // Valor Pago
+        JLabel lblValor = new JLabel("Valor Pago *");
+        lblValor.setForeground(TEXT_PRIMARY);
+        lblValor.setFont(FONT_REGULAR);
+        lblValor.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        CustomTextField txtValor = new CustomTextField("", 30);
+        txtValor.setAlignmentX(Component.LEFT_ALIGNMENT);
+        if (pagamento != null && pagamento.getValorPago() != null) {
+            txtValor.setText(pagamento.getValorPago().toString());
+        }
+        
+        content.add(lblValor);
+        content.add(Box.createVerticalStrut(PADDING_SMALL));
+        content.add(txtValor);
+        content.add(Box.createVerticalStrut(PADDING_MEDIUM));
+        
+        // Forma de Pagamento
+        JLabel lblForma = new JLabel("Forma de Pagamento *");
+        lblForma.setForeground(TEXT_PRIMARY);
+        lblForma.setFont(FONT_REGULAR);
+        lblForma.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        String[] formasPagamento = {"DINHEIRO", "CARTAO_CREDITO", "CARTAO_DEBITO", "PIX", "TRANSFERENCIA"};
+        JComboBox<String> cmbForma = new JComboBox<>(formasPagamento);
+        cmbForma.setMaximumSize(new Dimension(Integer.MAX_VALUE, 35));
+        cmbForma.setAlignmentX(Component.LEFT_ALIGNMENT);
+        if (pagamento != null && pagamento.getFormaPagamento() != null) {
+            cmbForma.setSelectedItem(pagamento.getFormaPagamento());
+        }
+        
+        content.add(lblForma);
+        content.add(Box.createVerticalStrut(PADDING_SMALL));
+        content.add(cmbForma);
+        content.add(Box.createVerticalStrut(PADDING_LARGE));
+        
+        // Botões
+        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, PADDING_SMALL, 0));
+        btnPanel.setBackground(CARD_BACKGROUND);
+        btnPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        CustomButton btnCancelar = CustomButton.createCancelButton("Cancelar");
+        btnCancelar.addActionListener(e -> dialog.dispose());
+        
+        CustomButton btnSalvar = CustomButton.createSaveButton("Salvar");
+        btnSalvar.addActionListener(e -> {
+            MatriculaItem selectedMatricula = (MatriculaItem) cmbMatricula.getSelectedItem();
+            if (selectedMatricula == null) {
+                MessageDialog.showWarning(dialog, "Selecione uma matrícula!");
+                return;
+            }
+            
+            LocalDate dataPagamento = dpData.getLocalDate();
+            if (dataPagamento == null) {
+                MessageDialog.showWarning(dialog, "Selecione a data de pagamento!");
+                return;
+            }
+            
+            String valorStr = txtValor.getText().trim();
+            if (valorStr.isEmpty()) {
+                MessageDialog.showWarning(dialog, "Informe o valor pago!");
+                return;
+            }
+            
+            BigDecimal valorPago;
+            try {
+                valorPago = new BigDecimal(valorStr);
+                if (valorPago.compareTo(BigDecimal.ZERO) <= 0) {
+                    MessageDialog.showWarning(dialog, "Valor deve ser maior que zero!");
+                    return;
+                }
+            } catch (NumberFormatException ex) {
+                MessageDialog.showWarning(dialog, "Valor inválido!");
+                return;
+            }
+            
+            String formaPagamento = (String) cmbForma.getSelectedItem();
+            
+            // Criar request
+            PagamentoRequestDTO request = new PagamentoRequestDTO();
+            request.setIdMatricula(selectedMatricula.id);
+            request.setDataPagamento(dataPagamento);
+            request.setValorPago(valorPago);
+            request.setFormaPagamento(formaPagamento);
+            
+            salvarPagamento(request, pagamento);
+            dialog.dispose();
+        });
+        
+        btnPanel.add(btnCancelar);
+        btnPanel.add(btnSalvar);
+        content.add(btnPanel);
+        
+        dialog.add(content, BorderLayout.CENTER);
+        dialog.pack();
         dialog.setLocationRelativeTo(this);
-        
-        JPanel mainPanel = new JPanel(new BorderLayout(PADDING_MEDIUM, PADDING_MEDIUM));
-        mainPanel.setBackground(CARD_BACKGROUND);
-        mainPanel.setBorder(new EmptyBorder(PADDING_LARGE, PADDING_LARGE, PADDING_LARGE, PADDING_LARGE));
-        
-        // Informações da matrícula
-        if (!historico.isEmpty()) {
-            PagamentoResponseDTO primeiro = historico.get(0);
-            JLabel lblInfo = new JLabel(
-                "<html><b>Aluno:</b> " + primeiro.getNomeAluno() + 
-                " | <b>Plano:</b> " + primeiro.getNomePlano() + "</html>"
-            );
-            lblInfo.setFont(FONT_SUBTITLE);
-            lblInfo.setForeground(TEXT_PRIMARY);
-            mainPanel.add(lblInfo, BorderLayout.NORTH);
-        }
-        
-        // Tabela de histórico
-        String[] colunas = {"Data", "Valor", "Forma de Pagamento"};
-        CustomTable tableHistorico = new CustomTable(colunas);
-        
-        for (PagamentoResponseDTO pag : historico) {
-            tableHistorico.addRow(new Object[]{
-                pag.getDataPagamento().format(dateFormatter),
-                currencyFormat.format(pag.getValorPago()),
-                formatarFormaPagamento(pag.getFormaPagamento())
-            });
-        }
-        
-        JScrollPane scrollPane = new JScrollPane(tableHistorico);
-        scrollPane.setBorder(BorderFactory.createLineBorder(BORDER_COLOR));
-        mainPanel.add(scrollPane, BorderLayout.CENTER);
-        
-        // Total pago
-        JPanel totalPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, PADDING_MEDIUM, 0));
-        totalPanel.setBackground(CARD_BACKGROUND);
-        
-        JLabel lblTotal = new JLabel("Total Pago: " + currencyFormat.format(total));
-        lblTotal.setFont(FONT_TITLE);
-        lblTotal.setForeground(SUCCESS_COLOR);
-        totalPanel.add(lblTotal);
-        
-        mainPanel.add(totalPanel, BorderLayout.SOUTH);
-        
-        dialog.add(mainPanel);
         dialog.setVisible(true);
     }
     
-    private void buscarPagamentos() {
-        String termo = txtBusca.getText().trim().toLowerCase();
-        if (termo.isEmpty()) {
-            loadPagamentos();
-            return;
-        }
-        
-        LoadingDialog.executeWithLoading(
-            SwingUtilities.getWindowAncestor(this),
-            "Buscando pagamentos...",
-            () -> {
-                String response = apiClient.get("/pagamentos");
-                List<PagamentoResponseDTO> todosPagamentos = apiClient.fromJsonArray(response, PagamentoResponseDTO.class);
-                List<PagamentoResponseDTO> filtrados = todosPagamentos.stream()
-                    .filter(p -> p.getNomeAluno().toLowerCase().contains(termo))
-                    .toList();
-                
-                SwingUtilities.invokeLater(() -> {
-                    updateTable(filtrados);
-                    if (filtrados.isEmpty()) {
-                        MessageDialog.showInfo(this, "Nenhum pagamento encontrado.");
-                    }
-                });
-            },
-            () -> {
-                // Sucesso
-            },
-            error -> {
-                if (error instanceof ApiException) {
-                    MessageDialog.showError(this, ((ApiException) error).getUserFriendlyMessage());
-                } else {
-                    MessageDialog.showError(this, "Erro ao buscar pagamentos: " + error.getMessage());
-                }
-            }
-        );
-    }
-    
-    private void filtrarPorForma() {
-        String formaSelecionada = (String) cmbFiltroForma.getSelectedItem();
-        
-        if ("Todas".equals(formaSelecionada)) {
-            loadPagamentos();
-            return;
-        }
-        
-        LoadingDialog.executeWithLoading(
-            SwingUtilities.getWindowAncestor(this),
-            "Filtrando pagamentos...",
-            () -> {
-                String response = apiClient.get("/pagamentos/forma-pagamento/" + formaSelecionada);
-                List<PagamentoResponseDTO> pagamentos = apiClient.fromJsonArray(response, PagamentoResponseDTO.class);
-                
-                SwingUtilities.invokeLater(() -> {
-                    updateTable(pagamentos);
-                });
-            },
-            () -> {
-                // Sucesso
-            },
-            error -> {
-                if (error instanceof ApiException) {
-                    MessageDialog.showError(this, ((ApiException) error).getUserFriendlyMessage());
-                } else {
-                    MessageDialog.showError(this, "Erro ao filtrar pagamentos: " + error.getMessage());
-                }
-            }
-        );
-    }
-    
-    private void atualizarInfoMatricula() {
-        MatriculaItem item = (MatriculaItem) cmbMatricula.getSelectedItem();
-        if (item != null) {
-            lblInfoMatricula.setText("Plano: " + item.getNomePlano());
-            carregarTotalPago(item.getId());
-        }
-    }
-    
-    private void carregarTotalPago(Long idMatricula) {
+    private List<MatriculaItem> carregarMatriculas() {
         try {
-            String response = apiClient.get("/pagamentos/matricula/" + idMatricula + "/total");
-            BigDecimal total = new BigDecimal(response.replace("\"", ""));
-            lblTotalPago.setText(currencyFormat.format(total));
+            String response = apiClient.get("/matriculas");
+            List<MatriculaResponseDTO> matriculas = apiClient.fromJsonArray(response, MatriculaResponseDTO.class);
+            return matriculas.stream()
+                .filter(m -> m.getStatus() == MatriculaStatus.ATIVA)
+                .map(MatriculaItem::new)
+                .collect(Collectors.toList());
         } catch (Exception e) {
-            lblTotalPago.setText("R$ 0,00");
+            MessageDialog.showError(this, "Erro ao carregar matrículas: " + e.getMessage());
+            return List.of();
         }
     }
     
-    private void cancelForm() {
-        clearForm();
-        setFormEnabled(false);
-        isEditMode = false;
-        currentPagamentoId = null;
-        hideFormPanel();
-        if (table.hasSelection()) {
-            onPagamentoSelected();
-        }
-        updateButtons();
+    private void salvarPagamento(PagamentoRequestDTO request, PagamentoResponseDTO existing) {
+        boolean isNew = existing == null;
+        
+        LoadingDialog.executeWithLoading(
+            SwingUtilities.getWindowAncestor(this),
+            isNew ? "Cadastrando..." : "Atualizando...",
+            () -> {
+                if (isNew) {
+                    apiClient.post("/pagamentos", request);
+                } else {
+                    apiClient.put("/pagamentos/" + existing.getIdPagamento(), request);
+                }
+            },
+            () -> {
+                MessageDialog.showSuccess(this, isNew ? MSG_SUCCESS_SAVE : MSG_SUCCESS_UPDATE);
+                loadPagamentos();
+                notifyParentToRefresh();
+            },
+            error -> {
+                if (error instanceof ApiException) {
+                    MessageDialog.showError(this, ((ApiException) error).getUserFriendlyMessage());
+                } else {
+                    MessageDialog.showError(this, "Erro ao salvar: " + error.getMessage());
+                }
+            }
+        );
     }
     
-    private void clearForm() {
-        if (cmbMatricula.getItemCount() > 0) {
-            cmbMatricula.setSelectedIndex(0);
-        }
-        datePickerPagamento.setLocalDate(LocalDate.now());
-        txtValor.setText("0.00");
-        cmbFormaPagamento.setSelectedIndex(0);
-        lblInfoMatricula.setText(" ");
-        lblTotalPago.setText("R$ 0,00");
-        txtValor.markAsValid();
-    }
-    
-    private void clearSelection() {
-        table.clearSelection();
-        currentPagamentoId = null;
-        isEditMode = false;
-        clearForm();
-        setFormEnabled(false);
-        updateButtons();
-    }
-    
-    private void setFormEnabled(boolean enabled) {
-        cmbMatricula.setEnabled(enabled);
-        datePickerPagamento.setEnabled(enabled);
-        txtValor.setEditable(enabled);
-        cmbFormaPagamento.setEnabled(enabled);
-        btnSalvar.setEnabled(enabled);
-        btnCancelar.setEnabled(enabled);
-    }
-    
-    private void updateButtons() {
+    private void updateButtonStates() {
         boolean hasSelection = table.hasSelection();
-        boolean formEnabled = cmbMatricula.isEnabled();
+        btnEditar.setEnabled(hasSelection);
+        btnExcluir.setEnabled(hasSelection);
+    }
+    
+    // ========== REFRESH E NOTIFICAÇÕES ==========
+    
+    @Override
+    public void refreshData() {
+        loadPagamentos();
+    }
+    
+    private void notifyParentToRefresh() {
+        Container parent = getParent();
+        while (parent != null && !(parent instanceof GymManagementUI)) {
+            parent = parent.getParent();
+        }
         
-        btnNovo.setEnabled(!formEnabled);
-        btnEditar.setEnabled(hasSelection && !formEnabled);
-        btnExcluir.setEnabled(hasSelection && !formEnabled);
-        btnHistorico.setEnabled(hasSelection && !formEnabled);
+        if (parent instanceof GymManagementUI) {
+            ((GymManagementUI) parent).notifyDataChanged();
+        }
     }
     
-    private void showFormPanel() {
-        splitPane.setRightComponent(formPanel);
-        splitPane.setResizeWeight(0.6);
-        splitPane.setDividerLocation(0.6);
-        formPanel.setVisible(true);
-    }
+    // ========== INNER CLASS ==========
     
-    private void hideFormPanel() {
-        splitPane.remove(formPanel);
-        formPanel.setVisible(false);
-    }
-    
-    private String formatarFormaPagamento(String forma) {
-        if (forma == null) return "";
-        return forma.replace("_", " ");
-    }
-    
-    // Classe auxiliar para ComboBox de matrículas
     private static class MatriculaItem {
-        private final Long id;
-        private final String nomeAluno;
-        private final String nomePlano;
+        Long id;
+        String display;
         
-        public MatriculaItem(Long id, String nomeAluno, String nomePlano, Long idPlano) {
-            this.id = id;
-            this.nomeAluno = nomeAluno;
-            this.nomePlano = nomePlano;
-        }
-        
-        public Long getId() {
-            return id;
-        }
-        
-        public String getNomePlano() {
-            return nomePlano;
+        MatriculaItem(MatriculaResponseDTO dto) {
+            this.id = dto.getId();
+            this.display = dto.getNomeAluno() + " - " + dto.getNomePlano();
         }
         
         @Override
         public String toString() {
-            return nomeAluno + " - " + nomePlano;
+            return display;
         }
     }
 }

@@ -176,6 +176,50 @@ public class CustomDatePicker extends JPanel {
     }
     
     /**
+     * Define a data mínima permitida
+     * 
+     * @param minDate Data mínima
+     */
+    public void setMinDate(Date minDate) {
+        SpinnerDateModel model = (SpinnerDateModel) dateSpinner.getModel();
+        model.setStart(minDate);
+    }
+    
+    /**
+     * Define a data mínima usando LocalDate
+     * 
+     * @param minDate Data mínima
+     */
+    public void setMinDate(LocalDate minDate) {
+        if (minDate != null) {
+            Date date = Date.from(minDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+            setMinDate(date);
+        }
+    }
+    
+    /**
+     * Define a data máxima permitida
+     * 
+     * @param maxDate Data máxima
+     */
+    public void setMaxDate(Date maxDate) {
+        SpinnerDateModel model = (SpinnerDateModel) dateSpinner.getModel();
+        model.setEnd(maxDate);
+    }
+    
+    /**
+     * Define a data máxima usando LocalDate
+     * 
+     * @param maxDate Data máxima
+     */
+    public void setMaxDate(LocalDate maxDate) {
+        if (maxDate != null) {
+            Date date = Date.from(maxDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+            setMaxDate(date);
+        }
+    }
+    
+    /**
      * Valida se a data está no futuro
      * 
      * @return true se a data é futura, false caso contrário
