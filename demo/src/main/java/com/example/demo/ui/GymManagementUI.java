@@ -1,19 +1,39 @@
 package com.example.demo.ui;
 
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+
+import javax.swing.Icon;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+
 import com.example.demo.ui.panels.AlunoPanel;
-import com.example.demo.ui.panels.PlanoPanel;
+import com.example.demo.ui.panels.DashboardPanel;
+import com.example.demo.ui.panels.ExercicioPanel;
+import com.example.demo.ui.panels.FrequenciaPanel;
+import com.example.demo.ui.panels.InstrutorPanel;
+import com.example.demo.ui.panels.ItemTreinoPanel;
 import com.example.demo.ui.panels.MatriculaPanel;
 import com.example.demo.ui.panels.PagamentoPanel;
-import com.example.demo.ui.panels.FrequenciaPanel;
-import com.example.demo.ui.panels.ExercicioPanel;
+import com.example.demo.ui.panels.PlanoPanel;
 import com.example.demo.ui.panels.PlanoTreinoPanel;
-import com.example.demo.ui.panels.ItemTreinoPanel;
-import com.example.demo.ui.panels.DashboardPanel;
-
-import javax.swing.*;
-import java.awt.*;
-
-import static com.example.demo.ui.utils.UIConstants.*;
+import static com.example.demo.ui.utils.UIConstants.BACKGROUND_COLOR;
+import static com.example.demo.ui.utils.UIConstants.BACKGROUND_SECONDARY;
+import static com.example.demo.ui.utils.UIConstants.BORDER_COLOR;
+import static com.example.demo.ui.utils.UIConstants.CARD_BACKGROUND;
+import static com.example.demo.ui.utils.UIConstants.ERROR_COLOR;
+import static com.example.demo.ui.utils.UIConstants.FONT_REGULAR;
+import static com.example.demo.ui.utils.UIConstants.INFO_COLOR;
+import static com.example.demo.ui.utils.UIConstants.PANEL_BACKGROUND;
+import static com.example.demo.ui.utils.UIConstants.PRIMARY_COLOR;
+import static com.example.demo.ui.utils.UIConstants.SUCCESS_COLOR;
+import static com.example.demo.ui.utils.UIConstants.TEXT_ON_PRIMARY;
+import static com.example.demo.ui.utils.UIConstants.TEXT_PRIMARY;
+import static com.example.demo.ui.utils.UIConstants.TEXT_TERTIARY;
+import static com.example.demo.ui.utils.UIConstants.WARNING_COLOR;
 
 /**
  * Classe principal do frontend JFrame do sistema de gestão de academia.
@@ -45,6 +65,7 @@ public class GymManagementUI extends JFrame {
         // Adiciona painéis
         addDashboardPanel();
         addAlunoPanel();
+        addInstrutorPanel();
         addPlanoPanel();
         addMatriculaPanel();
         addPagamentoPanel();
@@ -68,6 +89,14 @@ public class GymManagementUI extends JFrame {
     private void addAlunoPanel() {
         AlunoPanel alunoPanel = new AlunoPanel();
         tabbedPane.addTab("Alunos", alunoPanel);
+    }
+    
+    /**
+     * Adiciona o painel de instrutores
+     */
+    private void addInstrutorPanel() {
+        InstrutorPanel instrutorPanel = new InstrutorPanel();
+        tabbedPane.addTab("Instrutores", instrutorPanel);
     }
     
     /**
