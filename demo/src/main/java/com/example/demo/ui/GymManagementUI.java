@@ -9,7 +9,6 @@ import com.example.demo.ui.panels.ExercicioPanel;
 import com.example.demo.ui.panels.PlanoTreinoPanel;
 import com.example.demo.ui.panels.ItemTreinoPanel;
 import com.example.demo.ui.panels.DashboardPanel;
-import com.example.demo.ui.panels.BuscaGlobalPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -22,9 +21,9 @@ import static com.example.demo.ui.utils.UIConstants.*;
  */
 public class GymManagementUI extends JFrame {
     
-    private static final String TITLE = "🏋️ Sistema de Gestão de Academia";
+    private static final String TITLE = "Sistema de Gestão de Academia";
     private static final int DEFAULT_WIDTH = 1400;
-    private static final int DEFAULT_HEIGHT = 800;
+    private static final int DEFAULT_HEIGHT = 900;
     
     private JTabbedPane tabbedPane;
     
@@ -45,7 +44,6 @@ public class GymManagementUI extends JFrame {
         
         // Adiciona painéis
         addDashboardPanel();
-        addBuscaGlobalPanel();
         addAlunoPanel();
         addPlanoPanel();
         addMatriculaPanel();
@@ -61,15 +59,7 @@ public class GymManagementUI extends JFrame {
      */
     private void addDashboardPanel() {
         DashboardPanel dashboardPanel = new DashboardPanel();
-        tabbedPane.addTab("📊 Dashboard", dashboardPanel);
-    }
-    
-    /**
-     * Adiciona o painel de busca global
-     */
-    private void addBuscaGlobalPanel() {
-        BuscaGlobalPanel buscaPanel = new BuscaGlobalPanel();
-        tabbedPane.addTab("🔍 Busca Global", buscaPanel);
+        tabbedPane.addTab("Dashboard", dashboardPanel);
     }
     
     /**
@@ -77,7 +67,7 @@ public class GymManagementUI extends JFrame {
      */
     private void addAlunoPanel() {
         AlunoPanel alunoPanel = new AlunoPanel();
-        tabbedPane.addTab("👤 Alunos", alunoPanel);
+        tabbedPane.addTab("Alunos", alunoPanel);
     }
     
     /**
@@ -85,7 +75,7 @@ public class GymManagementUI extends JFrame {
      */
     private void addPlanoPanel() {
         PlanoPanel planoPanel = new PlanoPanel();
-        tabbedPane.addTab("💳 Planos", planoPanel);
+        tabbedPane.addTab("Planos", planoPanel);
     }
     
     /**
@@ -93,7 +83,7 @@ public class GymManagementUI extends JFrame {
      */
     private void addMatriculaPanel() {
         MatriculaPanel matriculaPanel = new MatriculaPanel();
-        tabbedPane.addTab("📝 Matrículas", matriculaPanel);
+        tabbedPane.addTab("Matrículas", matriculaPanel);
     }
     
     /**
@@ -101,7 +91,7 @@ public class GymManagementUI extends JFrame {
      */
     private void addPagamentoPanel() {
         PagamentoPanel pagamentoPanel = new PagamentoPanel();
-        tabbedPane.addTab("💰 Pagamentos", pagamentoPanel);
+        tabbedPane.addTab("Pagamentos", pagamentoPanel);
     }
     
     /**
@@ -109,7 +99,7 @@ public class GymManagementUI extends JFrame {
      */
     private void addFrequenciaPanel() {
         FrequenciaPanel frequenciaPanel = new FrequenciaPanel();
-        tabbedPane.addTab("📊 Frequência", frequenciaPanel);
+        tabbedPane.addTab("Frequência", frequenciaPanel);
     }
     
     /**
@@ -117,7 +107,7 @@ public class GymManagementUI extends JFrame {
      */
     private void addExercicioPanel() {
         ExercicioPanel exercicioPanel = new ExercicioPanel();
-        tabbedPane.addTab("💪 Exercícios", exercicioPanel);
+        tabbedPane.addTab("Exercícios", exercicioPanel);
     }
     
     /**
@@ -125,7 +115,7 @@ public class GymManagementUI extends JFrame {
      */
     private void addPlanoTreinoPanel() {
         PlanoTreinoPanel planoTreinoPanel = new PlanoTreinoPanel();
-        tabbedPane.addTab("📋 Treinos", planoTreinoPanel);
+        tabbedPane.addTab("Planos de Treino", planoTreinoPanel);
     }
     
     /**
@@ -133,7 +123,7 @@ public class GymManagementUI extends JFrame {
      */
     private void addItemTreinoPanel() {
         ItemTreinoPanel itemTreinoPanel = new ItemTreinoPanel();
-        tabbedPane.addTab("🏋️ Exercícios/Treino", itemTreinoPanel);
+        tabbedPane.addTab("Exercícios do Plano", itemTreinoPanel);
     }
     
     /**
@@ -196,7 +186,9 @@ public class GymManagementUI extends JFrame {
             UIManager.put("TabbedPane.borderHighlightColor", BORDER_COLOR);
             UIManager.put("TabbedPane.darkShadow", BACKGROUND_COLOR);
             
-            // ❌ REMOVIDO: SwingUtilities.updateComponentTreeUI(this) causava loop infinito
+            // REMOVIDO: SwingUtilities.updateComponentTreeUI(this) causava loop infinito
+            
+            // Força repaint
             // A UI já aplica as propriedades do UIManager automaticamente
         } catch (Exception e) {
             System.err.println("Não foi possível aplicar o tema escuro: " + e.getMessage());

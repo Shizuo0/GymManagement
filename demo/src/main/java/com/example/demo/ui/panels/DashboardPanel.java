@@ -75,7 +75,7 @@ public class DashboardPanel extends JPanel {
         mainPanel.setBackground(BACKGROUND_COLOR);
         
         // Título
-        JLabel lblTitle = new JLabel("📊 Dashboard - Visão Geral do Sistema");
+        JLabel lblTitle = new JLabel("Dashboard - Visão Geral do Sistema");
         lblTitle.setFont(FONT_TITLE);
         lblTitle.setForeground(TEXT_PRIMARY);
         lblTitle.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -115,7 +115,7 @@ public class DashboardPanel extends JPanel {
         // Card 1: Total de Alunos
         lblTotalAlunos = new JLabel("0");
         JPanel cardAlunos = createStatCard(
-            "👤 Total de Alunos",
+            "Total de Alunos",
             lblTotalAlunos,
             "Alunos cadastrados no sistema",
             PRIMARY_COLOR
@@ -125,7 +125,7 @@ public class DashboardPanel extends JPanel {
         // Card 2: Matrículas Ativas
         lblMatriculasAtivas = new JLabel("0");
         JPanel cardMatriculas = createStatCard(
-            "📝 Matrículas Ativas",
+            "Matrículas Ativas",
             lblMatriculasAtivas,
             "Alunos com matrícula ativa",
             SUCCESS_COLOR
@@ -135,7 +135,7 @@ public class DashboardPanel extends JPanel {
         // Card 3: Receita Mensal
         lblReceitaMensal = new JLabel("R$ 0,00");
         JPanel cardReceita = createStatCard(
-            "💰 Receita do Mês",
+            "Receita do Mês",
             lblReceitaMensal,
             "Pagamentos recebidos este mês",
             new Color(255, 193, 7) // Amarelo/Dourado
@@ -145,7 +145,7 @@ public class DashboardPanel extends JPanel {
         // Card 4: Frequência Média
         lblFrequenciaMedia = new JLabel("0%");
         JPanel cardFrequencia = createStatCard(
-            "📊 Frequência Média",
+            "Frequência Média",
             lblFrequenciaMedia,
             "Taxa de presença dos alunos",
             new Color(103, 58, 183) // Roxo
@@ -155,7 +155,7 @@ public class DashboardPanel extends JPanel {
         // Card 5: Total de Exercícios
         lblTotalExercicios = new JLabel("0");
         JPanel cardExercicios = createStatCard(
-            "💪 Exercícios",
+            "Exercícios",
             lblTotalExercicios,
             "Exercícios cadastrados",
             new Color(233, 30, 99) // Rosa
@@ -165,7 +165,7 @@ public class DashboardPanel extends JPanel {
         // Card 6: Planos de Treino
         lblPlanosTreino = new JLabel("0");
         JPanel cardPlanos = createStatCard(
-            "📋 Planos de Treino",
+            "Planos de Treino",
             lblPlanosTreino,
             "Planos ativos no sistema",
             new Color(0, 150, 136) // Teal
@@ -225,7 +225,7 @@ public class DashboardPanel extends JPanel {
         ));
         panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 300));
         
-        JLabel lblTitle = new JLabel("📋 Atividades Recentes");
+        JLabel lblTitle = new JLabel("Atividades Recentes");
         lblTitle.setFont(FONT_SUBTITLE);
         lblTitle.setForeground(TEXT_PRIMARY);
         lblTitle.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -261,7 +261,7 @@ public class DashboardPanel extends JPanel {
         ));
         panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 200));
         
-        JLabel lblTitle = new JLabel("⚡ Ações Rápidas");
+        JLabel lblTitle = new JLabel("Ações Rápidas");
         lblTitle.setFont(FONT_SUBTITLE);
         lblTitle.setForeground(TEXT_PRIMARY);
         lblTitle.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -273,14 +273,14 @@ public class DashboardPanel extends JPanel {
         buttonsPanel.setBackground(CARD_BACKGROUND);
         buttonsPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         
-        JButton btnRefresh = createQuickActionButton("🔄 Atualizar", "Recarregar estatísticas");
+        JButton btnRefresh = createQuickActionButton("Atualizar", "Recarregar estatísticas");
         btnRefresh.addActionListener(e -> loadDashboardData());
         
-        JButton btnRelatorio = createQuickActionButton("📊 Relatórios", "Ver relatórios detalhados");
+        JButton btnRelatorio = createQuickActionButton("Relatórios", "Ver relatórios detalhados");
         btnRelatorio.addActionListener(e -> MessageDialog.showInfo(this, 
             "Funcionalidade de relatórios será implementada em breve."));
         
-        JButton btnExportar = createQuickActionButton("💾 Exportar", "Exportar dados");
+        JButton btnExportar = createQuickActionButton("Exportar", "Exportar dados");
         btnExportar.addActionListener(e -> MessageDialog.showInfo(this, 
             "Funcionalidade de exportação será implementada em breve."));
         
@@ -447,14 +447,14 @@ public class DashboardPanel extends JPanel {
     
     private String loadAtividadesRecentes() {
         StringBuilder sb = new StringBuilder();
-        sb.append("📋 Atividades Recentes do Sistema:\n\n");
+        sb.append("Atividades Recentes do Sistema:\n\n");
         
         try {
             // Últimas matrículas
             String responseMatriculas = apiClient.get("/matriculas");
             List<MatriculaResponseDTO> matriculas = apiClient.fromJsonArray(responseMatriculas, MatriculaResponseDTO.class);
             
-            sb.append("📝 Últimas Matrículas:\n");
+            sb.append("Últimas Matrículas:\n");
             matriculas.stream()
                 .sorted((m1, m2) -> m2.getDataInicio().compareTo(m1.getDataInicio()))
                 .limit(3)
@@ -471,7 +471,7 @@ public class DashboardPanel extends JPanel {
             String responsePagamentos = apiClient.get("/pagamentos");
             List<PagamentoResponseDTO> pagamentos = apiClient.fromJsonArray(responsePagamentos, PagamentoResponseDTO.class);
             
-            sb.append("💰 Últimos Pagamentos:\n");
+            sb.append("Últimos Pagamentos:\n");
             pagamentos.stream()
                 .filter(p -> p.getDataPagamento() != null)
                 .sorted((p1, p2) -> p2.getDataPagamento().compareTo(p1.getDataPagamento()))
@@ -489,7 +489,7 @@ public class DashboardPanel extends JPanel {
             String responsePlanos = apiClient.get("/planos-treino");
             List<PlanoTreinoResponseDTO> planos = apiClient.fromJsonArray(responsePlanos, PlanoTreinoResponseDTO.class);
             
-            sb.append("📋 Últimos Planos de Treino:\n");
+            sb.append("Últimos Planos de Treino:\n");
             planos.stream()
                 .sorted((p1, p2) -> p2.getDataCriacao().compareTo(p1.getDataCriacao()))
                 .limit(3)

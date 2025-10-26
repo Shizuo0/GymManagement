@@ -30,7 +30,7 @@ public class LoadingDialog extends JDialog {
      * @param message Mensagem de carregamento
      */
     public LoadingDialog(Frame parent, String message) {
-        super(parent, "Processando", true);
+        super(parent, "Processando", false);  // Non-modal
         setupDialog(message);
     }
     
@@ -41,7 +41,7 @@ public class LoadingDialog extends JDialog {
      * @param message Mensagem de carregamento
      */
     public LoadingDialog(Dialog parent, String message) {
-        super(parent, "Processando", true);
+        super(parent, "Processando", false);  // Non-modal
         setupDialog(message);
     }
     

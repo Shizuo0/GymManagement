@@ -85,18 +85,18 @@ public class UIConstants {
     public static final int BORDER_THICKNESS = 1;
     public static final int SHADOW_SIZE = 4;
     
-    // === ÍCONES (emojis temporários até adicionar ícones reais) ===
-    public static final String ICON_ADD = "➕";
-    public static final String ICON_EDIT = "✏️";
-    public static final String ICON_DELETE = "🗑️";
-    public static final String ICON_SAVE = "💾";
-    public static final String ICON_CANCEL = "❌";
-    public static final String ICON_SEARCH = "🔍";
-    public static final String ICON_REFRESH = "🔄";
-    public static final String ICON_SUCCESS = "✅";
-    public static final String ICON_ERROR = "❌";
-    public static final String ICON_WARNING = "⚠️";
-    public static final String ICON_INFO = "ℹ️";
+    // === ÍCONES (caracteres ASCII para compatibilidade) ===
+    public static final String ICON_ADD = "+";
+    public static final String ICON_EDIT = "";
+    public static final String ICON_DELETE = "X";
+    public static final String ICON_SAVE = "";
+    public static final String ICON_CANCEL = "";
+    public static final String ICON_SEARCH = "[?]";
+    public static final String ICON_REFRESH = "";
+    public static final String ICON_SUCCESS = "[OK]";
+    public static final String ICON_ERROR = "[X]";
+    public static final String ICON_WARNING = "[!]";
+    public static final String ICON_INFO = "[i]";
     
     // === MENSAGENS PADRÃO ===
     public static final String MSG_CONFIRM_DELETE = "Tem certeza que deseja excluir este registro?";

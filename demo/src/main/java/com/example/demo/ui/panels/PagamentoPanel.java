@@ -18,6 +18,7 @@ import javax.swing.border.EmptyBorder;
 import com.example.demo.dto.MatriculaResponseDTO;
 import com.example.demo.dto.PagamentoResponseDTO;
 import com.example.demo.ui.components.CustomButton;
+import com.example.demo.ui.components.CustomComboBox;
 import com.example.demo.ui.components.CustomDatePicker;
 import com.example.demo.ui.components.CustomTable;
 import com.example.demo.ui.components.CustomTextField;
@@ -37,14 +38,18 @@ public class PagamentoPanel extends JPanel {
     
     // Componentes da tabela
     private CustomTable table;
-    private JComboBox<String> cmbFiltroForma;
+    private CustomComboBox<String> cmbFiltroForma;
     private CustomTextField txtBusca;
     
+    // Painéis
+    private JSplitPane splitPane;
+    private JPanel formPanel;
+    
     // Componentes do formulário
-    private JComboBox<MatriculaItem> cmbMatricula;
+    private CustomComboBox<MatriculaItem> cmbMatricula;
     private CustomDatePicker datePickerPagamento;
     private CustomTextField txtValor;
-    private JComboBox<String> cmbFormaPagamento;
+    private CustomComboBox<String> cmbFormaPagamento;
     private JLabel lblInfoMatricula;
     private JLabel lblTotalPago;
     
@@ -87,16 +92,20 @@ public class PagamentoPanel extends JPanel {
     
     private void initializeUI() {
         // Split pane: tabela à esquerda, formulário à direita
-        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
         splitPane.setResizeWeight(0.6);
         splitPane.setDividerSize(PADDING_MEDIUM);
         splitPane.setBorder(null);
         splitPane.setBackground(BACKGROUND_COLOR);
         
         splitPane.setLeftComponent(createListPanel());
-        splitPane.setRightComponent(createFormPanel());
+        formPanel = createFormPanel();
+        splitPane.setRightComponent(formPanel);
         
         add(splitPane, BorderLayout.CENTER);
+        
+        // Oculta o formulário na inicialização
+        hideFormPanel();
     }
     
     private JPanel createListPanel() {
@@ -107,7 +116,7 @@ public class PagamentoPanel extends JPanel {
         JPanel headerPanel = new JPanel(new BorderLayout(PADDING_MEDIUM, 0));
         headerPanel.setBackground(BACKGROUND_COLOR);
         
-        JLabel lblTitle = new JLabel("💰 Pagamentos");
+        JLabel lblTitle = new JLabel("Pagamentos");
         lblTitle.setFont(FONT_TITLE);
         lblTitle.setForeground(TEXT_PRIMARY);
         headerPanel.add(lblTitle, BorderLayout.WEST);
@@ -124,12 +133,12 @@ public class PagamentoPanel extends JPanel {
         filtrosForma[0] = "Todas";
         System.arraycopy(FORMAS_PAGAMENTO, 0, filtrosForma, 1, FORMAS_PAGAMENTO.length);
         
-        cmbFiltroForma = new JComboBox<>(filtrosForma);
+        cmbFiltroForma = new CustomComboBox<>(filtrosForma);
         cmbFiltroForma.setFont(FONT_REGULAR);
         cmbFiltroForma.addActionListener(e -> filtrarPorForma());
         
         txtBusca = new CustomTextField("Buscar por aluno...", 15);
-        btnBuscar = new CustomButton("🔍", CustomButton.ButtonType.PRIMARY);
+        btnBuscar = new CustomButton("[ ? ]", CustomButton.ButtonType.PRIMARY);
         btnBuscar.addActionListener(e -> buscarPagamentos());
         
         searchPanel.add(lblFiltro);
@@ -152,17 +161,18 @@ public class PagamentoPanel extends JPanel {
         });
         
         JScrollPane scrollPane = new JScrollPane(table);
-        scrollPane.setBorder(BorderFactory.createLineBorder(BORDER_COLOR));
+        scrollPane.getViewport().setBackground(PANEL_BACKGROUND);
+        scrollPane.setBorder(BorderFactory.createEmptyBorder());
         panel.add(scrollPane, BorderLayout.CENTER);
         
         // Botões de ação
         JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, PADDING_SMALL, 0));
         actionPanel.setBackground(BACKGROUND_COLOR);
         
-        btnNovo = new CustomButton("➕ Novo Pagamento", CustomButton.ButtonType.SUCCESS);
-        btnEditar = new CustomButton("✏️ Editar", CustomButton.ButtonType.PRIMARY);
-        btnExcluir = new CustomButton("🗑️ Excluir", CustomButton.ButtonType.DANGER);
-        btnHistorico = new CustomButton("📊 Ver Histórico", CustomButton.ButtonType.DEFAULT);
+        btnNovo = new CustomButton("+ Novo Pagamento", CustomButton.ButtonType.SUCCESS);
+        btnEditar = new CustomButton("Editar", CustomButton.ButtonType.PRIMARY);
+        btnExcluir = new CustomButton("X Excluir", CustomButton.ButtonType.DANGER);
+        btnHistorico = new CustomButton("Ver Histórico", CustomButton.ButtonType.DEFAULT);
         
         btnNovo.addActionListener(e -> newPagamento());
         btnEditar.addActionListener(e -> editPagamento());
@@ -205,7 +215,7 @@ public class PagamentoPanel extends JPanel {
         
         // Matrícula
         formFields.add(createLabel("Matrícula *"));
-        cmbMatricula = new JComboBox<>();
+        cmbMatricula = new CustomComboBox<>();
         cmbMatricula.setFont(FONT_REGULAR);
         cmbMatricula.setAlignmentX(Component.LEFT_ALIGNMENT);
         cmbMatricula.setMaximumSize(new Dimension(Integer.MAX_VALUE, TEXTFIELD_HEIGHT));
@@ -231,13 +241,13 @@ public class PagamentoPanel extends JPanel {
         
         // Valor Pago
         formFields.add(createLabel("Valor Pago (R$) *"));
-        txtValor = new CustomTextField("0.00", 15);
+        txtValor = new CustomTextField("Ex: 150.00", 15);
         formFields.add(createFieldComponent(txtValor));
         formFields.add(Box.createVerticalStrut(PADDING_MEDIUM));
         
         // Forma de Pagamento
         formFields.add(createLabel("Forma de Pagamento *"));
-        cmbFormaPagamento = new JComboBox<>(FORMAS_PAGAMENTO);
+        cmbFormaPagamento = new CustomComboBox<>(FORMAS_PAGAMENTO);
         cmbFormaPagamento.setFont(FONT_REGULAR);
         cmbFormaPagamento.setAlignmentX(Component.LEFT_ALIGNMENT);
         cmbFormaPagamento.setMaximumSize(new Dimension(Integer.MAX_VALUE, TEXTFIELD_HEIGHT));
@@ -268,8 +278,8 @@ public class PagamentoPanel extends JPanel {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, PADDING_SMALL, 0));
         buttonPanel.setBackground(CARD_BACKGROUND);
         
-        btnSalvar = new CustomButton("💾 Salvar", CustomButton.ButtonType.SUCCESS);
-        btnCancelar = new CustomButton("✖ Cancelar", CustomButton.ButtonType.DEFAULT);
+        btnSalvar = new CustomButton("Salvar", CustomButton.ButtonType.SUCCESS);
+        btnCancelar = new CustomButton("Cancelar", CustomButton.ButtonType.DEFAULT);
         
         btnSalvar.addActionListener(e -> savePagamento());
         btnCancelar.addActionListener(e -> cancelForm());
@@ -437,6 +447,7 @@ public class PagamentoPanel extends JPanel {
         // Definir data como hoje
         datePickerPagamento.setLocalDate(LocalDate.now());
         
+        showFormPanel();
         updateButtons();
     }
     
@@ -448,6 +459,7 @@ public class PagamentoPanel extends JPanel {
         
         setFormEnabled(true);
         isEditMode = true;
+        showFormPanel();
         updateButtons();
     }
     
@@ -758,6 +770,7 @@ public class PagamentoPanel extends JPanel {
         setFormEnabled(false);
         isEditMode = false;
         currentPagamentoId = null;
+        hideFormPanel();
         if (table.hasSelection()) {
             onPagamentoSelected();
         }
@@ -802,6 +815,18 @@ public class PagamentoPanel extends JPanel {
         btnEditar.setEnabled(hasSelection && !formEnabled);
         btnExcluir.setEnabled(hasSelection && !formEnabled);
         btnHistorico.setEnabled(hasSelection && !formEnabled);
+    }
+    
+    private void showFormPanel() {
+        splitPane.setRightComponent(formPanel);
+        splitPane.setResizeWeight(0.6);
+        splitPane.setDividerLocation(0.6);
+        formPanel.setVisible(true);
+    }
+    
+    private void hideFormPanel() {
+        splitPane.remove(formPanel);
+        formPanel.setVisible(false);
     }
     
     private String formatarFormaPagamento(String forma) {

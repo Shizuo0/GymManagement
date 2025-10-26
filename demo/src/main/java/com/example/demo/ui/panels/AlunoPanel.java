@@ -37,6 +37,7 @@ public class AlunoPanel extends JPanel {
     
     private JPanel formPanel;
     private JPanel listPanel;
+    private JSplitPane splitPane;
     
     // Estado
     private ApiClient apiClient;
@@ -118,7 +119,7 @@ public class AlunoPanel extends JPanel {
         formPanel.setVisible(false);
         
         // Split pane
-        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, listPanel, formPanel);
+        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, listPanel, formPanel);
         splitPane.setDividerLocation(700);
         splitPane.setResizeWeight(0.6);
         splitPane.setBackground(PANEL_BACKGROUND);
@@ -135,7 +136,7 @@ public class AlunoPanel extends JPanel {
         panel.setBackground(PANEL_BACKGROUND);
         
         // Título
-        JLabel title = new JLabel("📋 Gerenciamento de Alunos");
+        JLabel title = new JLabel("Gerenciamento de Alunos");
         title.setFont(FONT_TITLE);
         title.setForeground(TEXT_PRIMARY);
         
@@ -184,7 +185,7 @@ public class AlunoPanel extends JPanel {
         ));
         
         // Título
-        JLabel title = new JLabel("📝 Cadastro de Aluno");
+        JLabel title = new JLabel("Cadastro de Aluno");
         title.setFont(FONT_SUBTITLE);
         title.setForeground(PRIMARY_COLOR);
         
@@ -291,6 +292,12 @@ public class AlunoPanel extends JPanel {
         isEditMode = false;
         currentAlunoId = null;
         clearForm();
+        
+        // Garante que o formPanel está no splitPane
+        splitPane.setRightComponent(formPanel);
+        splitPane.setResizeWeight(0.6);
+        splitPane.setDividerLocation(0.6);
+        
         formPanel.setVisible(true);
         txtNome.requestFocus();
     }
@@ -317,6 +324,12 @@ public class AlunoPanel extends JPanel {
                 
                 SwingUtilities.invokeLater(() -> {
                     populateForm(aluno);
+                    
+                    // Garante que o formPanel está no splitPane
+                    splitPane.setRightComponent(formPanel);
+                    splitPane.setResizeWeight(0.6);
+                    splitPane.setDividerLocation(0.6);
+                    
                     formPanel.setVisible(true);
                     txtNome.requestFocus();
                 });
@@ -512,6 +525,11 @@ public class AlunoPanel extends JPanel {
      */
     private void cancelForm() {
         clearForm();
+        
+        // Remove o formPanel do splitPane
+        splitPane.remove(formPanel);
+        splitPane.setDividerLocation(1.0);
+        
         formPanel.setVisible(false);
         isEditMode = false;
         currentAlunoId = null;

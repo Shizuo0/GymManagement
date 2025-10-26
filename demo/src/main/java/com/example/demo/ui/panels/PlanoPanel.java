@@ -32,6 +32,10 @@ public class PlanoPanel extends JPanel {
     private CustomTable table;
     private CustomTextField txtBusca;
     
+    // Painéis
+    private JSplitPane splitPane;
+    private JPanel formPanel;
+    
     // Componentes do formulário
     private CustomTextField txtNome;
     private JTextArea txtDescricao;
@@ -74,16 +78,20 @@ public class PlanoPanel extends JPanel {
     
     private void initializeUI() {
         // Split pane: tabela à esquerda, formulário à direita
-        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
         splitPane.setResizeWeight(0.6);
         splitPane.setDividerSize(PADDING_MEDIUM);
         splitPane.setBorder(null);
         splitPane.setBackground(BACKGROUND_COLOR);
         
         splitPane.setLeftComponent(createListPanel());
-        splitPane.setRightComponent(createFormPanel());
+        formPanel = createFormPanel();
+        splitPane.setRightComponent(formPanel);
         
         add(splitPane, BorderLayout.CENTER);
+        
+        // Oculta o formulário na inicialização
+        hideFormPanel();
     }
     
     private JPanel createListPanel() {
@@ -94,7 +102,7 @@ public class PlanoPanel extends JPanel {
         JPanel headerPanel = new JPanel(new BorderLayout(PADDING_MEDIUM, 0));
         headerPanel.setBackground(BACKGROUND_COLOR);
         
-        JLabel lblTitle = new JLabel("📋 Planos de Assinatura");
+        JLabel lblTitle = new JLabel("Planos de Assinatura");
         lblTitle.setFont(FONT_TITLE);
         lblTitle.setForeground(TEXT_PRIMARY);
         headerPanel.add(lblTitle, BorderLayout.WEST);
@@ -102,7 +110,7 @@ public class PlanoPanel extends JPanel {
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, PADDING_SMALL, 0));
         searchPanel.setBackground(BACKGROUND_COLOR);
         txtBusca = new CustomTextField("Buscar por nome...", 20);
-        btnBuscar = new CustomButton("🔍", CustomButton.ButtonType.PRIMARY);
+        btnBuscar = new CustomButton("[ ? ]", CustomButton.ButtonType.PRIMARY);
         btnBuscar.addActionListener(e -> buscarPlanos());
         searchPanel.add(txtBusca);
         searchPanel.add(btnBuscar);
@@ -121,18 +129,19 @@ public class PlanoPanel extends JPanel {
         });
         
         JScrollPane scrollPane = new JScrollPane(table);
-        scrollPane.setBorder(BorderFactory.createLineBorder(BORDER_COLOR));
+        scrollPane.getViewport().setBackground(PANEL_BACKGROUND);
+        scrollPane.setBorder(BorderFactory.createEmptyBorder());
         panel.add(scrollPane, BorderLayout.CENTER);
         
         // Botões de ação
         JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, PADDING_SMALL, 0));
         actionPanel.setBackground(BACKGROUND_COLOR);
         
-        btnNovo = new CustomButton("➕ Novo", CustomButton.ButtonType.SUCCESS);
-        btnEditar = new CustomButton("✏️ Editar", CustomButton.ButtonType.PRIMARY);
-        btnExcluir = new CustomButton("🗑️ Excluir", CustomButton.ButtonType.DANGER);
-        btnAtivar = new CustomButton("✅ Ativar", CustomButton.ButtonType.SUCCESS);
-        btnInativar = new CustomButton("⏸️ Inativar", CustomButton.ButtonType.WARNING);
+        btnNovo = new CustomButton("+ Novo", CustomButton.ButtonType.SUCCESS);
+        btnEditar = new CustomButton("Editar", CustomButton.ButtonType.PRIMARY);
+        btnExcluir = new CustomButton("X Excluir", CustomButton.ButtonType.DANGER);
+        btnAtivar = new CustomButton("Ativar", CustomButton.ButtonType.SUCCESS);
+        btnInativar = new CustomButton("Inativar", CustomButton.ButtonType.WARNING);
         
         btnNovo.addActionListener(e -> newPlano());
         btnEditar.addActionListener(e -> editPlano());
@@ -177,8 +186,8 @@ public class PlanoPanel extends JPanel {
         formFields.setBackground(CARD_BACKGROUND);
         
         // Nome
-        formFields.add(createLabel("Nome *"));
-        txtNome = new CustomTextField("", 30);
+        formFields.add(createLabel("Nome do Plano *"));
+        txtNome = new CustomTextField("Ex: Plano Premium", 30);
         formFields.add(createFieldComponent(txtNome));
         formFields.add(Box.createVerticalStrut(PADDING_MEDIUM));
         
@@ -194,13 +203,13 @@ public class PlanoPanel extends JPanel {
         
         // Valor
         formFields.add(createLabel("Valor (R$) *"));
-        txtValor = new CustomTextField("0.00", 15);
+        txtValor = new CustomTextField("Ex: 150.00", 15);
         formFields.add(createFieldComponent(txtValor));
         formFields.add(Box.createVerticalStrut(PADDING_MEDIUM));
         
         // Duração
         formFields.add(createLabel("Duração (meses) *"));
-        txtDuracaoMeses = new CustomTextField("", 10);
+        txtDuracaoMeses = new CustomTextField("Ex: 12", 10);
         formFields.add(createFieldComponent(txtDuracaoMeses));
         formFields.add(Box.createVerticalStrut(PADDING_MEDIUM));
         
@@ -228,8 +237,8 @@ public class PlanoPanel extends JPanel {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, PADDING_SMALL, 0));
         buttonPanel.setBackground(CARD_BACKGROUND);
         
-        btnSalvar = new CustomButton("💾 Salvar", CustomButton.ButtonType.SUCCESS);
-        btnCancelar = new CustomButton("✖ Cancelar", CustomButton.ButtonType.DEFAULT);
+        btnSalvar = new CustomButton("Salvar", CustomButton.ButtonType.SUCCESS);
+        btnCancelar = new CustomButton("Cancelar", CustomButton.ButtonType.DEFAULT);
         
         btnSalvar.addActionListener(e -> savePlano());
         btnCancelar.addActionListener(e -> cancelForm());
@@ -370,6 +379,7 @@ public class PlanoPanel extends JPanel {
         table.clearSelection();
         lblStatus.setText("ATIVO");
         lblStatus.setForeground(SUCCESS_COLOR);
+        showFormPanel();
         txtNome.requestFocus();
         updateButtons();
     }
@@ -382,6 +392,7 @@ public class PlanoPanel extends JPanel {
         
         setFormEnabled(true);
         isEditMode = true;
+        showFormPanel();
         txtNome.requestFocus();
         updateButtons();
     }
@@ -639,6 +650,7 @@ public class PlanoPanel extends JPanel {
         setFormEnabled(false);
         isEditMode = false;
         currentPlanoId = null;
+        hideFormPanel();
         if (table.hasSelection()) {
             onPlanoSelected();
         }
@@ -686,5 +698,17 @@ public class PlanoPanel extends JPanel {
         btnExcluir.setEnabled(hasSelection && !formEnabled);
         btnAtivar.setEnabled(hasSelection && !isAtivo && !formEnabled);
         btnInativar.setEnabled(hasSelection && isAtivo && !formEnabled);
+    }
+    
+    private void showFormPanel() {
+        splitPane.setRightComponent(formPanel);
+        splitPane.setResizeWeight(0.6);
+        splitPane.setDividerLocation(0.6);
+        formPanel.setVisible(true);
+    }
+    
+    private void hideFormPanel() {
+        splitPane.remove(formPanel);
+        formPanel.setVisible(false);
     }
 }

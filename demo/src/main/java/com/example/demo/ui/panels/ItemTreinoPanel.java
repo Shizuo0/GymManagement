@@ -13,6 +13,7 @@ import com.example.demo.dto.ExercicioResponseDTO;
 import com.example.demo.dto.ItemTreinoResponseDTO;
 import com.example.demo.dto.PlanoTreinoResponseDTO;
 import com.example.demo.ui.components.CustomButton;
+import com.example.demo.ui.components.CustomComboBox;
 import com.example.demo.ui.components.CustomTable;
 import com.example.demo.ui.components.CustomTextField;
 import com.example.demo.ui.components.LoadingDialog;
@@ -30,11 +31,15 @@ public class ItemTreinoPanel extends JPanel {
     
     // Componentes da tabela
     private CustomTable table;
-    private JComboBox<PlanoItem> cmbFiltroPlano;
+    private CustomComboBox<PlanoItem> cmbFiltroPlano;
+    
+    // Painéis
+    private JSplitPane splitPane;
+    private JPanel formPanel;
     
     // Componentes do formulário
-    private JComboBox<PlanoItem> cmbPlano;
-    private JComboBox<ExercicioItem> cmbExercicio;
+    private CustomComboBox<PlanoItem> cmbPlano;
+    private CustomComboBox<ExercicioItem> cmbExercicio;
     private CustomTextField txtSeries;
     private CustomTextField txtRepeticoes;
     private CustomTextField txtCarga;
@@ -64,18 +69,20 @@ public class ItemTreinoPanel extends JPanel {
     }
     
     private void initializeUI() {
-        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
         splitPane.setResizeWeight(0.6);
         splitPane.setDividerSize(PADDING_MEDIUM);
         splitPane.setBorder(null);
         splitPane.setBackground(BACKGROUND_COLOR);
         
         splitPane.setLeftComponent(createListPanel());
-        splitPane.setRightComponent(createFormPanel());
+        formPanel = createFormPanel();
+        splitPane.setRightComponent(formPanel);
         
         add(splitPane, BorderLayout.CENTER);
         
-        // Atualiza os botões após todos os componentes serem inicializados
+        // Oculta o formulário e atualiza os botões
+        hideFormPanel();
         updateButtons();
     }
     
@@ -87,7 +94,7 @@ public class ItemTreinoPanel extends JPanel {
         JPanel headerPanel = new JPanel(new BorderLayout(PADDING_MEDIUM, 0));
         headerPanel.setBackground(BACKGROUND_COLOR);
         
-        JLabel lblTitle = new JLabel("🏋️ Exercícios nos Treinos");
+        JLabel lblTitle = new JLabel("Exercícios nos Treinos");
         lblTitle.setFont(FONT_TITLE);
         lblTitle.setForeground(TEXT_PRIMARY);
         headerPanel.add(lblTitle, BorderLayout.WEST);
@@ -100,12 +107,12 @@ public class ItemTreinoPanel extends JPanel {
         lblFiltro.setFont(FONT_REGULAR);
         lblFiltro.setForeground(TEXT_PRIMARY);
         
-        cmbFiltroPlano = new JComboBox<>();
+        cmbFiltroPlano = new CustomComboBox<>();
         cmbFiltroPlano.setFont(FONT_REGULAR);
         cmbFiltroPlano.setPreferredSize(new Dimension(250, TEXTFIELD_HEIGHT));
         cmbFiltroPlano.addActionListener(e -> filtrarPorPlano());
         
-        btnLimparFiltro = new CustomButton("🔄", CustomButton.ButtonType.SECONDARY);
+        btnLimparFiltro = new CustomButton("Limpar", CustomButton.ButtonType.SECONDARY);
         btnLimparFiltro.addActionListener(e -> limparFiltro());
         
         filterPanel.add(lblFiltro);
@@ -135,9 +142,9 @@ public class ItemTreinoPanel extends JPanel {
         buttonPanel.setBackground(BACKGROUND_COLOR);
         buttonPanel.setBorder(new EmptyBorder(PADDING_MEDIUM, 0, 0, 0));
         
-        btnNovo = new CustomButton("➕ Novo", CustomButton.ButtonType.PRIMARY);
-        btnEditar = new CustomButton("✏️ Editar", CustomButton.ButtonType.SECONDARY);
-        btnExcluir = new CustomButton("🗑️ Excluir", CustomButton.ButtonType.DANGER);
+        btnNovo = new CustomButton("+ Novo", CustomButton.ButtonType.PRIMARY);
+        btnEditar = new CustomButton("Editar", CustomButton.ButtonType.SECONDARY);
+        btnExcluir = new CustomButton("X Excluir", CustomButton.ButtonType.DANGER);
         
         btnNovo.addActionListener(e -> novoItem());
         btnEditar.addActionListener(e -> editarItem());
@@ -180,7 +187,7 @@ public class ItemTreinoPanel extends JPanel {
         panel.add(lblPlano);
         panel.add(Box.createVerticalStrut(PADDING_SMALL));
         
-        cmbPlano = new JComboBox<>();
+        cmbPlano = new CustomComboBox<>();
         cmbPlano.setFont(FONT_REGULAR);
         cmbPlano.setMaximumSize(new Dimension(Integer.MAX_VALUE, TEXTFIELD_HEIGHT));
         cmbPlano.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -195,7 +202,7 @@ public class ItemTreinoPanel extends JPanel {
         panel.add(lblExercicio);
         panel.add(Box.createVerticalStrut(PADDING_SMALL));
         
-        cmbExercicio = new JComboBox<>();
+        cmbExercicio = new CustomComboBox<>();
         cmbExercicio.setFont(FONT_REGULAR);
         cmbExercicio.setMaximumSize(new Dimension(Integer.MAX_VALUE, TEXTFIELD_HEIGHT));
         cmbExercicio.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -276,8 +283,8 @@ public class ItemTreinoPanel extends JPanel {
         btnFormPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, BUTTON_HEIGHT + 10));
         btnFormPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         
-        btnSalvar = new CustomButton("💾 Salvar", CustomButton.ButtonType.PRIMARY);
-        btnCancelar = new CustomButton("❌ Cancelar", CustomButton.ButtonType.SECONDARY);
+        btnSalvar = new CustomButton("Salvar", CustomButton.ButtonType.PRIMARY);
+        btnCancelar = new CustomButton("Cancelar", CustomButton.ButtonType.SECONDARY);
         
         btnSalvar.addActionListener(e -> salvarItem());
         btnCancelar.addActionListener(e -> cancelarEdicao());
@@ -403,6 +410,7 @@ public class ItemTreinoPanel extends JPanel {
         currentItemId = null;
         clearForm();
         setFormEnabled(true);
+        showFormPanel();
         updateButtons();
         cmbPlano.requestFocus();
     }
@@ -424,6 +432,7 @@ public class ItemTreinoPanel extends JPanel {
                     isEditMode = true;
                     populateForm(item);
                     setFormEnabled(true);
+                    showFormPanel();
                     updateButtons();
                 });
             },
@@ -552,6 +561,7 @@ public class ItemTreinoPanel extends JPanel {
         isEditMode = false;
         currentItemId = null;
         table.clearSelection();
+        hideFormPanel();
         updateButtons();
     }
     
@@ -738,6 +748,18 @@ public class ItemTreinoPanel extends JPanel {
         btnNovo.setEnabled(!formEnabled);
         btnEditar.setEnabled(hasSelection && !formEnabled);
         btnExcluir.setEnabled(hasSelection && !formEnabled);
+    }
+    
+    private void showFormPanel() {
+        splitPane.setRightComponent(formPanel);
+        splitPane.setResizeWeight(0.6);
+        splitPane.setDividerLocation(0.6);
+        formPanel.setVisible(true);
+    }
+    
+    private void hideFormPanel() {
+        splitPane.remove(formPanel);
+        formPanel.setVisible(false);
     }
     
     // ========== CLASSES AUXILIARES ==========

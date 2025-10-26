@@ -15,6 +15,7 @@ import javax.swing.border.EmptyBorder;
 import com.example.demo.dto.AlunoDTO;
 import com.example.demo.dto.FrequenciaResponseDTO;
 import com.example.demo.ui.components.CustomButton;
+import com.example.demo.ui.components.CustomComboBox;
 import com.example.demo.ui.components.CustomDatePicker;
 import com.example.demo.ui.components.CustomTable;
 import com.example.demo.ui.components.CustomTextField;
@@ -38,8 +39,12 @@ public class FrequenciaPanel extends JPanel {
     private CustomDatePicker dataBuscaInicio;
     private CustomDatePicker dataBuscaFim;
     
+    // Painéis
+    private JSplitPane splitPane;
+    private JPanel formPanel;
+    
     // Componentes do formulário
-    private JComboBox<AlunoItem> cmbAluno;
+    private CustomComboBox<AlunoItem> cmbAluno;
     private CustomDatePicker dataFrequencia;
     private JRadioButton rbPresente;
     private JRadioButton rbAusente;
@@ -75,18 +80,20 @@ public class FrequenciaPanel extends JPanel {
     }
     
     private void initializeUI() {
-        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
         splitPane.setResizeWeight(0.6);
         splitPane.setDividerSize(PADDING_MEDIUM);
         splitPane.setBorder(null);
         splitPane.setBackground(BACKGROUND_COLOR);
         
         splitPane.setLeftComponent(createListPanel());
-        splitPane.setRightComponent(createFormPanel());
+        formPanel = createFormPanel();
+        splitPane.setRightComponent(formPanel);
         
         add(splitPane, BorderLayout.CENTER);
         
-        // Atualiza os botões após todos os componentes serem inicializados
+        // Oculta o formulário e atualiza os botões
+        hideFormPanel();
         updateButtons();
     }
     
@@ -95,7 +102,7 @@ public class FrequenciaPanel extends JPanel {
         panel.setBackground(BACKGROUND_COLOR);
         
         // Cabeçalho
-        JLabel lblTitle = new JLabel("📊 Registro de Frequência");
+        JLabel lblTitle = new JLabel("Registro de Frequência");
         lblTitle.setFont(FONT_TITLE);
         lblTitle.setForeground(TEXT_PRIMARY);
         
@@ -131,9 +138,9 @@ public class FrequenciaPanel extends JPanel {
         buttonPanel.setBackground(BACKGROUND_COLOR);
         buttonPanel.setBorder(new EmptyBorder(PADDING_MEDIUM, 0, 0, 0));
         
-        btnNovo = new CustomButton("➕ Novo", CustomButton.ButtonType.PRIMARY);
-        btnEditar = new CustomButton("✏️ Editar", CustomButton.ButtonType.SECONDARY);
-        btnExcluir = new CustomButton("🗑️ Excluir", CustomButton.ButtonType.DANGER);
+        btnNovo = new CustomButton("+ Novo", CustomButton.ButtonType.PRIMARY);
+        btnEditar = new CustomButton("Editar", CustomButton.ButtonType.SECONDARY);
+        btnExcluir = new CustomButton("X Excluir", CustomButton.ButtonType.DANGER);
         
         btnNovo.addActionListener(e -> novaFrequencia());
         btnEditar.addActionListener(e -> editarFrequencia());
@@ -206,9 +213,9 @@ public class FrequenciaPanel extends JPanel {
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, PADDING_SMALL, 0));
         btnPanel.setBackground(CARD_BACKGROUND);
         
-        btnFiltrar = new CustomButton("🔍 Filtrar", CustomButton.ButtonType.PRIMARY);
-        btnLimpar = new CustomButton("🔄 Limpar", CustomButton.ButtonType.SECONDARY);
-        btnEstatisticas = new CustomButton("📈 Estatísticas", CustomButton.ButtonType.SECONDARY);
+        btnFiltrar = new CustomButton("Filtrar", CustomButton.ButtonType.PRIMARY);
+        btnLimpar = new CustomButton("Limpar", CustomButton.ButtonType.SECONDARY);
+        btnEstatisticas = new CustomButton("Estatísticas", CustomButton.ButtonType.SECONDARY);
         
         btnFiltrar.addActionListener(e -> filtrarPorPeriodo());
         btnLimpar.addActionListener(e -> limparFiltros());
@@ -247,7 +254,7 @@ public class FrequenciaPanel extends JPanel {
         panel.add(lblAluno);
         panel.add(Box.createVerticalStrut(PADDING_SMALL));
         
-        cmbAluno = new JComboBox<>();
+        cmbAluno = new CustomComboBox<>();
         cmbAluno.setFont(FONT_REGULAR);
         cmbAluno.setBackground(SURFACE_COLOR);
         cmbAluno.setForeground(TEXT_PRIMARY);
@@ -283,13 +290,13 @@ public class FrequenciaPanel extends JPanel {
         presencaPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, TEXTFIELD_HEIGHT));
         presencaPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         
-        rbPresente = new JRadioButton("✅ Presente");
+        rbPresente = new JRadioButton("[OK] Presente");
         rbPresente.setFont(FONT_REGULAR);
         rbPresente.setForeground(SUCCESS_COLOR);
         rbPresente.setBackground(CARD_BACKGROUND);
         rbPresente.setSelected(true);
         
-        rbAusente = new JRadioButton("❌ Ausente");
+        rbAusente = new JRadioButton("[X] Ausente");
         rbAusente.setFont(FONT_REGULAR);
         rbAusente.setForeground(ERROR_COLOR);
         rbAusente.setBackground(CARD_BACKGROUND);
@@ -309,8 +316,8 @@ public class FrequenciaPanel extends JPanel {
         btnFormPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, BUTTON_HEIGHT + 10));
         btnFormPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         
-        btnSalvar = new CustomButton("💾 Salvar", CustomButton.ButtonType.PRIMARY);
-        btnCancelar = new CustomButton("❌ Cancelar", CustomButton.ButtonType.SECONDARY);
+        btnSalvar = new CustomButton("Salvar", CustomButton.ButtonType.PRIMARY);
+        btnCancelar = new CustomButton("Cancelar", CustomButton.ButtonType.SECONDARY);
         
         btnSalvar.addActionListener(e -> salvarFrequencia());
         btnCancelar.addActionListener(e -> cancelarEdicao());
@@ -407,6 +414,7 @@ public class FrequenciaPanel extends JPanel {
         setFormEnabled(true);
         dataFrequencia.setToday();
         rbPresente.setSelected(true);
+        showFormPanel();
         updateButtons();
     }
     
@@ -427,6 +435,7 @@ public class FrequenciaPanel extends JPanel {
                     isEditMode = true;
                     populateForm(frequencia);
                     setFormEnabled(true);
+                    showFormPanel();
                     updateButtons();
                 });
             },
@@ -538,6 +547,7 @@ public class FrequenciaPanel extends JPanel {
         isEditMode = false;
         currentFrequenciaId = null;
         table.clearSelection();
+        hideFormPanel();
         updateButtons();
     }
     
@@ -635,8 +645,8 @@ public class FrequenciaPanel extends JPanel {
     
     private void limparFiltros() {
         txtBuscaAluno.setText("");
-        dataBuscaInicio.setDate(null);
-        dataBuscaFim.setDate(null);
+        dataBuscaInicio.setToday();
+        dataBuscaFim.setToday();
         loadFrequencias();
     }
     
@@ -645,7 +655,7 @@ public class FrequenciaPanel extends JPanel {
     private void mostrarEstatisticas() {
         // Dialog de seleção de aluno e período
         JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), 
-            "📈 Estatísticas de Frequência", true);
+            "Estatísticas de Frequência", true);
         dialog.setLayout(new BorderLayout());
         dialog.getContentPane().setBackground(BACKGROUND_COLOR);
         
@@ -670,7 +680,7 @@ public class FrequenciaPanel extends JPanel {
         contentPanel.add(lblAluno);
         contentPanel.add(Box.createVerticalStrut(PADDING_SMALL));
         
-        JComboBox<AlunoItem> cmbAlunoStat = new JComboBox<>();
+        CustomComboBox<AlunoItem> cmbAlunoStat = new CustomComboBox<>();
         cmbAlunoStat.setFont(FONT_REGULAR);
         cmbAlunoStat.setBackground(SURFACE_COLOR);
         cmbAlunoStat.setForeground(TEXT_PRIMARY);
@@ -717,8 +727,8 @@ public class FrequenciaPanel extends JPanel {
         buttonPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, BUTTON_HEIGHT + 10));
         buttonPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         
-        CustomButton btnConsultar = new CustomButton("📊 Consultar", CustomButton.ButtonType.PRIMARY);
-        CustomButton btnFechar = new CustomButton("❌ Fechar", CustomButton.ButtonType.SECONDARY);
+        CustomButton btnConsultar = new CustomButton("Consultar", CustomButton.ButtonType.PRIMARY);
+        CustomButton btnFechar = new CustomButton("Fechar", CustomButton.ButtonType.SECONDARY);
         
         btnConsultar.addActionListener(e -> {
             consultarEstatisticas(dialog, cmbAlunoStat, dataIniStat, dataFimStat);
@@ -918,7 +928,7 @@ public class FrequenciaPanel extends JPanel {
         if (cmbAluno.getItemCount() > 0) {
             cmbAluno.setSelectedIndex(0);
         }
-        dataFrequencia.setDate(null);
+        dataFrequencia.setToday();
         rbPresente.setSelected(true);
     }
     
@@ -938,6 +948,18 @@ public class FrequenciaPanel extends JPanel {
         btnNovo.setEnabled(!formEnabled);
         btnEditar.setEnabled(hasSelection && !formEnabled);
         btnExcluir.setEnabled(hasSelection && !formEnabled);
+    }
+    
+    private void showFormPanel() {
+        splitPane.setRightComponent(formPanel);
+        splitPane.setResizeWeight(0.6);
+        splitPane.setDividerLocation(0.6);
+        formPanel.setVisible(true);
+    }
+    
+    private void hideFormPanel() {
+        splitPane.remove(formPanel);
+        formPanel.setVisible(false);
     }
     
     // ========== CLASSE AUXILIAR ==========

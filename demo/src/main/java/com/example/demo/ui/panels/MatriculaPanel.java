@@ -15,6 +15,7 @@ import javax.swing.border.EmptyBorder;
 import com.example.demo.dto.MatriculaResponseDTO;
 import com.example.demo.dto.PlanoResponseDTO;
 import com.example.demo.ui.components.CustomButton;
+import com.example.demo.ui.components.CustomComboBox;
 import com.example.demo.ui.components.CustomDatePicker;
 import com.example.demo.ui.components.CustomTable;
 import com.example.demo.ui.components.CustomTextField;
@@ -37,14 +38,18 @@ public class MatriculaPanel extends JPanel {
     // Componentes da tabela
     private CustomTable table;
     private CustomTextField txtBusca;
-    private JComboBox<String> cmbFiltroStatus;
+    private CustomComboBox<String> cmbFiltroStatus;
+    
+    // Painéis
+    private JSplitPane splitPane;
+    private JPanel formPanel;
     
     // Componentes do formulário
-    private JComboBox<AlunoItem> cmbAluno;
-    private JComboBox<PlanoItem> cmbPlano;
+    private CustomComboBox<AlunoItem> cmbAluno;
+    private CustomComboBox<PlanoItem> cmbPlano;
     private CustomDatePicker datePickerInicio;
     private CustomDatePicker datePickerFim;
-    private JComboBox<String> cmbStatus;
+    private CustomComboBox<String> cmbStatus;
     private JLabel lblDuracao;
     
     // Botões
@@ -86,16 +91,20 @@ public class MatriculaPanel extends JPanel {
     
     private void initializeUI() {
         // Split pane: tabela à esquerda, formulário à direita
-        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
         splitPane.setResizeWeight(0.6);
         splitPane.setDividerSize(PADDING_MEDIUM);
         splitPane.setBorder(null);
         splitPane.setBackground(BACKGROUND_COLOR);
         
         splitPane.setLeftComponent(createListPanel());
-        splitPane.setRightComponent(createFormPanel());
+        formPanel = createFormPanel();
+        splitPane.setRightComponent(formPanel);
         
         add(splitPane, BorderLayout.CENTER);
+        
+        // Oculta o formulário na inicialização
+        hideFormPanel();
     }
     
     private JPanel createListPanel() {
@@ -106,7 +115,7 @@ public class MatriculaPanel extends JPanel {
         JPanel headerPanel = new JPanel(new BorderLayout(PADDING_MEDIUM, 0));
         headerPanel.setBackground(BACKGROUND_COLOR);
         
-        JLabel lblTitle = new JLabel("📝 Matrículas");
+        JLabel lblTitle = new JLabel("Matrículas");
         lblTitle.setFont(FONT_TITLE);
         lblTitle.setForeground(TEXT_PRIMARY);
         headerPanel.add(lblTitle, BorderLayout.WEST);
@@ -119,12 +128,12 @@ public class MatriculaPanel extends JPanel {
         lblFiltro.setFont(FONT_REGULAR);
         lblFiltro.setForeground(TEXT_PRIMARY);
         
-        cmbFiltroStatus = new JComboBox<>(new String[]{"Todos", "ATIVA", "INATIVA", "PENDENTE", "CANCELADA"});
+        cmbFiltroStatus = new CustomComboBox<>(new String[]{"Todos", "ATIVA", "INATIVA", "PENDENTE", "CANCELADA"});
         cmbFiltroStatus.setFont(FONT_REGULAR);
         cmbFiltroStatus.addActionListener(e -> filtrarPorStatus());
         
         txtBusca = new CustomTextField("Buscar por aluno...", 15);
-        btnBuscar = new CustomButton("🔍", CustomButton.ButtonType.PRIMARY);
+        btnBuscar = new CustomButton("[ ? ]", CustomButton.ButtonType.PRIMARY);
         btnBuscar.addActionListener(e -> buscarMatriculas());
         
         searchPanel.add(lblFiltro);
@@ -147,19 +156,20 @@ public class MatriculaPanel extends JPanel {
         });
         
         JScrollPane scrollPane = new JScrollPane(table);
-        scrollPane.setBorder(BorderFactory.createLineBorder(BORDER_COLOR));
+        scrollPane.getViewport().setBackground(PANEL_BACKGROUND);
+        scrollPane.setBorder(BorderFactory.createEmptyBorder());
         panel.add(scrollPane, BorderLayout.CENTER);
         
         // Botões de ação
         JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, PADDING_SMALL, 0));
         actionPanel.setBackground(BACKGROUND_COLOR);
         
-        btnNovo = new CustomButton("➕ Nova Matrícula", CustomButton.ButtonType.SUCCESS);
-        btnEditar = new CustomButton("✏️ Editar", CustomButton.ButtonType.PRIMARY);
-        btnExcluir = new CustomButton("🗑️ Excluir", CustomButton.ButtonType.DANGER);
-        btnAtivar = new CustomButton("✅ Ativar", CustomButton.ButtonType.SUCCESS);
-        btnInativar = new CustomButton("⏸️ Inativar", CustomButton.ButtonType.WARNING);
-        btnCancelar = new CustomButton("✖ Cancelar Matrícula", CustomButton.ButtonType.DANGER);
+        btnNovo = new CustomButton("+ Nova Matrícula", CustomButton.ButtonType.SUCCESS);
+        btnEditar = new CustomButton("Editar", CustomButton.ButtonType.PRIMARY);
+        btnExcluir = new CustomButton("X Excluir", CustomButton.ButtonType.DANGER);
+        btnAtivar = new CustomButton("Ativar", CustomButton.ButtonType.SUCCESS);
+        btnInativar = new CustomButton("Inativar", CustomButton.ButtonType.WARNING);
+        btnCancelar = new CustomButton("Cancelar Matrícula", CustomButton.ButtonType.DANGER);
         
         btnNovo.addActionListener(e -> newMatricula());
         btnEditar.addActionListener(e -> editMatricula());
@@ -208,7 +218,7 @@ public class MatriculaPanel extends JPanel {
         
         // Aluno
         formFields.add(createLabel("Aluno *"));
-        cmbAluno = new JComboBox<>();
+        cmbAluno = new CustomComboBox<>();
         cmbAluno.setFont(FONT_REGULAR);
         cmbAluno.setAlignmentX(Component.LEFT_ALIGNMENT);
         cmbAluno.setMaximumSize(new Dimension(Integer.MAX_VALUE, TEXTFIELD_HEIGHT));
@@ -217,7 +227,7 @@ public class MatriculaPanel extends JPanel {
         
         // Plano
         formFields.add(createLabel("Plano *"));
-        cmbPlano = new JComboBox<>();
+        cmbPlano = new CustomComboBox<>();
         cmbPlano.setFont(FONT_REGULAR);
         cmbPlano.setAlignmentX(Component.LEFT_ALIGNMENT);
         cmbPlano.setMaximumSize(new Dimension(Integer.MAX_VALUE, TEXTFIELD_HEIGHT));
@@ -263,7 +273,7 @@ public class MatriculaPanel extends JPanel {
         
         // Status
         formFields.add(createLabel("Status *"));
-        cmbStatus = new JComboBox<>(new String[]{"ATIVA", "INATIVA", "PENDENTE", "CANCELADA"});
+        cmbStatus = new CustomComboBox<>(new String[]{"ATIVA", "INATIVA", "PENDENTE", "CANCELADA"});
         cmbStatus.setFont(FONT_REGULAR);
         cmbStatus.setAlignmentX(Component.LEFT_ALIGNMENT);
         cmbStatus.setMaximumSize(new Dimension(Integer.MAX_VALUE, TEXTFIELD_HEIGHT));
@@ -275,8 +285,8 @@ public class MatriculaPanel extends JPanel {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, PADDING_SMALL, 0));
         buttonPanel.setBackground(CARD_BACKGROUND);
         
-        btnSalvar = new CustomButton("💾 Salvar", CustomButton.ButtonType.SUCCESS);
-        btnCancelarForm = new CustomButton("✖ Cancelar", CustomButton.ButtonType.DEFAULT);
+        btnSalvar = new CustomButton("Salvar", CustomButton.ButtonType.SUCCESS);
+        btnCancelarForm = new CustomButton("Cancelar", CustomButton.ButtonType.DEFAULT);
         
         btnSalvar.addActionListener(e -> saveMatricula());
         btnCancelarForm.addActionListener(e -> cancelForm());
@@ -456,6 +466,7 @@ public class MatriculaPanel extends JPanel {
         // Definir data de início como hoje
         datePickerInicio.setLocalDate(LocalDate.now());
         
+        showFormPanel();
         updateButtons();
     }
     
@@ -467,6 +478,7 @@ public class MatriculaPanel extends JPanel {
         
         setFormEnabled(true);
         isEditMode = true;
+        showFormPanel();
         updateButtons();
     }
     
@@ -801,6 +813,7 @@ public class MatriculaPanel extends JPanel {
         setFormEnabled(false);
         isEditMode = false;
         currentMatriculaId = null;
+        hideFormPanel();
         if (table.hasSelection()) {
             onMatriculaSelected();
         }
@@ -815,7 +828,7 @@ public class MatriculaPanel extends JPanel {
             cmbPlano.setSelectedIndex(0);
         }
         datePickerInicio.setLocalDate(LocalDate.now());
-        datePickerFim.setLocalDate(null);
+        datePickerFim.setToday();
         cmbStatus.setSelectedItem("ATIVA");
         lblDuracao.setText("--");
     }
@@ -849,7 +862,19 @@ public class MatriculaPanel extends JPanel {
         btnExcluir.setEnabled(hasSelection && !formEnabled);
         btnAtivar.setEnabled(hasSelection && !"ATIVA".equals(status) && !formEnabled);
         btnInativar.setEnabled(hasSelection && "ATIVA".equals(status) && !formEnabled);
-        btnCancelar.setEnabled(hasSelection && !"CANCELADA".equals(status) && !formEnabled);
+        btnCancelar.setEnabled(hasSelection && !status.equals("CANCELADA") && !formEnabled);
+    }
+    
+    private void showFormPanel() {
+        splitPane.setRightComponent(formPanel);
+        splitPane.setResizeWeight(0.6);
+        splitPane.setDividerLocation(0.6);
+        formPanel.setVisible(true);
+    }
+    
+    private void hideFormPanel() {
+        splitPane.remove(formPanel);
+        formPanel.setVisible(false);
     }
     
     // Classes auxiliares para ComboBox

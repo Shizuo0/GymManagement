@@ -122,7 +122,9 @@ public class CustomDatePicker extends JPanel {
      * @param date Data a ser definida
      */
     public void setDate(Date date) {
-        dateSpinner.setValue(date);
+        if (date != null) {
+            dateSpinner.setValue(date);
+        }
     }
     
     /**
@@ -131,8 +133,10 @@ public class CustomDatePicker extends JPanel {
      * @param localDate Data a ser definida
      */
     public void setLocalDate(LocalDate localDate) {
-        Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-        setDate(date);
+        if (localDate != null) {
+            Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+            setDate(date);
+        }
     }
     
     /**

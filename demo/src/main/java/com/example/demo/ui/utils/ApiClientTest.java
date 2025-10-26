@@ -14,9 +14,9 @@ public class ApiClientTest {
         System.out.println("1. Testando conexão com /alunos...");
         try {
             String response = client.get("/alunos");
-            System.out.println("✅ SUCESSO! Resposta: " + response.substring(0, Math.min(100, response.length())) + "...");
+            System.out.println("[OK] SUCESSO! Resposta: " + response.substring(0, Math.min(100, response.length())) + "...");
         } catch (Exception e) {
-            System.err.println("❌ ERRO: " + e.getMessage());
+            System.err.println("[ERRO] ERRO: " + e.getMessage());
             e.printStackTrace();
         }
         
@@ -24,9 +24,9 @@ public class ApiClientTest {
         System.out.println("2. Testando conexão com /planos...");
         try {
             String response = client.get("/planos");
-            System.out.println("✅ SUCESSO! Resposta: " + response.substring(0, Math.min(100, response.length())) + "...");
+            System.out.println("[OK] SUCESSO! Resposta: " + response.substring(0, Math.min(100, response.length())) + "...");
         } catch (Exception e) {
-            System.err.println("❌ ERRO: " + e.getMessage());
+            System.err.println("[ERRO] ERRO: " + e.getMessage());
             e.printStackTrace();
         }
         
