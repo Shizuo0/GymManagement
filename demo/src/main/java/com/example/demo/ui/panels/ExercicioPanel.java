@@ -1,11 +1,19 @@
 package com.example.demo.ui.panels;
 
-import static com.example.demo.ui.utils.UIConstants.*;
-
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.util.List;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
 import com.example.demo.dto.ExercicioResponseDTO;
@@ -17,6 +25,20 @@ import com.example.demo.ui.components.LoadingDialog;
 import com.example.demo.ui.components.MessageDialog;
 import com.example.demo.ui.utils.ApiClient;
 import com.example.demo.ui.utils.ApiException;
+import static com.example.demo.ui.utils.UIConstants.BACKGROUND_COLOR;
+import static com.example.demo.ui.utils.UIConstants.BORDER_COLOR;
+import static com.example.demo.ui.utils.UIConstants.BUTTON_HEIGHT;
+import static com.example.demo.ui.utils.UIConstants.CARD_BACKGROUND;
+import static com.example.demo.ui.utils.UIConstants.FONT_REGULAR;
+import static com.example.demo.ui.utils.UIConstants.FONT_SUBTITLE;
+import static com.example.demo.ui.utils.UIConstants.FONT_TITLE;
+import static com.example.demo.ui.utils.UIConstants.MSG_VALIDATION_ERROR;
+import static com.example.demo.ui.utils.UIConstants.PADDING_LARGE;
+import static com.example.demo.ui.utils.UIConstants.PADDING_MEDIUM;
+import static com.example.demo.ui.utils.UIConstants.PADDING_SMALL;
+import static com.example.demo.ui.utils.UIConstants.PANEL_BACKGROUND;
+import static com.example.demo.ui.utils.UIConstants.TEXTFIELD_HEIGHT;
+import static com.example.demo.ui.utils.UIConstants.TEXT_PRIMARY;
 
 /**
  * Panel para gerenciamento de Exercícios
@@ -74,7 +96,9 @@ public class ExercicioPanel extends JPanel {
         setBorder(new EmptyBorder(PADDING_LARGE, PADDING_LARGE, PADDING_LARGE, PADDING_LARGE));
         
         initializeUI();
-        loadExercicios();
+        
+        // Defer loading para evitar problemas com LoadingDialog
+        SwingUtilities.invokeLater(this::loadExercicios);
     }
     
     private void initializeUI() {

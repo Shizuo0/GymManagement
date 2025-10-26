@@ -1,18 +1,45 @@
 package com.example.demo.ui.panels;
 
-import com.example.demo.dto.AlunoDTO;
-import com.example.demo.ui.components.*;
-import com.example.demo.ui.utils.ApiClient;
-import com.example.demo.ui.utils.ApiException;
-import com.example.demo.ui.utils.ValidationUtils;
-
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import static com.example.demo.ui.utils.UIConstants.*;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.SwingUtilities;
+
+import com.example.demo.dto.AlunoDTO;
+import com.example.demo.ui.components.CustomButton;
+import com.example.demo.ui.components.CustomDatePicker;
+import com.example.demo.ui.components.CustomTable;
+import com.example.demo.ui.components.CustomTextField;
+import com.example.demo.ui.components.LoadingDialog;
+import com.example.demo.ui.components.MessageDialog;
+import com.example.demo.ui.utils.ApiClient;
+import com.example.demo.ui.utils.ApiException;
+import static com.example.demo.ui.utils.UIConstants.BORDER_COLOR;
+import static com.example.demo.ui.utils.UIConstants.CARD_BACKGROUND;
+import static com.example.demo.ui.utils.UIConstants.FONT_LABEL;
+import static com.example.demo.ui.utils.UIConstants.FONT_SUBTITLE;
+import static com.example.demo.ui.utils.UIConstants.FONT_TITLE;
+import static com.example.demo.ui.utils.UIConstants.MSG_SUCCESS_DELETE;
+import static com.example.demo.ui.utils.UIConstants.MSG_SUCCESS_SAVE;
+import static com.example.demo.ui.utils.UIConstants.MSG_SUCCESS_UPDATE;
+import static com.example.demo.ui.utils.UIConstants.PADDING_LARGE;
+import static com.example.demo.ui.utils.UIConstants.PADDING_MEDIUM;
+import static com.example.demo.ui.utils.UIConstants.PADDING_SMALL;
+import static com.example.demo.ui.utils.UIConstants.PANEL_BACKGROUND;
+import static com.example.demo.ui.utils.UIConstants.PRIMARY_COLOR;
+import static com.example.demo.ui.utils.UIConstants.TEXT_PRIMARY;
+import com.example.demo.ui.utils.ValidationUtils;
 
 /**
  * Panel para gerenciamento completo de alunos (CRUD).
@@ -51,7 +78,9 @@ public class AlunoPanel extends JPanel {
         this.apiClient = new ApiClient();
         initializeComponents();
         setupLayout();
-        loadAlunos();
+        
+        // Defer loading para evitar problemas com LoadingDialog
+        SwingUtilities.invokeLater(this::loadAlunos);
     }
     
     /**

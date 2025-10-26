@@ -1,8 +1,10 @@
 package com.example.demo.ui.panels;
 
-import static com.example.demo.ui.utils.UIConstants.*;
-
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Frame;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.time.LocalDate;
@@ -12,7 +14,16 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
 import com.example.demo.dto.MatriculaResponseDTO;
@@ -26,6 +37,22 @@ import com.example.demo.ui.components.LoadingDialog;
 import com.example.demo.ui.components.MessageDialog;
 import com.example.demo.ui.utils.ApiClient;
 import com.example.demo.ui.utils.ApiException;
+import static com.example.demo.ui.utils.UIConstants.BACKGROUND_COLOR;
+import static com.example.demo.ui.utils.UIConstants.BORDER_COLOR;
+import static com.example.demo.ui.utils.UIConstants.CARD_BACKGROUND;
+import static com.example.demo.ui.utils.UIConstants.FONT_LABEL;
+import static com.example.demo.ui.utils.UIConstants.FONT_REGULAR;
+import static com.example.demo.ui.utils.UIConstants.FONT_SMALL;
+import static com.example.demo.ui.utils.UIConstants.FONT_SUBTITLE;
+import static com.example.demo.ui.utils.UIConstants.FONT_TITLE;
+import static com.example.demo.ui.utils.UIConstants.PADDING_LARGE;
+import static com.example.demo.ui.utils.UIConstants.PADDING_MEDIUM;
+import static com.example.demo.ui.utils.UIConstants.PADDING_SMALL;
+import static com.example.demo.ui.utils.UIConstants.PANEL_BACKGROUND;
+import static com.example.demo.ui.utils.UIConstants.SUCCESS_COLOR;
+import static com.example.demo.ui.utils.UIConstants.TEXTFIELD_HEIGHT;
+import static com.example.demo.ui.utils.UIConstants.TEXT_PRIMARY;
+import static com.example.demo.ui.utils.UIConstants.TEXT_SECONDARY;
 
 /**
  * Panel para gerenciamento de Pagamentos
@@ -86,8 +113,12 @@ public class PagamentoPanel extends JPanel {
         setBorder(new EmptyBorder(PADDING_LARGE, PADDING_LARGE, PADDING_LARGE, PADDING_LARGE));
         
         initializeUI();
-        loadPagamentos();
-        loadMatriculas();
+        
+        // Carregar dados após a UI estar visível
+        SwingUtilities.invokeLater(() -> {
+            loadPagamentos();
+            loadMatriculas();
+        });
     }
     
     private void initializeUI() {

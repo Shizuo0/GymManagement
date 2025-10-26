@@ -62,17 +62,26 @@ public class GymManagementUI extends JFrame {
         tabbedPane.setBackground(BACKGROUND_SECONDARY);
         tabbedPane.setForeground(TEXT_PRIMARY);
         
-        // Adiciona painéis
+        // Adiciona painéis organizados por categoria
+        // Visão Geral
         addDashboardPanel();
+        
+        // Cadastros Principais
         addAlunoPanel();
         addInstrutorPanel();
-        addPlanoPanel();
-        addMatriculaPanel();
-        addPagamentoPanel();
-        addFrequenciaPanel();
         addExercicioPanel();
+        
+        // Planos e Treinos
+        addPlanoPanel();
         addPlanoTreinoPanel();
         addItemTreinoPanel();
+        
+        // Gestão Financeira
+        addMatriculaPanel();
+        addPagamentoPanel();
+        
+        // Acompanhamento
+        addFrequenciaPanel();
     }
     
     /**
