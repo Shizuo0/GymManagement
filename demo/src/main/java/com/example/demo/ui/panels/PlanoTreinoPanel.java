@@ -103,7 +103,17 @@ public class PlanoTreinoPanel extends JPanel implements RefreshablePanel {
     }
     
     private void initializeUI() {
-        add(createListPanel(), BorderLayout.CENTER);
+        // Criar o painel do formulário primeiro
+        formPanel = createFormPanel();
+        
+        // Criar o splitPane
+        JPanel listPanel = createListPanel();
+        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, listPanel, null);
+        splitPane.setOneTouchExpandable(true);
+        splitPane.setResizeWeight(1.0);
+        splitPane.setBorder(null);
+        
+        add(splitPane, BorderLayout.CENTER);
         updateButtons();
     }
     
