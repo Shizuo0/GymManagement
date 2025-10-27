@@ -4,7 +4,7 @@ import java.time.LocalDate;
 
 import com.example.demo.enums.MatriculaStatus;
 
-import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
 
 public class MatriculaRequestDTO {
@@ -16,11 +16,10 @@ public class MatriculaRequestDTO {
     private Long idPlano;
     
     @NotNull(message = "Data de início é obrigatória")
-    @Future(message = "Data de início deve ser futura")
+    @FutureOrPresent(message = "Data de início deve ser hoje ou futura")
     private LocalDate dataInicio;
     
-    @NotNull(message = "Data de fim é obrigatória")
-    @Future(message = "Data de fim deve ser futura")
+    @FutureOrPresent(message = "Data de fim deve ser hoje ou futura")
     private LocalDate dataFim;
     
     private MatriculaStatus status;

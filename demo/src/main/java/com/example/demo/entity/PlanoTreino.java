@@ -23,12 +23,12 @@ import jakarta.validation.constraints.Size;
  * Entidade que representa um Plano de Treino criado por um instrutor para um aluno
  */
 @Entity
-@Table(name = "planostreino")
+@Table(name = "PlanosTreino")
 public class PlanoTreino {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_plano_treino")
+    @Column(name = "id_plano")
     private Long idPlanoTreino;
     
     @NotNull(message = "O aluno é obrigatório")

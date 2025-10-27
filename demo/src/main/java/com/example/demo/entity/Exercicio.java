@@ -18,7 +18,7 @@ import jakarta.validation.constraints.Size;
  * Entidade que representa um Exercício no catálogo da academia
  */
 @Entity
-@Table(name = "exercicios")
+@Table(name = "Exercicios")
 public class Exercicio {
     
     @Id
@@ -34,6 +34,10 @@ public class Exercicio {
     @Size(max = 50, message = "O grupo muscular deve ter no máximo 50 caracteres")
     @Column(name = "grupo_muscular", length = 50)
     private String grupoMuscular;
+    
+    @Size(max = 500, message = "A descrição deve ter no máximo 500 caracteres")
+    @Column(name = "descricao", length = 500)
+    private String descricao;
     
     @OneToMany(mappedBy = "exercicio", cascade = CascadeType.ALL)
     private Set<ItemTreino> itensTreino = new HashSet<>();
@@ -74,6 +78,14 @@ public class Exercicio {
     
     public void setGrupoMuscular(String grupoMuscular) {
         this.grupoMuscular = grupoMuscular;
+    }
+    
+    public String getDescricao() {
+        return descricao;
+    }
+    
+    public void setDescricao(String descricao) {
+        this.descricao = descricao;
     }
     
     @Override

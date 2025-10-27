@@ -55,6 +55,7 @@ public class ExercicioController {
             requestDTO.getNome(),
             requestDTO.getGrupoMuscular()
         );
+        exercicio.setDescricao(requestDTO.getDescricao());
         
         exercicio = exercicioService.criarExercicio(exercicio);
         
@@ -107,6 +108,7 @@ public class ExercicioController {
             requestDTO.getNome(),
             requestDTO.getGrupoMuscular()
         );
+        exercicio.setDescricao(requestDTO.getDescricao());
         
         exercicio = exercicioService.atualizarExercicio(id, exercicio);
         
@@ -186,7 +188,8 @@ public class ExercicioController {
         return new ExercicioResponseDTO(
             exercicio.getIdExercicio(),
             exercicio.getNome(),
-            exercicio.getGrupoMuscular()
+            exercicio.getGrupoMuscular(),
+            exercicio.getDescricao()
         );
     }
 }

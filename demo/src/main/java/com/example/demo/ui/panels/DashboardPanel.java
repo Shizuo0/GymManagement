@@ -1,21 +1,54 @@
 package com.example.demo.ui.panels;
 
-import static com.example.demo.ui.utils.UIConstants.*;
-
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridLayout;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
-import com.example.demo.dto.*;
+import com.example.demo.dto.AlunoDTO;
+import com.example.demo.dto.ExercicioResponseDTO;
+import com.example.demo.dto.FrequenciaResponseDTO;
+import com.example.demo.dto.MatriculaResponseDTO;
+import com.example.demo.dto.PagamentoResponseDTO;
+import com.example.demo.dto.PlanoTreinoResponseDTO;
 import com.example.demo.ui.components.LoadingDialog;
 import com.example.demo.ui.components.MessageDialog;
 import com.example.demo.ui.utils.ApiClient;
 import com.example.demo.ui.utils.ApiException;
+import static com.example.demo.ui.utils.UIConstants.BACKGROUND_COLOR;
+import static com.example.demo.ui.utils.UIConstants.BORDER_COLOR;
+import static com.example.demo.ui.utils.UIConstants.BUTTON_HEIGHT;
+import static com.example.demo.ui.utils.UIConstants.CARD_BACKGROUND;
+import static com.example.demo.ui.utils.UIConstants.FONT_REGULAR;
+import static com.example.demo.ui.utils.UIConstants.FONT_SUBTITLE;
+import static com.example.demo.ui.utils.UIConstants.FONT_TITLE;
+import static com.example.demo.ui.utils.UIConstants.PADDING_LARGE;
+import static com.example.demo.ui.utils.UIConstants.PADDING_MEDIUM;
+import static com.example.demo.ui.utils.UIConstants.PADDING_SMALL;
+import static com.example.demo.ui.utils.UIConstants.PANEL_BACKGROUND;
+import static com.example.demo.ui.utils.UIConstants.PRIMARY_COLOR;
+import static com.example.demo.ui.utils.UIConstants.SUCCESS_COLOR;
+import static com.example.demo.ui.utils.UIConstants.TEXT_PRIMARY;
+import static com.example.demo.ui.utils.UIConstants.TEXT_SECONDARY;
 
 /**
  * Panel do Dashboard com estatísticas e indicadores
@@ -276,17 +309,7 @@ public class DashboardPanel extends JPanel {
         JButton btnRefresh = createQuickActionButton("Atualizar", "Recarregar estatísticas");
         btnRefresh.addActionListener(e -> loadDashboardData());
         
-        JButton btnRelatorio = createQuickActionButton("Relatórios", "Ver relatórios detalhados");
-        btnRelatorio.addActionListener(e -> MessageDialog.showInfo(this, 
-            "Funcionalidade de relatórios será implementada em breve."));
-        
-        JButton btnExportar = createQuickActionButton("Exportar", "Exportar dados");
-        btnExportar.addActionListener(e -> MessageDialog.showInfo(this, 
-            "Funcionalidade de exportação será implementada em breve."));
-        
         buttonsPanel.add(btnRefresh);
-        buttonsPanel.add(btnRelatorio);
-        buttonsPanel.add(btnExportar);
         
         panel.add(buttonsPanel);
         

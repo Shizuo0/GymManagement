@@ -1,23 +1,52 @@
 package com.example.demo.ui.panels;
 
-import com.example.demo.dto.PagamentoResponseDTO;
-import com.example.demo.dto.PagamentoRequestDTO;
-import com.example.demo.dto.MatriculaResponseDTO;
-import com.example.demo.enums.MatriculaStatus;
-import com.example.demo.ui.GymManagementUI;
-import com.example.demo.ui.components.*;
-import com.example.demo.ui.utils.ApiClient;
-import com.example.demo.ui.utils.ApiException;
-
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Frame;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.example.demo.ui.utils.UIConstants.*;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
+
+import com.example.demo.dto.MatriculaResponseDTO;
+import com.example.demo.dto.PagamentoRequestDTO;
+import com.example.demo.dto.PagamentoResponseDTO;
+import com.example.demo.enums.MatriculaStatus;
+import com.example.demo.ui.GymManagementUI;
+import com.example.demo.ui.components.CustomButton;
+import com.example.demo.ui.components.CustomComboBox;
+import com.example.demo.ui.components.CustomDatePicker;
+import com.example.demo.ui.components.CustomTable;
+import com.example.demo.ui.components.CustomTextField;
+import com.example.demo.ui.components.LoadingDialog;
+import com.example.demo.ui.components.MessageDialog;
+import com.example.demo.ui.utils.ApiClient;
+import com.example.demo.ui.utils.ApiException;
+import static com.example.demo.ui.utils.UIConstants.BORDER_COLOR;
+import static com.example.demo.ui.utils.UIConstants.CARD_BACKGROUND;
+import static com.example.demo.ui.utils.UIConstants.FONT_REGULAR;
+import static com.example.demo.ui.utils.UIConstants.FONT_TITLE;
+import static com.example.demo.ui.utils.UIConstants.MSG_SUCCESS_SAVE;
+import static com.example.demo.ui.utils.UIConstants.MSG_SUCCESS_UPDATE;
+import static com.example.demo.ui.utils.UIConstants.PADDING_LARGE;
+import static com.example.demo.ui.utils.UIConstants.PADDING_MEDIUM;
+import static com.example.demo.ui.utils.UIConstants.PADDING_SMALL;
+import static com.example.demo.ui.utils.UIConstants.PANEL_BACKGROUND;
+import static com.example.demo.ui.utils.UIConstants.TEXT_PRIMARY;
 
 public class PagamentoPanel extends JPanel implements RefreshablePanel {
     
@@ -131,7 +160,6 @@ public class PagamentoPanel extends JPanel implements RefreshablePanel {
         return switch (forma) {
             case "CARTAO_CREDITO" -> "Cartão Crédito";
             case "CARTAO_DEBITO" -> "Cartão Débito";
-            case "TRANSFERENCIA" -> "Transferência";
             case "DINHEIRO" -> "Dinheiro";
             case "PIX" -> "PIX";
             default -> forma;
@@ -222,7 +250,7 @@ public class PagamentoPanel extends JPanel implements RefreshablePanel {
         lblMatricula.setFont(FONT_REGULAR);
         lblMatricula.setAlignmentX(Component.LEFT_ALIGNMENT);
         
-        JComboBox<MatriculaItem> cmbMatricula = new JComboBox<>(matriculas.toArray(new MatriculaItem[0]));
+        CustomComboBox<MatriculaItem> cmbMatricula = new CustomComboBox<>(matriculas.toArray(new MatriculaItem[0]));
         cmbMatricula.setMaximumSize(new Dimension(Integer.MAX_VALUE, 35));
         cmbMatricula.setAlignmentX(Component.LEFT_ALIGNMENT);
         if (pagamento != null) {
@@ -281,10 +309,11 @@ public class PagamentoPanel extends JPanel implements RefreshablePanel {
         lblForma.setFont(FONT_REGULAR);
         lblForma.setAlignmentX(Component.LEFT_ALIGNMENT);
         
-        String[] formasPagamento = {"DINHEIRO", "CARTAO_CREDITO", "CARTAO_DEBITO", "PIX", "TRANSFERENCIA"};
-        JComboBox<String> cmbForma = new JComboBox<>(formasPagamento);
+        String[] formasPagamento = {"DINHEIRO", "CARTAO_CREDITO", "CARTAO_DEBITO", "PIX"};
+        CustomComboBox<String> cmbForma = new CustomComboBox<>(formasPagamento);
         cmbForma.setMaximumSize(new Dimension(Integer.MAX_VALUE, 35));
         cmbForma.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
         if (pagamento != null && pagamento.getFormaPagamento() != null) {
             cmbForma.setSelectedItem(pagamento.getFormaPagamento());
         }

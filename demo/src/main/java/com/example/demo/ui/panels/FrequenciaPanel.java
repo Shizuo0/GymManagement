@@ -22,7 +22,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
@@ -76,17 +75,6 @@ public class FrequenciaPanel extends JPanel implements RefreshablePanel {
     private CustomDatePicker dataBuscaInicio;
     private CustomDatePicker dataBuscaFim;
     
-    // Painéis
-    private JSplitPane splitPane;
-    private JPanel formPanel;
-    
-    // Componentes do formulário
-    private CustomComboBox<AlunoItem> cmbAluno;
-    private CustomDatePicker dataFrequencia;
-    private JRadioButton rbPresente;
-    private JRadioButton rbAusente;
-    private ButtonGroup bgPresenca;
-    
     // Botões
     private CustomButton btnNovo;
     private CustomButton btnEditar;
@@ -94,12 +82,8 @@ public class FrequenciaPanel extends JPanel implements RefreshablePanel {
     private CustomButton btnFiltrar;
     private CustomButton btnLimpar;
     private CustomButton btnEstatisticas;
-    private CustomButton btnSalvar;
-    private CustomButton btnCancelar;
     
     // Estado
-    private Long currentFrequenciaId;
-    private boolean isEditMode;
     private List<AlunoDTO> alunosDisponiveis;
     
     public FrequenciaPanel() {
@@ -121,20 +105,7 @@ public class FrequenciaPanel extends JPanel implements RefreshablePanel {
     }
     
     private void initializeUI() {
-        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-        splitPane.setResizeWeight(0.6);
-        splitPane.setDividerSize(PADDING_MEDIUM);
-        splitPane.setBorder(null);
-        splitPane.setBackground(BACKGROUND_COLOR);
-        
-        splitPane.setLeftComponent(createListPanel());
-        formPanel = createFormPanel();
-        splitPane.setRightComponent(formPanel);
-        
-        add(splitPane, BorderLayout.CENTER);
-        
-        // Oculta o formulário e atualiza os botões
-        hideFormPanel();
+        add(createListPanel(), BorderLayout.CENTER);
         updateButtons();
     }
     
@@ -270,110 +241,8 @@ public class FrequenciaPanel extends JPanel implements RefreshablePanel {
         return panel;
     }
     
-    private JPanel createFormPanel() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.setBackground(CARD_BACKGROUND);
-        panel.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(BORDER_COLOR),
-            new EmptyBorder(PADDING_LARGE, PADDING_LARGE, PADDING_LARGE, PADDING_LARGE)
-        ));
-        
-        // Título
-        JLabel lblTitle = new JLabel("Dados do Registro");
-        lblTitle.setFont(FONT_SUBTITLE);
-        lblTitle.setForeground(TEXT_PRIMARY);
-        lblTitle.setAlignmentX(Component.LEFT_ALIGNMENT);
-        panel.add(lblTitle);
-        panel.add(Box.createVerticalStrut(PADDING_LARGE));
-        
-        // Campo Aluno
-        JLabel lblAluno = new JLabel("Aluno:*");
-        lblAluno.setFont(FONT_REGULAR);
-        lblAluno.setForeground(TEXT_PRIMARY);
-        lblAluno.setAlignmentX(Component.LEFT_ALIGNMENT);
-        panel.add(lblAluno);
-        panel.add(Box.createVerticalStrut(PADDING_SMALL));
-        
-        cmbAluno = new CustomComboBox<>();
-        cmbAluno.setFont(FONT_REGULAR);
-        cmbAluno.setBackground(SURFACE_COLOR);
-        cmbAluno.setForeground(TEXT_PRIMARY);
-        cmbAluno.setMaximumSize(new Dimension(Integer.MAX_VALUE, TEXTFIELD_HEIGHT));
-        cmbAluno.setAlignmentX(Component.LEFT_ALIGNMENT);
-        panel.add(cmbAluno);
-        panel.add(Box.createVerticalStrut(PADDING_MEDIUM));
-        
-        // Campo Data
-        JLabel lblData = new JLabel("Data:*");
-        lblData.setFont(FONT_REGULAR);
-        lblData.setForeground(TEXT_PRIMARY);
-        lblData.setAlignmentX(Component.LEFT_ALIGNMENT);
-        panel.add(lblData);
-        panel.add(Box.createVerticalStrut(PADDING_SMALL));
-        
-        dataFrequencia = new CustomDatePicker();
-        dataFrequencia.setMaximumSize(new Dimension(Integer.MAX_VALUE, TEXTFIELD_HEIGHT));
-        dataFrequencia.setAlignmentX(Component.LEFT_ALIGNMENT);
-        panel.add(dataFrequencia);
-        panel.add(Box.createVerticalStrut(PADDING_MEDIUM));
-        
-        // Campo Status de Presença
-        JLabel lblPresenca = new JLabel("Status:*");
-        lblPresenca.setFont(FONT_REGULAR);
-        lblPresenca.setForeground(TEXT_PRIMARY);
-        lblPresenca.setAlignmentX(Component.LEFT_ALIGNMENT);
-        panel.add(lblPresenca);
-        panel.add(Box.createVerticalStrut(PADDING_SMALL));
-        
-        JPanel presencaPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, PADDING_MEDIUM, 0));
-        presencaPanel.setBackground(CARD_BACKGROUND);
-        presencaPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, TEXTFIELD_HEIGHT));
-        presencaPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        
-        rbPresente = new JRadioButton("[OK] Presente");
-        rbPresente.setFont(FONT_REGULAR);
-        rbPresente.setForeground(SUCCESS_COLOR);
-        rbPresente.setBackground(CARD_BACKGROUND);
-        rbPresente.setSelected(true);
-        
-        rbAusente = new JRadioButton("[X] Ausente");
-        rbAusente.setFont(FONT_REGULAR);
-        rbAusente.setForeground(ERROR_COLOR);
-        rbAusente.setBackground(CARD_BACKGROUND);
-        
-        bgPresenca = new ButtonGroup();
-        bgPresenca.add(rbPresente);
-        bgPresenca.add(rbAusente);
-        
-        presencaPanel.add(rbPresente);
-        presencaPanel.add(rbAusente);
-        panel.add(presencaPanel);
-        panel.add(Box.createVerticalStrut(PADDING_LARGE));
-        
-        // Botões do formulário
-        JPanel btnFormPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, PADDING_SMALL, 0));
-        btnFormPanel.setBackground(CARD_BACKGROUND);
-        btnFormPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, BUTTON_HEIGHT + 10));
-        btnFormPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        
-        btnSalvar = new CustomButton("Salvar", CustomButton.ButtonType.PRIMARY);
-        btnCancelar = new CustomButton("Cancelar", CustomButton.ButtonType.SECONDARY);
-        
-        btnSalvar.addActionListener(e -> salvarFrequencia());
-        btnCancelar.addActionListener(e -> cancelarEdicao());
-        
-        btnFormPanel.add(btnSalvar);
-        btnFormPanel.add(btnCancelar);
-        panel.add(btnFormPanel);
-        
-        panel.add(Box.createVerticalGlue());
-        
-        // Estado inicial: formulário desabilitado
-        setFormEnabled(false);
-        
-        return panel;
-    }
+    // Método removido - formulário agora é exibido em JDialog
+    // Ver método showFrequenciaDialog()
     
     // ========== CARREGAMENTO DE DADOS ==========
     
@@ -388,11 +257,6 @@ public class FrequenciaPanel extends JPanel implements RefreshablePanel {
                 SwingUtilities.invokeLater(() -> {
                     alunosDisponiveis.clear();
                     alunosDisponiveis.addAll(alunos);
-                    
-                    cmbAluno.removeAllItems();
-                    for (AlunoDTO aluno : alunos) {
-                        cmbAluno.addItem(new AlunoItem(aluno));
-                    }
                 });
             },
             () -> {
@@ -449,35 +313,24 @@ public class FrequenciaPanel extends JPanel implements RefreshablePanel {
     // ========== CRUD OPERATIONS ==========
     
     private void novaFrequencia() {
-        isEditMode = false;
-        currentFrequenciaId = null;
-        clearForm();
-        setFormEnabled(true);
-        dataFrequencia.setToday();
-        rbPresente.setSelected(true);
-        showFormPanel();
-        updateButtons();
+        showFrequenciaDialog(null);
     }
     
     private void editarFrequencia() {
         int selectedRow = table.getSelectedRow();
         if (selectedRow == -1) return;
         
-        currentFrequenciaId = (Long) table.getValueAt(selectedRow, 0);
+        Long id = (Long) table.getValueAt(selectedRow, 0);
         
         LoadingDialog.executeWithLoading(
             SwingUtilities.getWindowAncestor(this),
             "Carregando dados...",
             () -> {
-                String response = apiClient.get("/frequencias/" + currentFrequenciaId);
+                String response = apiClient.get("/frequencias/" + id);
                 FrequenciaResponseDTO frequencia = apiClient.fromJson(response, FrequenciaResponseDTO.class);
                 
                 SwingUtilities.invokeLater(() -> {
-                    isEditMode = true;
-                    populateForm(frequencia);
-                    setFormEnabled(true);
-                    showFormPanel();
-                    updateButtons();
+                    showFrequenciaDialog(frequencia);
                 });
             },
             () -> {
@@ -491,6 +344,183 @@ public class FrequenciaPanel extends JPanel implements RefreshablePanel {
                 }
             }
         );
+    }
+    
+    private void showFrequenciaDialog(FrequenciaResponseDTO frequencia) {
+        boolean isNew = (frequencia == null);
+        
+        JDialog dialog = new JDialog(
+            (Frame) SwingUtilities.getWindowAncestor(this),
+            isNew ? "Nova Frequência" : "Editar Frequência",
+            true
+        );
+        dialog.setLayout(new BorderLayout());
+        
+        JPanel formPanel = new JPanel();
+        formPanel.setLayout(new BoxLayout(formPanel, BoxLayout.Y_AXIS));
+        formPanel.setBackground(CARD_BACKGROUND);
+        formPanel.setBorder(new EmptyBorder(PADDING_LARGE, PADDING_LARGE, PADDING_LARGE, PADDING_LARGE));
+        
+        // Campo Aluno
+        JLabel lblAluno = new JLabel("Aluno *");
+        lblAluno.setFont(FONT_REGULAR);
+        lblAluno.setForeground(TEXT_PRIMARY);
+        lblAluno.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        CustomComboBox<AlunoItem> dialogCmbAluno = new CustomComboBox<>();
+        dialogCmbAluno.setFont(FONT_REGULAR);
+        dialogCmbAluno.setMaximumSize(new Dimension(Integer.MAX_VALUE, TEXTFIELD_HEIGHT));
+        dialogCmbAluno.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        // Carregar alunos no combo
+        for (AlunoDTO aluno : alunosDisponiveis) {
+            dialogCmbAluno.addItem(new AlunoItem(aluno));
+        }
+        
+        // Campo Data
+        JLabel lblData = new JLabel("Data *");
+        lblData.setFont(FONT_REGULAR);
+        lblData.setForeground(TEXT_PRIMARY);
+        lblData.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        CustomDatePicker dialogDataFrequencia = new CustomDatePicker();
+        dialogDataFrequencia.setMaximumSize(new Dimension(Integer.MAX_VALUE, TEXTFIELD_HEIGHT));
+        dialogDataFrequencia.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        // Campo Status de Presença
+        JLabel lblPresenca = new JLabel("Status *");
+        lblPresenca.setFont(FONT_REGULAR);
+        lblPresenca.setForeground(TEXT_PRIMARY);
+        lblPresenca.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        JRadioButton dialogRbPresente = new JRadioButton("Presente");
+        dialogRbPresente.setFont(FONT_REGULAR);
+        dialogRbPresente.setForeground(SUCCESS_COLOR);
+        dialogRbPresente.setBackground(CARD_BACKGROUND);
+        dialogRbPresente.setSelected(true);
+        
+        JRadioButton dialogRbAusente = new JRadioButton("Ausente");
+        dialogRbAusente.setFont(FONT_REGULAR);
+        dialogRbAusente.setForeground(ERROR_COLOR);
+        dialogRbAusente.setBackground(CARD_BACKGROUND);
+        
+        ButtonGroup dialogBgPresenca = new ButtonGroup();
+        dialogBgPresenca.add(dialogRbPresente);
+        dialogBgPresenca.add(dialogRbAusente);
+        
+        JPanel presencaPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, PADDING_MEDIUM, 0));
+        presencaPanel.setBackground(CARD_BACKGROUND);
+        presencaPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, TEXTFIELD_HEIGHT));
+        presencaPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        presencaPanel.add(dialogRbPresente);
+        presencaPanel.add(dialogRbAusente);
+        
+        // Preencher dados se for edição
+        if (!isNew) {
+            // Selecionar o aluno
+            for (int i = 0; i < dialogCmbAluno.getItemCount(); i++) {
+                AlunoItem item = dialogCmbAluno.getItemAt(i);
+                if (item != null && item.getId().equals(frequencia.getIdAluno())) {
+                    dialogCmbAluno.setSelectedIndex(i);
+                    break;
+                }
+            }
+            dialogDataFrequencia.setLocalDate(frequencia.getData());
+            if ("PRESENTE".equals(frequencia.getStatusPresenca())) {
+                dialogRbPresente.setSelected(true);
+            } else {
+                dialogRbAusente.setSelected(true);
+            }
+        } else {
+            dialogDataFrequencia.setToday();
+        }
+        
+        // Adicionar componentes ao painel
+        formPanel.add(lblAluno);
+        formPanel.add(Box.createVerticalStrut(PADDING_SMALL));
+        formPanel.add(dialogCmbAluno);
+        formPanel.add(Box.createVerticalStrut(PADDING_MEDIUM));
+        
+        formPanel.add(lblData);
+        formPanel.add(Box.createVerticalStrut(PADDING_SMALL));
+        formPanel.add(dialogDataFrequencia);
+        formPanel.add(Box.createVerticalStrut(PADDING_MEDIUM));
+        
+        formPanel.add(lblPresenca);
+        formPanel.add(Box.createVerticalStrut(PADDING_SMALL));
+        formPanel.add(presencaPanel);
+        formPanel.add(Box.createVerticalStrut(PADDING_LARGE));
+        
+        // Botões
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, PADDING_MEDIUM, 0));
+        buttonPanel.setBackground(CARD_BACKGROUND);
+        buttonPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, BUTTON_HEIGHT + 10));
+        buttonPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        CustomButton btnCancelar = new CustomButton("Cancelar", CustomButton.ButtonType.SECONDARY);
+        CustomButton btnSalvar = new CustomButton("Salvar", CustomButton.ButtonType.PRIMARY);
+        
+        btnCancelar.addActionListener(e -> dialog.dispose());
+        
+        btnSalvar.addActionListener(e -> {
+            AlunoItem alunoSelecionado = (AlunoItem) dialogCmbAluno.getSelectedItem();
+            if (alunoSelecionado == null || alunoSelecionado.getId() == null) {
+                MessageDialog.showWarning(dialog, "Selecione um aluno.");
+                return;
+            }
+            
+            LocalDate dataFreq = dialogDataFrequencia.getLocalDate();
+            if (dataFreq == null) {
+                MessageDialog.showWarning(dialog, "Selecione uma data.");
+                return;
+            }
+            
+            Boolean presenca = dialogRbPresente.isSelected();
+            
+            FrequenciaRequestDTO dto = new FrequenciaRequestDTO();
+            dto.setIdAluno(alunoSelecionado.getId());
+            dto.setData(dataFreq);
+            dto.setPresenca(presenca);
+            
+            dialog.dispose();
+            
+            LoadingDialog.executeWithLoading(
+                SwingUtilities.getWindowAncestor(this),
+                isNew ? "Registrando presença..." : "Atualizando registro...",
+                () -> {
+                    if (isNew) {
+                        apiClient.post("/frequencias", dto);
+                    } else {
+                        apiClient.put("/frequencias/" + frequencia.getIdFrequencia(), dto);
+                    }
+                },
+                () -> {
+                    MessageDialog.showSuccess(
+                        this,
+                        isNew ? "Presença registrada com sucesso!" : "Frequência atualizada com sucesso!"
+                    );
+                    loadFrequencias();
+                    notifyParentToRefresh();
+                },
+                error -> {
+                    if (error instanceof ApiException) {
+                        MessageDialog.showError(this, ((ApiException) error).getUserFriendlyMessage());
+                    } else {
+                        MessageDialog.showError(this, "Erro ao salvar frequência: " + error.getMessage());
+                    }
+                }
+            );
+        });
+        
+        buttonPanel.add(btnCancelar);
+        buttonPanel.add(btnSalvar);
+        formPanel.add(buttonPanel);
+        
+        dialog.add(formPanel);
+        dialog.setSize(500, 400);
+        dialog.setLocationRelativeTo(SwingUtilities.getWindowAncestor(this));
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialog.setVisible(true);
     }
     
     private void excluirFrequencia() {
@@ -530,65 +560,6 @@ public class FrequenciaPanel extends JPanel implements RefreshablePanel {
                 }
             );
         }
-    }
-    
-    private void salvarFrequencia() {
-        if (!validateForm()) {
-            MessageDialog.showWarning(this, MSG_VALIDATION_ERROR);
-            return;
-        }
-        
-        AlunoItem alunoSelecionado = (AlunoItem) cmbAluno.getSelectedItem();
-        LocalDate dataFreq = dataFrequencia.getLocalDate();
-        Boolean presenca = rbPresente.isSelected();
-        
-        // Criar DTO
-        FrequenciaRequestDTO dto = new FrequenciaRequestDTO();
-        dto.setIdAluno(alunoSelecionado.getId());
-        dto.setData(dataFreq);
-        dto.setPresenca(presenca);
-        
-        LoadingDialog.executeWithLoading(
-            SwingUtilities.getWindowAncestor(this),
-            isEditMode ? "Atualizando registro..." : "Registrando presença...",
-            () -> {
-                if (isEditMode) {
-                    apiClient.put("/frequencias/" + currentFrequenciaId, dto);
-                } else {
-                    apiClient.post("/frequencias", dto);
-                }
-                
-                SwingUtilities.invokeLater(() -> {
-                    MessageDialog.showSuccess(
-                        this,
-                        isEditMode ? "Frequência atualizada com sucesso!" : "Presença registrada com sucesso!"
-                    );
-                    cancelarEdicao();
-                    loadFrequencias();
-                    notifyParentToRefresh();
-                });
-            },
-            () -> {
-                // Sucesso
-            },
-            error -> {
-                if (error instanceof ApiException) {
-                    MessageDialog.showError(this, ((ApiException) error).getUserFriendlyMessage());
-                } else {
-                    MessageDialog.showError(this, "Erro ao salvar frequência: " + error.getMessage());
-                }
-            }
-        );
-    }
-    
-    private void cancelarEdicao() {
-        clearForm();
-        setFormEnabled(false);
-        isEditMode = false;
-        currentFrequenciaId = null;
-        table.clearSelection();
-        hideFormPanel();
-        updateButtons();
     }
     
     // ========== FILTROS ==========
@@ -929,77 +900,13 @@ public class FrequenciaPanel extends JPanel implements RefreshablePanel {
     }
     
     // ========== VALIDAÇÃO E FORMULÁRIO ==========
-    
-    private boolean validateForm() {
-        if (cmbAluno.getSelectedItem() == null) {
-            return false;
-        }
-        
-        if (dataFrequencia.getDate() == null) {
-            return false;
-        } else if (dataFrequencia.isFutureDate()) {
-            MessageDialog.showWarning(this, "A data não pode ser futura!");
-            return false;
-        }
-        
-        return true;
-    }
-    
-    private void populateForm(FrequenciaResponseDTO frequencia) {
-        // Selecionar aluno
-        for (int i = 0; i < cmbAluno.getItemCount(); i++) {
-            AlunoItem item = cmbAluno.getItemAt(i);
-            if (item.getId().equals(frequencia.getIdAluno())) {
-                cmbAluno.setSelectedIndex(i);
-                break;
-            }
-        }
-        
-        dataFrequencia.setLocalDate(frequencia.getData());
-        
-        if (frequencia.getPresenca()) {
-            rbPresente.setSelected(true);
-        } else {
-            rbAusente.setSelected(true);
-        }
-    }
-    
-    private void clearForm() {
-        if (cmbAluno.getItemCount() > 0) {
-            cmbAluno.setSelectedIndex(0);
-        }
-        dataFrequencia.setToday();
-        rbPresente.setSelected(true);
-    }
-    
-    private void setFormEnabled(boolean enabled) {
-        cmbAluno.setEnabled(enabled);
-        dataFrequencia.setEnabled(enabled);
-        rbPresente.setEnabled(enabled);
-        rbAusente.setEnabled(enabled);
-        btnSalvar.setEnabled(enabled);
-        btnCancelar.setEnabled(enabled);
-    }
+    // Métodos removidos - formulário agora é exibido em JDialog
     
     private void updateButtons() {
+        if (table == null) return; // Prevenir NullPointerException durante inicialização
         boolean hasSelection = table.getSelectedRow() != -1;
-        boolean formEnabled = btnSalvar.isEnabled();
-        
-        btnNovo.setEnabled(!formEnabled);
-        btnEditar.setEnabled(hasSelection && !formEnabled);
-        btnExcluir.setEnabled(hasSelection && !formEnabled);
-    }
-    
-    private void showFormPanel() {
-        splitPane.setRightComponent(formPanel);
-        splitPane.setResizeWeight(0.6);
-        splitPane.setDividerLocation(0.6);
-        formPanel.setVisible(true);
-    }
-    
-    private void hideFormPanel() {
-        splitPane.remove(formPanel);
-        formPanel.setVisible(false);
+        btnEditar.setEnabled(hasSelection);
+        btnExcluir.setEnabled(hasSelection);
     }
     
     // ========== REFRESH E NOTIFICAÇÕES ==========

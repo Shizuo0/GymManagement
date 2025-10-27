@@ -43,6 +43,7 @@ import static com.example.demo.ui.utils.UIConstants.PADDING_MEDIUM;
 import static com.example.demo.ui.utils.UIConstants.PADDING_SMALL;
 import static com.example.demo.ui.utils.UIConstants.PANEL_BACKGROUND;
 import static com.example.demo.ui.utils.UIConstants.PRIMARY_COLOR;
+import static com.example.demo.ui.utils.UIConstants.SURFACE_COLOR;
 import static com.example.demo.ui.utils.UIConstants.TEXTFIELD_HEIGHT;
 import static com.example.demo.ui.utils.UIConstants.TEXT_PRIMARY;
 
@@ -96,20 +97,7 @@ public class ItemTreinoPanel extends JPanel {
     }
     
     private void initializeUI() {
-        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-        splitPane.setResizeWeight(0.6);
-        splitPane.setDividerSize(PADDING_MEDIUM);
-        splitPane.setBorder(null);
-        splitPane.setBackground(BACKGROUND_COLOR);
-        
-        splitPane.setLeftComponent(createListPanel());
-        formPanel = createFormPanel();
-        splitPane.setRightComponent(formPanel);
-        
-        add(splitPane, BorderLayout.CENTER);
-        
-        // Oculta o formulário e atualiza os botões
-        hideFormPanel();
+        add(createListPanel(), BorderLayout.CENTER);
         updateButtons();
     }
     
@@ -172,14 +160,17 @@ public class ItemTreinoPanel extends JPanel {
         btnNovo = new CustomButton("+ Novo", CustomButton.ButtonType.PRIMARY);
         btnEditar = new CustomButton("Editar", CustomButton.ButtonType.SECONDARY);
         btnExcluir = new CustomButton("X Excluir", CustomButton.ButtonType.DANGER);
+        CustomButton btnAtualizar = new CustomButton("↻ Atualizar", CustomButton.ButtonType.SECONDARY);
         
         btnNovo.addActionListener(e -> novoItem());
         btnEditar.addActionListener(e -> editarItem());
         btnExcluir.addActionListener(e -> excluirItem());
+        btnAtualizar.addActionListener(e -> atualizarPagina());
         
         buttonPanel.add(btnNovo);
         buttonPanel.add(btnEditar);
         buttonPanel.add(btnExcluir);
+        buttonPanel.add(btnAtualizar);
         
         panel.add(buttonPanel, BorderLayout.SOUTH);
         
@@ -207,76 +198,19 @@ public class ItemTreinoPanel extends JPanel {
         panel.add(Box.createVerticalStrut(PADDING_LARGE));
         
         // Campo Plano de Treino
-        JLabel lblPlano = new JLabel("Plano de Treino:*");
-        lblPlano.setFont(FONT_REGULAR);
-        lblPlano.setForeground(TEXT_PRIMARY);
-        lblPlano.setAlignmentX(Component.LEFT_ALIGNMENT);
-        panel.add(lblPlano);
-        panel.add(Box.createVerticalStrut(PADDING_SMALL));
-        
-        cmbPlano = new CustomComboBox<>();
-        cmbPlano.setFont(FONT_REGULAR);
-        cmbPlano.setMaximumSize(new Dimension(Integer.MAX_VALUE, TEXTFIELD_HEIGHT));
-        cmbPlano.setAlignmentX(Component.LEFT_ALIGNMENT);
-        panel.add(cmbPlano);
-        panel.add(Box.createVerticalStrut(PADDING_MEDIUM));
+        panel.add(createFormField("Plano de Treino:*", cmbPlano = new CustomComboBox<>()));
         
         // Campo Exercício
-        JLabel lblExercicio = new JLabel("Exercício:*");
-        lblExercicio.setFont(FONT_REGULAR);
-        lblExercicio.setForeground(TEXT_PRIMARY);
-        lblExercicio.setAlignmentX(Component.LEFT_ALIGNMENT);
-        panel.add(lblExercicio);
-        panel.add(Box.createVerticalStrut(PADDING_SMALL));
-        
-        cmbExercicio = new CustomComboBox<>();
-        cmbExercicio.setFont(FONT_REGULAR);
-        cmbExercicio.setMaximumSize(new Dimension(Integer.MAX_VALUE, TEXTFIELD_HEIGHT));
-        cmbExercicio.setAlignmentX(Component.LEFT_ALIGNMENT);
-        panel.add(cmbExercicio);
-        panel.add(Box.createVerticalStrut(PADDING_MEDIUM));
+        panel.add(createFormField("Exercício:*", cmbExercicio = new CustomComboBox<>()));
         
         // Campo Séries
-        JLabel lblSeries = new JLabel("Séries:*");
-        lblSeries.setFont(FONT_REGULAR);
-        lblSeries.setForeground(TEXT_PRIMARY);
-        lblSeries.setAlignmentX(Component.LEFT_ALIGNMENT);
-        panel.add(lblSeries);
-        panel.add(Box.createVerticalStrut(PADDING_SMALL));
-        
-        txtSeries = CustomTextField.createNumericField("Ex: 3");
-        txtSeries.setMaximumSize(new Dimension(Integer.MAX_VALUE, TEXTFIELD_HEIGHT));
-        txtSeries.setAlignmentX(Component.LEFT_ALIGNMENT);
-        panel.add(txtSeries);
-        panel.add(Box.createVerticalStrut(PADDING_MEDIUM));
+        panel.add(createFormField("Séries:*", txtSeries = CustomTextField.createNumericField("Ex: 3")));
         
         // Campo Repetições
-        JLabel lblRepeticoes = new JLabel("Repetições:*");
-        lblRepeticoes.setFont(FONT_REGULAR);
-        lblRepeticoes.setForeground(TEXT_PRIMARY);
-        lblRepeticoes.setAlignmentX(Component.LEFT_ALIGNMENT);
-        panel.add(lblRepeticoes);
-        panel.add(Box.createVerticalStrut(PADDING_SMALL));
-        
-        txtRepeticoes = CustomTextField.createNumericField("Ex: 12");
-        txtRepeticoes.setMaximumSize(new Dimension(Integer.MAX_VALUE, TEXTFIELD_HEIGHT));
-        txtRepeticoes.setAlignmentX(Component.LEFT_ALIGNMENT);
-        panel.add(txtRepeticoes);
-        panel.add(Box.createVerticalStrut(PADDING_MEDIUM));
+        panel.add(createFormField("Repetições:*", txtRepeticoes = CustomTextField.createNumericField("Ex: 12")));
         
         // Campo Carga
-        JLabel lblCarga = new JLabel("Carga (kg):");
-        lblCarga.setFont(FONT_REGULAR);
-        lblCarga.setForeground(TEXT_PRIMARY);
-        lblCarga.setAlignmentX(Component.LEFT_ALIGNMENT);
-        panel.add(lblCarga);
-        panel.add(Box.createVerticalStrut(PADDING_SMALL));
-        
-        txtCarga = CustomTextField.createNumericField("Ex: 50");
-        txtCarga.setMaximumSize(new Dimension(Integer.MAX_VALUE, TEXTFIELD_HEIGHT));
-        txtCarga.setAlignmentX(Component.LEFT_ALIGNMENT);
-        panel.add(txtCarga);
-        panel.add(Box.createVerticalStrut(PADDING_MEDIUM));
+        panel.add(createFormField("Carga (kg):", txtCarga = CustomTextField.createNumericField("Ex: 50")));
         
         // Campo Observações
         JLabel lblObservacoes = new JLabel("Observações:");
@@ -301,6 +235,7 @@ public class ItemTreinoPanel extends JPanel {
         JScrollPane scrollObservacoes = new JScrollPane(txtObservacoes);
         scrollObservacoes.setMaximumSize(new Dimension(Integer.MAX_VALUE, 80));
         scrollObservacoes.setAlignmentX(Component.LEFT_ALIGNMENT);
+        scrollObservacoes.setBorder(BorderFactory.createLineBorder(BORDER_COLOR));
         panel.add(scrollObservacoes);
         panel.add(Box.createVerticalStrut(PADDING_LARGE));
         
@@ -332,6 +267,37 @@ public class ItemTreinoPanel extends JPanel {
         return panel;
     }
     
+    /**
+     * Método auxiliar para criar campos de formulário com label acima do input
+     */
+    private JPanel createFormField(String labelText, Component inputComponent) {
+        JPanel fieldPanel = new JPanel();
+        fieldPanel.setLayout(new BoxLayout(fieldPanel, BoxLayout.Y_AXIS));
+        fieldPanel.setBackground(CARD_BACKGROUND);
+        fieldPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        fieldPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, TEXTFIELD_HEIGHT + 30));
+        
+        // Label
+        JLabel label = new JLabel(labelText);
+        label.setFont(FONT_REGULAR);
+        label.setForeground(TEXT_PRIMARY);
+        label.setAlignmentX(Component.LEFT_ALIGNMENT);
+        fieldPanel.add(label);
+        fieldPanel.add(Box.createVerticalStrut(PADDING_SMALL));
+        
+        // Input
+        if (inputComponent instanceof CustomComboBox || 
+            inputComponent instanceof CustomTextField) {
+            inputComponent.setFont(FONT_REGULAR);
+            ((javax.swing.JComponent) inputComponent).setMaximumSize(new Dimension(Integer.MAX_VALUE, TEXTFIELD_HEIGHT));
+            ((javax.swing.JComponent) inputComponent).setAlignmentX(Component.LEFT_ALIGNMENT);
+        }
+        fieldPanel.add(inputComponent);
+        fieldPanel.add(Box.createVerticalStrut(PADDING_MEDIUM));
+        
+        return fieldPanel;
+    }
+    
     // ========== CARREGAMENTO DE DADOS ==========
     
     private void loadItensTreino() {
@@ -357,6 +323,14 @@ public class ItemTreinoPanel extends JPanel {
                 }
             }
         );
+    }
+    
+    private void atualizarPagina() {
+        loadItensTreino();
+        loadPlanosForFilter();
+        loadPlanosForForm();
+        loadExercicios();
+        MessageDialog.showSuccess(this, "Página atualizada com sucesso!");
     }
     
     private void updateTable(List<ItemTreinoResponseDTO> itens) {
@@ -433,39 +407,27 @@ public class ItemTreinoPanel extends JPanel {
     // ========== CRUD OPERATIONS ==========
     
     private void novoItem() {
-        isEditMode = false;
-        currentItemId = null;
-        clearForm();
-        setFormEnabled(true);
-        showFormPanel();
-        updateButtons();
-        cmbPlano.requestFocus();
+        showItemTreinoDialog(null);
     }
     
     private void editarItem() {
         int selectedRow = table.getSelectedRow();
         if (selectedRow == -1) return;
         
-        currentItemId = (Long) table.getValueAt(selectedRow, 0);
+        Long id = (Long) table.getValueAt(selectedRow, 0);
         
         LoadingDialog.executeWithLoading(
             SwingUtilities.getWindowAncestor(this),
             "Carregando dados...",
             () -> {
-                String response = apiClient.get("/itens-treino/" + currentItemId);
+                String response = apiClient.get("/itens-treino/" + id);
                 ItemTreinoResponseDTO item = apiClient.fromJson(response, ItemTreinoResponseDTO.class);
                 
                 SwingUtilities.invokeLater(() -> {
-                    isEditMode = true;
-                    populateForm(item);
-                    setFormEnabled(true);
-                    showFormPanel();
-                    updateButtons();
+                    showItemTreinoDialog(item);
                 });
             },
-            () -> {
-                // Sucesso
-            },
+            () -> {},
             error -> {
                 if (error instanceof ApiException) {
                     MessageDialog.showError(this, ((ApiException) error).getUserFriendlyMessage());
@@ -474,6 +436,230 @@ public class ItemTreinoPanel extends JPanel {
                 }
             }
         );
+    }
+    
+    private void showItemTreinoDialog(ItemTreinoResponseDTO item) {
+        boolean isNew = (item == null);
+        
+        javax.swing.JDialog dialog = new javax.swing.JDialog(
+            (java.awt.Frame) SwingUtilities.getWindowAncestor(this),
+            isNew ? "Novo Exercício no Plano" : "Editar Exercício no Plano",
+            true
+        );
+        dialog.setLayout(new BorderLayout());
+        
+        JPanel formPanel = new JPanel();
+        formPanel.setLayout(new BoxLayout(formPanel, BoxLayout.Y_AXIS));
+        formPanel.setBackground(CARD_BACKGROUND);
+        formPanel.setBorder(new EmptyBorder(PADDING_LARGE, PADDING_LARGE, PADDING_LARGE, PADDING_LARGE));
+        formPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        // Carregar dados para os combos
+        List<PlanoTreinoResponseDTO> planos = new java.util.ArrayList<>();
+        List<ExercicioResponseDTO> exercicios = new java.util.ArrayList<>();
+        
+        try {
+            String planosJson = apiClient.get("/planos-treino");
+            planos = apiClient.fromJsonArray(planosJson, PlanoTreinoResponseDTO.class);
+            
+            String exerciciosJson = apiClient.get("/exercicios");
+            exercicios = apiClient.fromJsonArray(exerciciosJson, ExercicioResponseDTO.class);
+        } catch (Exception ex) {
+            MessageDialog.showError(dialog, "Erro ao carregar dados: " + ex.getMessage());
+            dialog.dispose();
+            return;
+        }
+        
+        // Campo Plano de Treino
+        CustomComboBox<PlanoItem> dialogCmbPlano = new CustomComboBox<>();
+        dialogCmbPlano.setMaximumSize(new Dimension(Integer.MAX_VALUE, TEXTFIELD_HEIGHT));
+        dialogCmbPlano.setAlignmentX(Component.LEFT_ALIGNMENT);
+        for (PlanoTreinoResponseDTO plano : planos) {
+            String display = "Plano #" + plano.getId() + " - " + plano.getNomeAluno();
+            dialogCmbPlano.addItem(new PlanoItem(plano.getId(), display));
+        }
+        
+        // Campo Exercício
+        CustomComboBox<ExercicioItem> dialogCmbExercicio = new CustomComboBox<>();
+        dialogCmbExercicio.setMaximumSize(new Dimension(Integer.MAX_VALUE, TEXTFIELD_HEIGHT));
+        dialogCmbExercicio.setAlignmentX(Component.LEFT_ALIGNMENT);
+        for (ExercicioResponseDTO exercicio : exercicios) {
+            String display = exercicio.getNome() + " (" + exercicio.getGrupoMuscular() + ")";
+            dialogCmbExercicio.addItem(new ExercicioItem(exercicio.getId(), display));
+        }
+        
+        // Campo Séries
+        CustomTextField dialogTxtSeries = CustomTextField.createNumericField("Ex: 3");
+        dialogTxtSeries.setMaximumSize(new Dimension(Integer.MAX_VALUE, TEXTFIELD_HEIGHT));
+        dialogTxtSeries.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        // Campo Repetições
+        CustomTextField dialogTxtRepeticoes = CustomTextField.createNumericField("Ex: 12");
+        dialogTxtRepeticoes.setMaximumSize(new Dimension(Integer.MAX_VALUE, TEXTFIELD_HEIGHT));
+        dialogTxtRepeticoes.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        // Campo Carga
+        CustomTextField dialogTxtCarga = CustomTextField.createNumericField("Ex: 50");
+        dialogTxtCarga.setMaximumSize(new Dimension(Integer.MAX_VALUE, TEXTFIELD_HEIGHT));
+        dialogTxtCarga.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        // Campo Observações
+        JTextArea dialogTxtObs = new JTextArea(3, 30);
+        dialogTxtObs.setFont(FONT_REGULAR);
+        dialogTxtObs.setLineWrap(true);
+        dialogTxtObs.setWrapStyleWord(true);
+        dialogTxtObs.setBackground(SURFACE_COLOR);
+        dialogTxtObs.setForeground(TEXT_PRIMARY);
+        dialogTxtObs.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(BORDER_COLOR, 2),
+            BorderFactory.createEmptyBorder(PADDING_SMALL, PADDING_MEDIUM, PADDING_SMALL, PADDING_MEDIUM)
+        ));
+        JScrollPane scrollObs = new JScrollPane(dialogTxtObs);
+        scrollObs.setMaximumSize(new Dimension(Integer.MAX_VALUE, 80));
+        scrollObs.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        // Preencher dados se for edição
+        if (!isNew && item != null) {
+            for (int i = 0; i < dialogCmbPlano.getItemCount(); i++) {
+                if (dialogCmbPlano.getItemAt(i).getId().equals(item.getPlanoTreinoId())) {
+                    dialogCmbPlano.setSelectedIndex(i);
+                    break;
+                }
+            }
+            for (int i = 0; i < dialogCmbExercicio.getItemCount(); i++) {
+                if (dialogCmbExercicio.getItemAt(i).getId().equals(item.getExercicioId())) {
+                    dialogCmbExercicio.setSelectedIndex(i);
+                    break;
+                }
+            }
+            dialogTxtSeries.setText(item.getSeries().toString());
+            dialogTxtRepeticoes.setText(item.getRepeticoes().toString());
+            if (item.getCarga() != null) {
+                dialogTxtCarga.setText(item.getCarga().toString());
+            }
+            if (item.getObservacoes() != null) {
+                dialogTxtObs.setText(item.getObservacoes());
+            }
+        }
+        
+        // Adicionar campos ao painel
+        formPanel.add(createItemLabel("Plano de Treino *"));
+        formPanel.add(Box.createVerticalStrut(PADDING_SMALL));
+        formPanel.add(dialogCmbPlano);
+        formPanel.add(Box.createVerticalStrut(PADDING_MEDIUM));
+        
+        formPanel.add(createItemLabel("Exercício *"));
+        formPanel.add(Box.createVerticalStrut(PADDING_SMALL));
+        formPanel.add(dialogCmbExercicio);
+        formPanel.add(Box.createVerticalStrut(PADDING_MEDIUM));
+        
+        formPanel.add(createItemLabel("Séries *"));
+        formPanel.add(Box.createVerticalStrut(PADDING_SMALL));
+        formPanel.add(dialogTxtSeries);
+        formPanel.add(Box.createVerticalStrut(PADDING_MEDIUM));
+        
+        formPanel.add(createItemLabel("Repetições *"));
+        formPanel.add(Box.createVerticalStrut(PADDING_SMALL));
+        formPanel.add(dialogTxtRepeticoes);
+        formPanel.add(Box.createVerticalStrut(PADDING_MEDIUM));
+        
+        formPanel.add(createItemLabel("Carga (kg)"));
+        formPanel.add(Box.createVerticalStrut(PADDING_SMALL));
+        formPanel.add(dialogTxtCarga);
+        formPanel.add(Box.createVerticalStrut(PADDING_MEDIUM));
+        
+        formPanel.add(createItemLabel("Observações"));
+        formPanel.add(Box.createVerticalStrut(PADDING_SMALL));
+        formPanel.add(scrollObs);
+        formPanel.add(Box.createVerticalStrut(PADDING_LARGE));
+        
+        // Botões
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, PADDING_MEDIUM, 0));
+        buttonPanel.setBackground(CARD_BACKGROUND);
+        buttonPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
+        
+        CustomButton btnCancelar = new CustomButton("Cancelar", CustomButton.ButtonType.SECONDARY);
+        CustomButton btnSalvar = new CustomButton("Salvar", CustomButton.ButtonType.PRIMARY);
+        
+        btnCancelar.addActionListener(e -> dialog.dispose());
+        
+        btnSalvar.addActionListener(e -> {
+            PlanoItem selectedPlano = (PlanoItem) dialogCmbPlano.getSelectedItem();
+            ExercicioItem selectedExercicio = (ExercicioItem) dialogCmbExercicio.getSelectedItem();
+            
+            if (selectedPlano == null || selectedExercicio == null) {
+                MessageDialog.showWarning(dialog, "Selecione o plano e o exercício.");
+                return;
+            }
+            
+            String seriesStr = dialogTxtSeries.getText().trim();
+            String repeticoesStr = dialogTxtRepeticoes.getText().trim();
+            
+            if (seriesStr.isEmpty() || repeticoesStr.isEmpty()) {
+                MessageDialog.showWarning(dialog, "Preencha séries e repetições.");
+                return;
+            }
+            
+            try {
+                ItemTreinoRequestDTO dto = new ItemTreinoRequestDTO();
+                dto.setPlanoTreinoId(selectedPlano.getId());
+                dto.setExercicioId(selectedExercicio.getId());
+                dto.setSeries(Integer.parseInt(seriesStr));
+                dto.setRepeticoes(Integer.parseInt(repeticoesStr));
+                
+                String cargaStr = dialogTxtCarga.getText().trim();
+                if (!cargaStr.isEmpty()) {
+                    dto.setCarga(new BigDecimal(cargaStr));
+                }
+                
+                dto.setObservacoes(dialogTxtObs.getText().trim());
+                
+                dialog.dispose();
+                
+                LoadingDialog.executeWithLoading(
+                    SwingUtilities.getWindowAncestor(this),
+                    isNew ? "Adicionando exercício..." : "Atualizando exercício...",
+                    () -> {
+                        if (isNew) {
+                            apiClient.post("/itens-treino", dto);
+                        } else {
+                            apiClient.put("/itens-treino/" + item.getId(), dto);
+                        }
+                    },
+                    () -> {
+                        MessageDialog.showSuccess(this, isNew ? "Exercício adicionado com sucesso!" : "Exercício atualizado com sucesso!");
+                        loadItensTreino();
+                    },
+                    error -> {
+                        if (error instanceof ApiException) {
+                            MessageDialog.showError(this, ((ApiException) error).getUserFriendlyMessage());
+                        } else {
+                            MessageDialog.showError(this, "Erro ao salvar exercício: " + error.getMessage());
+                        }
+                    }
+                );
+            } catch (NumberFormatException ex) {
+                MessageDialog.showWarning(dialog, "Séries e repetições devem ser números válidos.");
+            }
+        });
+        
+        buttonPanel.add(btnCancelar);
+        buttonPanel.add(btnSalvar);
+        formPanel.add(buttonPanel);
+        
+        dialog.add(formPanel, BorderLayout.NORTH);
+        dialog.setSize(550, 650);
+        dialog.setLocationRelativeTo(SwingUtilities.getWindowAncestor(this));
+        dialog.setDefaultCloseOperation(javax.swing.JDialog.DISPOSE_ON_CLOSE);
+        dialog.setVisible(true);
+    }
+    
+    private JLabel createItemLabel(String text) {
+        JLabel label = new JLabel(text);
+        label.setFont(FONT_REGULAR);
+        label.setForeground(TEXT_PRIMARY);
+        label.setAlignmentX(Component.LEFT_ALIGNMENT);
+        return label;
     }
     
     private void excluirItem() {
@@ -766,12 +952,11 @@ public class ItemTreinoPanel extends JPanel {
     }
     
     private void updateButtons() {
+        if (table == null) return; // Prevenir NullPointerException durante inicialização
         boolean hasSelection = table.getSelectedRow() != -1;
-        boolean formEnabled = btnSalvar.isEnabled();
         
-        btnNovo.setEnabled(!formEnabled);
-        btnEditar.setEnabled(hasSelection && !formEnabled);
-        btnExcluir.setEnabled(hasSelection && !formEnabled);
+        btnEditar.setEnabled(hasSelection);
+        btnExcluir.setEnabled(hasSelection);
     }
     
     private void showFormPanel() {

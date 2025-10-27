@@ -12,6 +12,9 @@ public class ExercicioRequestDTO {
     @Size(max = 50, message = "O grupo muscular deve ter no máximo 50 caracteres")
     private String grupoMuscular;
     
+    @Size(max = 50, message = "A descrição deve ter no máximo 50 caracteres")
+    private String descricao;
+    
     // Getters e Setters
     public String getNome() {
         return nome;
@@ -27,5 +30,13 @@ public class ExercicioRequestDTO {
     
     public void setGrupoMuscular(String grupoMuscular) {
         this.grupoMuscular = grupoMuscular;
+    }
+    
+    public String getDescricao() {
+        return descricao;
+    }
+    
+    public void setDescricao(String descricao) {
+        this.descricao = descricao;
     }
 }

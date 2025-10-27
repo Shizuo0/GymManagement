@@ -28,7 +28,18 @@ import com.example.demo.ui.components.LoadingDialog;
 import com.example.demo.ui.components.MessageDialog;
 import com.example.demo.ui.utils.ApiClient;
 import com.example.demo.ui.utils.ApiException;
-import static com.example.demo.ui.utils.UIConstants.*;
+import static com.example.demo.ui.utils.UIConstants.BORDER_COLOR;
+import static com.example.demo.ui.utils.UIConstants.CARD_BACKGROUND;
+import static com.example.demo.ui.utils.UIConstants.FONT_REGULAR;
+import static com.example.demo.ui.utils.UIConstants.FONT_TITLE;
+import static com.example.demo.ui.utils.UIConstants.MSG_SUCCESS_SAVE;
+import static com.example.demo.ui.utils.UIConstants.MSG_SUCCESS_UPDATE;
+import static com.example.demo.ui.utils.UIConstants.PADDING_LARGE;
+import static com.example.demo.ui.utils.UIConstants.PADDING_MEDIUM;
+import static com.example.demo.ui.utils.UIConstants.PADDING_SMALL;
+import static com.example.demo.ui.utils.UIConstants.PANEL_BACKGROUND;
+import static com.example.demo.ui.utils.UIConstants.SURFACE_COLOR;
+import static com.example.demo.ui.utils.UIConstants.TEXT_PRIMARY;
 
 public class ExercicioPanel extends JPanel implements RefreshablePanel {
     
@@ -49,9 +60,10 @@ public class ExercicioPanel extends JPanel implements RefreshablePanel {
         setLayout(new BorderLayout(PADDING_LARGE, PADDING_LARGE));
         setBorder(BorderFactory.createEmptyBorder(PADDING_LARGE, PADDING_LARGE, PADDING_LARGE, PADDING_LARGE));
         
-        String[] columns = {"ID", "Nome", "Grupo Muscular"};
+        String[] columns = {"ID", "Nome", "Grupo Muscular", "Descrição"};
         table = new CustomTable(columns);
         table.setColumnWidth(0, 60);
+        table.setColumnWidth(2, 150);
         table.centerColumn(0);
         table.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) updateButtonStates();
@@ -127,10 +139,17 @@ public class ExercicioPanel extends JPanel implements RefreshablePanel {
     private void updateTable(List<ExercicioResponseDTO> exercicios) {
         table.clearRows();
         for (ExercicioResponseDTO ex : exercicios) {
+            String descricaoExibida = ex.getDescricao() != null && !ex.getDescricao().isEmpty() 
+                ? (ex.getDescricao().length() > 50 
+                    ? ex.getDescricao().substring(0, 50) + "..." 
+                    : ex.getDescricao())
+                : "-";
+            
             table.addRow(new Object[]{
                 ex.getId(),
                 ex.getNome(),
-                ex.getGrupoMuscular() != null ? ex.getGrupoMuscular() : "-"
+                ex.getGrupoMuscular() != null ? ex.getGrupoMuscular() : "-",
+                descricaoExibida
             });
         }
         updateButtonStates();
@@ -263,6 +282,17 @@ public class ExercicioPanel extends JPanel implements RefreshablePanel {
         content.add(scrollDescricao);
         content.add(Box.createVerticalStrut(PADDING_LARGE));
         
+        // Preencher dados se for edição
+        if (exercicio != null) {
+            txtNome.setText(exercicio.getNome());
+            if (exercicio.getGrupoMuscular() != null) {
+                txtGrupo.setText(exercicio.getGrupoMuscular());
+            }
+            if (exercicio.getDescricao() != null) {
+                txtDescricao.setText(exercicio.getDescricao());
+            }
+        }
+        
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, PADDING_SMALL, 0));
         btnPanel.setBackground(CARD_BACKGROUND);
         btnPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -274,6 +304,7 @@ public class ExercicioPanel extends JPanel implements RefreshablePanel {
         btnSalvar.addActionListener(e -> {
             String nome = txtNome.getText().trim();
             String grupoMuscular = txtGrupo.getText().trim();
+            String descricao = txtDescricao.getText().trim();
             
             if (nome.isEmpty() || grupoMuscular.isEmpty()) {
                 MessageDialog.showWarning(dialog, "Nome e Grupo Muscular são obrigatórios!");
@@ -283,6 +314,7 @@ public class ExercicioPanel extends JPanel implements RefreshablePanel {
             ExercicioRequestDTO dto = new ExercicioRequestDTO();
             dto.setNome(nome);
             dto.setGrupoMuscular(grupoMuscular);
+            dto.setDescricao(descricao.isEmpty() ? null : descricao);
             
             salvarExercicio(dto, exercicio);
             dialog.dispose();

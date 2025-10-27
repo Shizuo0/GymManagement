@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Frame;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -13,6 +14,7 @@ import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -119,21 +121,7 @@ public class MatriculaPanel extends JPanel implements RefreshablePanel {
     }
     
     private void initializeUI() {
-        // Split pane: tabela à esquerda, formulário à direita
-        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-        splitPane.setResizeWeight(0.6);
-        splitPane.setDividerSize(PADDING_MEDIUM);
-        splitPane.setBorder(null);
-        splitPane.setBackground(BACKGROUND_COLOR);
-        
-        splitPane.setLeftComponent(createListPanel());
-        formPanel = createFormPanel();
-        splitPane.setRightComponent(formPanel);
-        
-        add(splitPane, BorderLayout.CENTER);
-        
-        // Oculta o formulário na inicialização
-        hideFormPanel();
+        add(createListPanel(), BorderLayout.CENTER);
     }
     
     private JPanel createListPanel() {
@@ -490,18 +478,7 @@ public class MatriculaPanel extends JPanel implements RefreshablePanel {
     }
     
     private void newMatricula() {
-        clearForm();
-        setFormEnabled(true);
-        isEditMode = false;
-        currentMatriculaId = null;
-        table.clearSelection();
-        cmbStatus.setSelectedItem("ATIVA");
-        
-        // Definir data de início como hoje
-        datePickerInicio.setLocalDate(LocalDate.now());
-        
-        showFormPanel();
-        updateButtons();
+        showMatriculaDialog(null);
     }
     
     private void editMatricula() {
@@ -510,10 +487,269 @@ public class MatriculaPanel extends JPanel implements RefreshablePanel {
             return;
         }
         
-        setFormEnabled(true);
-        isEditMode = true;
-        showFormPanel();
-        updateButtons();
+        Long id = (Long) table.getSelectedRowValue(0);
+        
+        LoadingDialog.executeWithLoading(
+            SwingUtilities.getWindowAncestor(this),
+            "Carregando matrícula...",
+            () -> {
+                String response = apiClient.get("/matriculas/" + id);
+                MatriculaResponseDTO matricula = apiClient.fromJson(response, MatriculaResponseDTO.class);
+                
+                SwingUtilities.invokeLater(() -> {
+                    showMatriculaDialog(matricula);
+                });
+            },
+            () -> {},
+            error -> {
+                if (error instanceof ApiException) {
+                    MessageDialog.showError(this, ((ApiException) error).getUserFriendlyMessage());
+                } else {
+                    MessageDialog.showError(this, "Erro ao carregar matrícula: " + error.getMessage());
+                }
+            }
+        );
+    }
+    
+    private void showMatriculaDialog(MatriculaResponseDTO matricula) {
+        boolean isNew = (matricula == null);
+        
+        JDialog dialog = new JDialog(
+            (Frame) SwingUtilities.getWindowAncestor(this),
+            isNew ? "Nova Matrícula" : "Editar Matrícula",
+            true
+        );
+        dialog.setLayout(new BorderLayout());
+        
+        JPanel formPanel = new JPanel();
+        formPanel.setLayout(new BoxLayout(formPanel, BoxLayout.Y_AXIS));
+        formPanel.setBackground(CARD_BACKGROUND);
+        formPanel.setBorder(new EmptyBorder(PADDING_LARGE, PADDING_LARGE, PADDING_LARGE, PADDING_LARGE));
+        
+        // Campo Aluno
+        JLabel lblAluno = new JLabel("Aluno *");
+        lblAluno.setFont(FONT_LABEL);
+        lblAluno.setForeground(TEXT_PRIMARY);
+        lblAluno.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        CustomComboBox<AlunoItem> dialogCmbAluno = new CustomComboBox<>();
+        dialogCmbAluno.setFont(FONT_REGULAR);
+        dialogCmbAluno.setMaximumSize(new Dimension(Integer.MAX_VALUE, TEXTFIELD_HEIGHT));
+        dialogCmbAluno.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        // Campo Plano
+        JLabel lblPlano = new JLabel("Plano *");
+        lblPlano.setFont(FONT_LABEL);
+        lblPlano.setForeground(TEXT_PRIMARY);
+        lblPlano.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        CustomComboBox<PlanoItem> dialogCmbPlano = new CustomComboBox<>();
+        dialogCmbPlano.setFont(FONT_REGULAR);
+        dialogCmbPlano.setMaximumSize(new Dimension(Integer.MAX_VALUE, TEXTFIELD_HEIGHT));
+        dialogCmbPlano.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        // Campo Data de Início
+        JLabel lblDataInicio = new JLabel("Data de Início *");
+        lblDataInicio.setFont(FONT_LABEL);
+        lblDataInicio.setForeground(TEXT_PRIMARY);
+        lblDataInicio.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        CustomDatePicker dialogDateInicio = new CustomDatePicker();
+        dialogDateInicio.setMaximumSize(new Dimension(Integer.MAX_VALUE, TEXTFIELD_HEIGHT));
+        dialogDateInicio.setAlignmentX(Component.LEFT_ALIGNMENT);
+        dialogDateInicio.setMinDate(LocalDate.now());
+        
+        // Campo Data de Fim
+        JLabel lblDataFim = new JLabel("Data de Fim *");
+        lblDataFim.setFont(FONT_LABEL);
+        lblDataFim.setForeground(TEXT_PRIMARY);
+        lblDataFim.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        CustomDatePicker dialogDateFim = new CustomDatePicker();
+        dialogDateFim.setMaximumSize(new Dimension(Integer.MAX_VALUE, TEXTFIELD_HEIGHT));
+        dialogDateFim.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        // Campo Status
+        JLabel lblStatus = new JLabel("Status *");
+        lblStatus.setFont(FONT_LABEL);
+        lblStatus.setForeground(TEXT_PRIMARY);
+        lblStatus.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        CustomComboBox<String> dialogCmbStatus = new CustomComboBox<>(new String[]{"ATIVA", "INATIVA", "PENDENTE", "CANCELADA"});
+        dialogCmbStatus.setFont(FONT_REGULAR);
+        dialogCmbStatus.setMaximumSize(new Dimension(Integer.MAX_VALUE, TEXTFIELD_HEIGHT));
+        dialogCmbStatus.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        // Carregar dados nos combos
+        try {
+            String alunosJson = apiClient.get("/alunos");
+            JsonNode alunosArray = objectMapper.readTree(alunosJson);
+            for (JsonNode alunoNode : alunosArray) {
+                Long id = alunoNode.get("idAluno").asLong();
+                String nome = alunoNode.get("nome").asText();
+                dialogCmbAluno.addItem(new AlunoItem(id, nome));
+            }
+            
+            String planosJson = apiClient.get("/planos");
+            List<PlanoResponseDTO> planos = apiClient.fromJsonArray(planosJson, PlanoResponseDTO.class);
+            for (PlanoResponseDTO plano : planos) {
+                if ("ATIVO".equals(plano.getStatus())) {
+                    dialogCmbPlano.addItem(new PlanoItem(plano.getId(), plano.getNome(), plano.getDuracaoMeses()));
+                }
+            }
+        } catch (Exception ex) {
+            MessageDialog.showError(dialog, "Erro ao carregar dados: " + ex.getMessage());
+            dialog.dispose();
+            return;
+        }
+        
+        // Preencher dados se for edição
+        if (!isNew && matricula != null) {
+            // Selecionar aluno
+            for (int i = 0; i < dialogCmbAluno.getItemCount(); i++) {
+                AlunoItem item = dialogCmbAluno.getItemAt(i);
+                if (item != null && item.getId().equals(matricula.getIdAluno())) {
+                    dialogCmbAluno.setSelectedIndex(i);
+                    break;
+                }
+            }
+            
+            // Selecionar plano
+            for (int i = 0; i < dialogCmbPlano.getItemCount(); i++) {
+                PlanoItem item = dialogCmbPlano.getItemAt(i);
+                if (item != null && item.getId().equals(matricula.getIdPlano())) {
+                    dialogCmbPlano.setSelectedIndex(i);
+                    break;
+                }
+            }
+            
+            dialogDateInicio.setLocalDate(matricula.getDataInicio());
+            dialogDateFim.setLocalDate(matricula.getDataFim());
+            dialogCmbStatus.setSelectedItem(matricula.getStatus());
+        } else {
+            dialogDateInicio.setLocalDate(LocalDate.now());
+            dialogCmbStatus.setSelectedItem("ATIVA");
+        }
+        
+        // Calcular data fim automaticamente
+        dialogCmbPlano.addActionListener(e -> {
+            PlanoItem plano = (PlanoItem) dialogCmbPlano.getSelectedItem();
+            LocalDate dataInicio = dialogDateInicio.getLocalDate();
+            if (plano != null && dataInicio != null && plano.getDuracaoMeses() != null) {
+                dialogDateFim.setLocalDate(dataInicio.plusMonths(plano.getDuracaoMeses()));
+            }
+        });
+        
+        dialogDateInicio.addPropertyChangeListener("date", evt -> {
+            PlanoItem plano = (PlanoItem) dialogCmbPlano.getSelectedItem();
+            LocalDate dataInicio = dialogDateInicio.getLocalDate();
+            if (plano != null && dataInicio != null && plano.getDuracaoMeses() != null) {
+                dialogDateFim.setLocalDate(dataInicio.plusMonths(plano.getDuracaoMeses()));
+            }
+        });
+        
+        // Adicionar componentes ao painel
+        formPanel.add(lblAluno);
+        formPanel.add(Box.createVerticalStrut(PADDING_SMALL));
+        formPanel.add(dialogCmbAluno);
+        formPanel.add(Box.createVerticalStrut(PADDING_MEDIUM));
+        
+        formPanel.add(lblPlano);
+        formPanel.add(Box.createVerticalStrut(PADDING_SMALL));
+        formPanel.add(dialogCmbPlano);
+        formPanel.add(Box.createVerticalStrut(PADDING_MEDIUM));
+        
+        formPanel.add(lblDataInicio);
+        formPanel.add(Box.createVerticalStrut(PADDING_SMALL));
+        formPanel.add(dialogDateInicio);
+        formPanel.add(Box.createVerticalStrut(PADDING_MEDIUM));
+        
+        formPanel.add(lblDataFim);
+        formPanel.add(Box.createVerticalStrut(PADDING_SMALL));
+        formPanel.add(dialogDateFim);
+        formPanel.add(Box.createVerticalStrut(PADDING_MEDIUM));
+        
+        formPanel.add(lblStatus);
+        formPanel.add(Box.createVerticalStrut(PADDING_SMALL));
+        formPanel.add(dialogCmbStatus);
+        formPanel.add(Box.createVerticalStrut(PADDING_LARGE));
+        
+        // Botões
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, PADDING_MEDIUM, 0));
+        buttonPanel.setBackground(CARD_BACKGROUND);
+        buttonPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
+        buttonPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        CustomButton btnCancelar = new CustomButton("Cancelar", CustomButton.ButtonType.DEFAULT);
+        CustomButton btnSalvar = new CustomButton("Salvar", CustomButton.ButtonType.SUCCESS);
+        
+        btnCancelar.addActionListener(e -> dialog.dispose());
+        
+        btnSalvar.addActionListener(e -> {
+            AlunoItem aluno = (AlunoItem) dialogCmbAluno.getSelectedItem();
+            PlanoItem plano = (PlanoItem) dialogCmbPlano.getSelectedItem();
+            
+            if (aluno == null || plano == null) {
+                MessageDialog.showWarning(dialog, "Preencha todos os campos obrigatórios.");
+                return;
+            }
+            
+            LocalDate dataInicio = dialogDateInicio.getLocalDate();
+            LocalDate dataFim = dialogDateFim.getLocalDate();
+            
+            if (dataInicio == null || dataFim == null) {
+                MessageDialog.showWarning(dialog, "Preencha todas as datas.");
+                return;
+            }
+            
+            if (!dataFim.isAfter(dataInicio)) {
+                MessageDialog.showWarning(dialog, "A data de fim deve ser posterior à data de início.");
+                return;
+            }
+            
+            Map<String, Object> matriculaData = new HashMap<>();
+            matriculaData.put("idAluno", aluno.getId());
+            matriculaData.put("idPlano", plano.getId());
+            matriculaData.put("dataInicio", dataInicio.toString());
+            matriculaData.put("dataFim", dataFim.toString());
+            matriculaData.put("status", dialogCmbStatus.getSelectedItem().toString());
+            
+            dialog.dispose();
+            
+            LoadingDialog.executeWithLoading(
+                SwingUtilities.getWindowAncestor(this),
+                isNew ? "Cadastrando matrícula..." : "Atualizando matrícula...",
+                () -> {
+                    if (isNew) {
+                        apiClient.post("/matriculas", matriculaData);
+                    } else {
+                        apiClient.put("/matriculas/" + matricula.getId(), matriculaData);
+                    }
+                },
+                () -> {
+                    MessageDialog.showSuccess(this, isNew ? MSG_SUCCESS_SAVE : MSG_SUCCESS_UPDATE);
+                    loadMatriculas();
+                    notifyParentToRefresh();
+                },
+                error -> {
+                    if (error instanceof ApiException) {
+                        MessageDialog.showError(this, ((ApiException) error).getUserFriendlyMessage());
+                    } else {
+                        MessageDialog.showError(this, "Erro ao salvar matrícula: " + error.getMessage());
+                    }
+                }
+            );
+        });
+        
+        buttonPanel.add(btnCancelar);
+        buttonPanel.add(btnSalvar);
+        formPanel.add(buttonPanel);
+        
+        dialog.add(formPanel);
+        dialog.setSize(550, 500);
+        dialog.setLocationRelativeTo(SwingUtilities.getWindowAncestor(this));
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialog.setVisible(true);
     }
     
     private void saveMatricula() {
@@ -888,16 +1124,15 @@ public class MatriculaPanel extends JPanel implements RefreshablePanel {
     }
     
     private void updateButtons() {
+        if (table == null) return; // Prevenir NullPointerException durante inicialização
         boolean hasSelection = table.hasSelection();
-        boolean formEnabled = cmbAluno.isEnabled();
         String status = hasSelection ? (String) table.getSelectedRowValue(5) : "";
         
-        btnNovo.setEnabled(!formEnabled);
-        btnEditar.setEnabled(hasSelection && !formEnabled);
-        btnExcluir.setEnabled(hasSelection && !formEnabled);
-        btnAtivar.setEnabled(hasSelection && !"ATIVA".equals(status) && !formEnabled);
-        btnInativar.setEnabled(hasSelection && "ATIVA".equals(status) && !formEnabled);
-        btnCancelar.setEnabled(hasSelection && !status.equals("CANCELADA") && !formEnabled);
+        btnEditar.setEnabled(hasSelection);
+        btnExcluir.setEnabled(hasSelection);
+        btnAtivar.setEnabled(hasSelection && !"ATIVA".equals(status));
+        btnInativar.setEnabled(hasSelection && "ATIVA".equals(status));
+        btnCancelar.setEnabled(hasSelection && !status.equals("CANCELADA"));
     }
     
     private void showFormPanel() {

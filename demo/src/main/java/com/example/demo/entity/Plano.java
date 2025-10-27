@@ -13,7 +13,7 @@ import jakarta.persistence.Table;
  * Entidade que representa um Plano de Assinatura na academia
  */
 @Entity
-@Table(name = "planos")
+@Table(name = "Planos")
 public class Plano {
     
     @Id

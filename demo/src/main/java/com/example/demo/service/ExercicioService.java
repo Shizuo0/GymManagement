@@ -48,6 +48,7 @@ public class ExercicioService {
         
         exercicioExistente.setNome(exercicio.getNome());
         exercicioExistente.setGrupoMuscular(exercicio.getGrupoMuscular());
+        exercicioExistente.setDescricao(exercicio.getDescricao());
         
         return exercicioRepository.save(exercicioExistente);
     }
@@ -104,6 +105,11 @@ public class ExercicioService {
         if (exercicio.getGrupoMuscular() != null && exercicio.getGrupoMuscular().length() > 50) {
             throw new ExercicioException.ExercicioInvalidoException(
                 "Grupo muscular deve ter no máximo 50 caracteres");
+        }
+        
+        if (exercicio.getDescricao() != null && exercicio.getDescricao().length() > 500) {
+            throw new ExercicioException.ExercicioInvalidoException(
+                "Descrição deve ter no máximo 500 caracteres");
         }
     }
 }

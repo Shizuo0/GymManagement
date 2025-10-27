@@ -30,7 +30,16 @@ import com.example.demo.ui.components.LoadingDialog;
 import com.example.demo.ui.components.MessageDialog;
 import com.example.demo.ui.utils.ApiClient;
 import com.example.demo.ui.utils.ApiException;
-import static com.example.demo.ui.utils.UIConstants.*;
+import static com.example.demo.ui.utils.UIConstants.BORDER_COLOR;
+import static com.example.demo.ui.utils.UIConstants.CARD_BACKGROUND;
+import static com.example.demo.ui.utils.UIConstants.FONT_LABEL;
+import static com.example.demo.ui.utils.UIConstants.FONT_REGULAR;
+import static com.example.demo.ui.utils.UIConstants.FONT_TITLE;
+import static com.example.demo.ui.utils.UIConstants.PADDING_LARGE;
+import static com.example.demo.ui.utils.UIConstants.PADDING_MEDIUM;
+import static com.example.demo.ui.utils.UIConstants.PADDING_SMALL;
+import static com.example.demo.ui.utils.UIConstants.PANEL_BACKGROUND;
+import static com.example.demo.ui.utils.UIConstants.TEXT_PRIMARY;
 
 public class PlanoPanel extends JPanel implements RefreshablePanel {
     
@@ -53,16 +62,16 @@ public class PlanoPanel extends JPanel implements RefreshablePanel {
         setLayout(new BorderLayout(PADDING_LARGE, PADDING_LARGE));
         setBorder(BorderFactory.createEmptyBorder(PADDING_LARGE, PADDING_LARGE, PADDING_LARGE, PADDING_LARGE));
         
-        String[] columns = {"ID", "Nome", "Valor", "Duração", "Status"};
+        String[] columns = {"ID", "Nome", "Descrição", "Valor", "Duração", "Status"};
         table = new CustomTable(columns);
         table.setColumnWidth(0, 60);
-        table.setColumnWidth(2, 120);
-        table.setColumnWidth(3, 100);
+        table.setColumnWidth(3, 120);
         table.setColumnWidth(4, 100);
+        table.setColumnWidth(5, 100);
         table.centerColumn(0);
-        table.centerColumn(2);
         table.centerColumn(3);
         table.centerColumn(4);
+        table.centerColumn(5);
         
         table.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
@@ -151,9 +160,16 @@ public class PlanoPanel extends JPanel implements RefreshablePanel {
     private void updateTable(List<PlanoResponseDTO> planos) {
         table.clearRows();
         for (PlanoResponseDTO plano : planos) {
+            String descricaoExibida = plano.getDescricao() != null && !plano.getDescricao().isEmpty() 
+                ? (plano.getDescricao().length() > 50 
+                    ? plano.getDescricao().substring(0, 50) + "..." 
+                    : plano.getDescricao())
+                : "-";
+            
             table.addRow(new Object[]{
                 plano.getId(),
                 plano.getNome(),
+                descricaoExibida,
                 currencyFormat.format(plano.getValor()),
                 plano.getDuracaoMeses() + " meses",
                 plano.getStatus()

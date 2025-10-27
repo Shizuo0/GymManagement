@@ -1,12 +1,17 @@
 package com.example.demo.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 /**
  * Entidade que representa um Instrutor na academia
  */
 @Entity
-@Table(name = "instrutores")
+@Table(name = "Instrutores")
 public class Instrutor {
     
     @Id

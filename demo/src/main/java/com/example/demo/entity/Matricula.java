@@ -21,7 +21,7 @@ import jakarta.validation.constraints.NotNull;
  * Entidade que representa uma Matrícula de aluno em um plano na academia
  */
 @Entity
-@Table(name = "matriculas")
+@Table(name = "Matriculas")
 public class Matricula {
     
     @Id
