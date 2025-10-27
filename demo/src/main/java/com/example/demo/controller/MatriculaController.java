@@ -145,7 +145,7 @@ public class MatriculaController {
     
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletarMatricula(@PathVariable Long id) {
-        matriculaService.buscarMatriculaPorId(id); // Valida se existe
+        matriculaService.deletarMatricula(id);
         return ResponseEntity.noContent().build();
     }
 

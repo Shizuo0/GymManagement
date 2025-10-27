@@ -201,4 +201,9 @@ public class MatriculaService {
         
         return matriculaRepository.save(novaMatricula);
     }
+    
+    public void deletarMatricula(Long id) {
+        Matricula matricula = buscarMatriculaPorId(id);
+        matriculaRepository.delete(matricula);
+    }
 }

@@ -1,7 +1,6 @@
 package com.example.demo.service;
 
 import java.util.List;
-import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,11 +13,6 @@ import com.example.demo.repository.InstrutorRepository;
 
 @Service
 public class InstrutorService {
-    
-    private static final Set<String> ESPECIALIDADES_VALIDAS = Set.of(
-        "Musculação", "Personal Trainer", "CrossFit", "Pilates",
-        "Yoga", "Funcional", "Natação", "Lutas", "Dança"
-    );
 
     @Autowired
     private InstrutorRepository instrutorRepository;
@@ -68,13 +62,8 @@ public class InstrutorService {
         if (instrutor.getNome().length() > 100) {
             throw new ValidacaoException("Nome do instrutor não pode ter mais que 100 caracteres");
         }
-        if (instrutor.getEspecialidade() != null) {
-            if (instrutor.getEspecialidade().length() > 50) {
-                throw new ValidacaoException("Especialidade não pode ter mais que 50 caracteres");
-            }
-            if (!ESPECIALIDADES_VALIDAS.contains(instrutor.getEspecialidade())) {
-                throw new ValidacaoException("Especialidade inválida");
-            }
+        if (instrutor.getEspecialidade() != null && instrutor.getEspecialidade().length() > 50) {
+            throw new ValidacaoException("Especialidade não pode ter mais que 50 caracteres");
         }
     }
 }
