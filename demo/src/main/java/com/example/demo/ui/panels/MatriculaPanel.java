@@ -116,7 +116,7 @@ public class MatriculaPanel extends JPanel implements RefreshablePanel {
         // Carregar dados após a UI estar visível
         SwingUtilities.invokeLater(() -> {
             loadMatriculas();
-            loadComboBoxData();
+            loadComboBoxData(false); // false = não mostrar diálogo de erro na inicialização
         });
     }
     
@@ -357,6 +357,10 @@ public class MatriculaPanel extends JPanel implements RefreshablePanel {
     }
     
     private void loadComboBoxData() {
+        loadComboBoxData(true); // true = mostrar diálogo de erro por padrão
+    }
+    
+    private void loadComboBoxData(boolean showErrorDialog) {
         // Carregar alunos
         LoadingDialog.executeWithLoading(
             SwingUtilities.getWindowAncestor(this),
@@ -392,10 +396,14 @@ public class MatriculaPanel extends JPanel implements RefreshablePanel {
                 // Sucesso
             },
             error -> {
-                if (error instanceof ApiException) {
-                    MessageDialog.showError(this, ((ApiException) error).getUserFriendlyMessage());
+                if (showErrorDialog) {
+                    if (error instanceof ApiException) {
+                        MessageDialog.showError(this, ((ApiException) error).getUserFriendlyMessage());
+                    } else {
+                        MessageDialog.showError(this, "Erro ao carregar dados: " + error.getMessage());
+                    }
                 } else {
-                    MessageDialog.showError(this, "Erro ao carregar dados: " + error.getMessage());
+                    System.err.println("[AVISO] Não foi possível carregar dados de alunos/planos. Verifique se o backend está rodando.");
                 }
             }
         );

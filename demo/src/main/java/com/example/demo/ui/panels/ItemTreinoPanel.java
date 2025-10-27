@@ -365,7 +365,10 @@ public class ItemTreinoPanel extends JPanel {
                 cmbFiltroPlano.addItem(new PlanoItem(plano.getId(), descricao));
             }
         } catch (Exception ex) {
-            MessageDialog.showError(this, "Erro ao carregar planos: " + ex.getMessage());
+            // Adiciona item padrão em caso de erro
+            cmbFiltroPlano.removeAllItems();
+            cmbFiltroPlano.addItem(new PlanoItem(null, "Todos os planos"));
+            System.err.println("[AVISO] Não foi possível carregar planos. Verifique se o backend está rodando.");
         }
     }
     
@@ -381,7 +384,10 @@ public class ItemTreinoPanel extends JPanel {
                 cmbPlano.addItem(new PlanoItem(plano.getId(), descricao));
             }
         } catch (Exception ex) {
-            MessageDialog.showError(this, "Erro ao carregar planos: " + ex.getMessage());
+            // Adiciona item padrão em caso de erro
+            cmbPlano.removeAllItems();
+            cmbPlano.addItem(new PlanoItem(null, "Selecione um plano..."));
+            System.err.println("[AVISO] Não foi possível carregar planos. Verifique se o backend está rodando.");
         }
     }
     
@@ -400,7 +406,10 @@ public class ItemTreinoPanel extends JPanel {
                 cmbExercicio.addItem(new ExercicioItem(ex.getId(), descricao));
             }
         } catch (Exception ex) {
-            MessageDialog.showError(this, "Erro ao carregar exercícios: " + ex.getMessage());
+            // Adiciona item padrão em caso de erro
+            cmbExercicio.removeAllItems();
+            cmbExercicio.addItem(new ExercicioItem(null, "Selecione um exercício..."));
+            System.err.println("[AVISO] Não foi possível carregar exercícios. Verifique se o backend está rodando.");
         }
     }
     

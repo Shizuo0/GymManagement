@@ -117,6 +117,10 @@ public class ExercicioPanel extends JPanel implements RefreshablePanel {
     }
     
     private void loadExercicios() {
+        loadExercicios(false); // false = não mostrar diálogo de erro na inicialização
+    }
+    
+    private void loadExercicios(boolean showErrorDialog) {
         LoadingDialog.executeWithLoading(
             SwingUtilities.getWindowAncestor(this),
             "Carregando exercícios...",
@@ -127,10 +131,14 @@ public class ExercicioPanel extends JPanel implements RefreshablePanel {
             },
             () -> {},
             error -> {
-                if (error instanceof ApiException apiException) {
-                    MessageDialog.showError(this, apiException.getUserFriendlyMessage());
+                if (showErrorDialog) {
+                    if (error instanceof ApiException apiException) {
+                        MessageDialog.showError(this, apiException.getUserFriendlyMessage());
+                    } else {
+                        MessageDialog.showError(this, "Erro ao carregar exercícios: " + (error != null ? error.getMessage() : "Erro desconhecido"));
+                    }
                 } else {
-                    MessageDialog.showError(this, "Erro ao carregar exercícios: " + (error != null ? error.getMessage() : "Erro desconhecido"));
+                    System.err.println("[AVISO] Não foi possível carregar exercícios. Verifique se o backend está rodando.");
                 }
             }
         );

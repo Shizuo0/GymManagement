@@ -351,6 +351,10 @@ public class PlanoTreinoPanel extends JPanel implements RefreshablePanel {
     }
     
     private void loadAlunos() {
+        loadAlunos(false);
+    }
+    
+    private void loadAlunos(boolean showErrorDialog) {
         try {
             String response = apiClient.get("/alunos");
             List<AlunoDTO> alunos = apiClient.fromJsonArray(response, AlunoDTO.class);
@@ -361,11 +365,23 @@ public class PlanoTreinoPanel extends JPanel implements RefreshablePanel {
                 cmbAluno.addItem(new AlunoItem(aluno.getIdAluno(), aluno.getNome()));
             }
         } catch (Exception ex) {
-            MessageDialog.showError(this, "Erro ao carregar alunos: " + ex.getMessage());
+            // Adiciona item padrão mesmo em caso de erro
+            cmbAluno.removeAllItems();
+            cmbAluno.addItem(new AlunoItem(null, "Selecione um aluno..."));
+            
+            if (showErrorDialog) {
+                MessageDialog.showError(this, "Erro ao carregar alunos: " + ex.getMessage());
+            } else {
+                System.err.println("[AVISO] Não foi possível carregar alunos. Verifique se o backend está rodando.");
+            }
         }
     }
     
     private void loadInstrutores() {
+        loadInstrutores(false);
+    }
+    
+    private void loadInstrutores(boolean showErrorDialog) {
         try {
             String response = apiClient.get("/instrutores");
             List<InstrutorDTO> instrutores = apiClient.fromJsonArray(response, InstrutorDTO.class);
@@ -379,7 +395,15 @@ public class PlanoTreinoPanel extends JPanel implements RefreshablePanel {
                 ));
             }
         } catch (Exception ex) {
-            MessageDialog.showError(this, "Erro ao carregar instrutores: " + ex.getMessage());
+            // Adiciona item padrão mesmo em caso de erro
+            cmbInstrutor.removeAllItems();
+            cmbInstrutor.addItem(new InstrutorItem(null, "Selecione um instrutor..."));
+            
+            if (showErrorDialog) {
+                MessageDialog.showError(this, "Erro ao carregar instrutores: " + ex.getMessage());
+            } else {
+                System.err.println("[AVISO] Não foi possível carregar instrutores. Verifique se o backend está rodando.");
+            }
         }
     }
     
