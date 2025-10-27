@@ -80,6 +80,20 @@ public class PlanoTreinoController {
     }
     
     /**
+     * Lista todos os planos de treino
+     * @return Lista de todos os planos de treino
+     */
+    @GetMapping
+    public ResponseEntity<List<PlanoTreinoResponseDTO>> listarTodosPlanos() {
+        List<PlanoTreinoResponseDTO> planos = planoTreinoService.listarTodos()
+            .stream()
+            .map(this::convertToDTO)
+            .collect(Collectors.toList());
+        
+        return ResponseEntity.ok(planos);
+    }
+    
+    /**
      * Busca um plano de treino por ID
      * @param id ID do plano de treino
      * @return Plano de treino encontrado

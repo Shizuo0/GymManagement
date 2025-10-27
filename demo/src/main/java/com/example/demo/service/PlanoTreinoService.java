@@ -55,6 +55,10 @@ public class PlanoTreinoService {
                 "Plano de treino não encontrado com ID: " + id));
     }
     
+    public List<PlanoTreino> listarTodos() {
+        return planoTreinoRepository.findAll();
+    }
+    
     public List<PlanoTreino> listarPlanosDoAluno(Aluno aluno) {
         return planoTreinoRepository.findByAluno(aluno);
     }

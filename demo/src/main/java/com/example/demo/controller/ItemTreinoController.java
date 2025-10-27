@@ -81,6 +81,20 @@ public class ItemTreinoController {
     }
     
     /**
+     * Lista todos os itens de treino
+     * @return Lista de todos os itens de treino
+     */
+    @GetMapping
+    public ResponseEntity<List<ItemTreinoResponseDTO>> listarTodosItens() {
+        List<ItemTreinoResponseDTO> itens = itemTreinoService.listarTodos()
+            .stream()
+            .map(this::convertToDTO)
+            .collect(Collectors.toList());
+        
+        return ResponseEntity.ok(itens);
+    }
+    
+    /**
      * Busca um item de treino por ID
      * @param id ID do item de treino
      * @return Item de treino encontrado

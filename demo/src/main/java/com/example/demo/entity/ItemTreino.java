@@ -21,8 +21,8 @@ import jakarta.validation.constraints.Size;
  * Tabela associativa que contém informações específicas sobre cada exercício no plano
  */
 @Entity
-@Table(name = "itenstreino", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"id_plano_treino", "id_exercicio"},
+@Table(name = "ItensTreino", uniqueConstraints = {
+    @UniqueConstraint(columnNames = {"id_plano", "id_exercicio"},
         name = "uk_plano_exercicio")
 })
 public class ItemTreino {
@@ -34,7 +34,7 @@ public class ItemTreino {
     
     @NotNull(message = "O plano de treino é obrigatório")
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_plano_treino", nullable = false)
+    @JoinColumn(name = "id_plano", nullable = false)
     private PlanoTreino planoTreino;
     
     @NotNull(message = "O exercício é obrigatório")

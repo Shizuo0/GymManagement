@@ -5,11 +5,23 @@ public class ExercicioResponseDTO {
     private Long id;
     private String nome;
     private String grupoMuscular;
+    private String descricao;
+    
+    // Construtor padrão (necessário para Jackson)
+    public ExercicioResponseDTO() {
+    }
     
     public ExercicioResponseDTO(Long id, String nome, String grupoMuscular) {
         this.id = id;
         this.nome = nome;
         this.grupoMuscular = grupoMuscular;
+    }
+    
+    public ExercicioResponseDTO(Long id, String nome, String grupoMuscular, String descricao) {
+        this.id = id;
+        this.nome = nome;
+        this.grupoMuscular = grupoMuscular;
+        this.descricao = descricao;
     }
     
     // Getters e Setters
@@ -35,5 +47,13 @@ public class ExercicioResponseDTO {
     
     public void setGrupoMuscular(String grupoMuscular) {
         this.grupoMuscular = grupoMuscular;
+    }
+    
+    public String getDescricao() {
+        return descricao;
+    }
+    
+    public void setDescricao(String descricao) {
+        this.descricao = descricao;
     }
 }
