@@ -168,7 +168,7 @@ public class MatriculaPanel extends JPanel implements RefreshablePanel {
         table.setPreferredScrollableViewportSize(new Dimension(700, 400));
         table.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
-                onMatriculaSelected();
+                updateButtons();
             }
         });
         
@@ -1133,14 +1133,46 @@ public class MatriculaPanel extends JPanel implements RefreshablePanel {
     
     private void updateButtons() {
         if (table == null) return; // Prevenir NullPointerException durante inicialização
-        boolean hasSelection = table.hasSelection();
-        String status = hasSelection ? (String) table.getSelectedRowValue(5) : "";
         
-        btnEditar.setEnabled(hasSelection);
-        btnExcluir.setEnabled(hasSelection);
-        btnAtivar.setEnabled(hasSelection && !"ATIVA".equals(status));
-        btnInativar.setEnabled(hasSelection && "ATIVA".equals(status));
-        btnCancelar.setEnabled(hasSelection && !status.equals("CANCELADA"));
+        boolean hasSelection = table.hasSelection();
+        
+        if (!hasSelection) {
+            // Desabilitar todos os botões se não houver seleção
+            btnEditar.setEnabled(false);
+            btnExcluir.setEnabled(false);
+            btnAtivar.setEnabled(false);
+            btnInativar.setEnabled(false);
+            btnCancelar.setEnabled(false);
+            return;
+        }
+        
+        // Há seleção - obter status da linha selecionada
+        int selectedRow = table.getSelectedRow();
+        if (selectedRow < 0 || selectedRow >= table.getRowCount()) {
+            // Seleção inválida
+            btnEditar.setEnabled(false);
+            btnExcluir.setEnabled(false);
+            btnAtivar.setEnabled(false);
+            btnInativar.setEnabled(false);
+            btnCancelar.setEnabled(false);
+            return;
+        }
+        
+        String status = "";
+        try {
+            Object statusObj = table.getValueAt(selectedRow, 5);
+            status = statusObj != null ? statusObj.toString() : "";
+        } catch (Exception e) {
+            // Se houver erro ao obter o status, desabilita os botões específicos
+            status = "";
+        }
+        
+        // Habilitar botões baseado no status
+        btnEditar.setEnabled(true);
+        btnExcluir.setEnabled(true);
+        btnAtivar.setEnabled(!"ATIVA".equals(status));
+        btnInativar.setEnabled("ATIVA".equals(status));
+        btnCancelar.setEnabled(!"CANCELADA".equals(status));
     }
     
     private void hideFormPanel() {
