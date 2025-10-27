@@ -143,7 +143,6 @@ public class MatriculaService {
     }
     
     private void validarPlano(Plano plano) {
-        // Verifica se o plano existe e está ativo
         planoRepository.findById(plano.getIdPlanoAssinatura())
             .filter(p -> "ATIVO".equals(p.getStatus()))
             .orElseThrow(() -> new MatriculaException.PlanoInvalidoException(

@@ -680,10 +680,10 @@ public class MatriculaPanel extends JPanel implements RefreshablePanel {
         buttonPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
         buttonPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         
-        CustomButton btnCancelar = new CustomButton("Cancelar", CustomButton.ButtonType.DEFAULT);
+        CustomButton btnCancelarDialog = new CustomButton("Cancelar", CustomButton.ButtonType.DEFAULT);
         CustomButton btnSalvar = new CustomButton("Salvar", CustomButton.ButtonType.SUCCESS);
         
-        btnCancelar.addActionListener(e -> dialog.dispose());
+        btnCancelarDialog.addActionListener(e -> dialog.dispose());
         
         btnSalvar.addActionListener(e -> {
             AlunoItem aluno = (AlunoItem) dialogCmbAluno.getSelectedItem();
@@ -741,7 +741,7 @@ public class MatriculaPanel extends JPanel implements RefreshablePanel {
             );
         });
         
-        buttonPanel.add(btnCancelar);
+        buttonPanel.add(btnCancelarDialog);
         buttonPanel.add(btnSalvar);
         formPanel.add(buttonPanel);
         
@@ -1133,13 +1133,6 @@ public class MatriculaPanel extends JPanel implements RefreshablePanel {
         btnAtivar.setEnabled(hasSelection && !"ATIVA".equals(status));
         btnInativar.setEnabled(hasSelection && "ATIVA".equals(status));
         btnCancelar.setEnabled(hasSelection && !status.equals("CANCELADA"));
-    }
-    
-    private void showFormPanel() {
-        splitPane.setRightComponent(formPanel);
-        splitPane.setResizeWeight(0.6);
-        splitPane.setDividerLocation(0.6);
-        formPanel.setVisible(true);
     }
     
     private void hideFormPanel() {

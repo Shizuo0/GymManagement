@@ -30,12 +30,12 @@ public class Matricula {
     private Long idMatricula;
     
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_aluno", nullable = false)
+    @JoinColumn(name = "id_aluno", nullable = false, foreignKey = @jakarta.persistence.ForeignKey(name = "fk_matricula_aluno"))
     @NotNull(message = "Aluno é obrigatório")
     private Aluno aluno;
     
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_plano_assinatura", nullable = false)
+    @JoinColumn(name = "id_plano_assinatura", nullable = false, foreignKey = @jakarta.persistence.ForeignKey(name = "fk_matricula_plano"))
     @NotNull(message = "Plano é obrigatório")
     private Plano plano;
     

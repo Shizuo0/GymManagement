@@ -39,7 +39,6 @@ public class FrequenciaService {
         validarAlunoTemMatriculaAtiva(frequencia.getAluno());
         verificarDuplicidade(frequencia.getAluno(), frequencia.getData());
         
-        // Se não foi especificado, considera como presença confirmada
         if (frequencia.getPresenca() == null) {
             frequencia.setPresenca(true);
         }
@@ -248,7 +247,6 @@ public class FrequenciaService {
                 "Aluno não possui matrícula ativa para registrar frequência");
         }
         
-        // Verifica se a matrícula ativa não está expirada
         Matricula matriculaAtiva = matriculas.get(0);
         if (matriculaAtiva.getDataFim().isBefore(LocalDate.now())) {
             throw new FrequenciaException.AlunoSemMatriculaAtivaException(

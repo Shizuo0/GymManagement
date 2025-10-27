@@ -1,6 +1,9 @@
 package com.example.demo.ui.utils;
 
-import javax.swing.*;
+import javax.swing.JComboBox;
+import javax.swing.JOptionPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
 
 /**
  * Utilitários para validação de campos de formulário.
@@ -53,20 +56,16 @@ public class ValidationUtils {
             return false;
         }
         
-        // Remove formatação
         cpf = cpf.replaceAll("[^0-9]", "");
         
-        // Verifica tamanho
         if (cpf.length() != 11) {
             return false;
         }
         
-        // Verifica se todos os dígitos são iguais
         if (cpf.matches("(\\d)\\1{10}")) {
             return false;
         }
         
-        // Validação do primeiro dígito verificador
         int sum = 0;
         for (int i = 0; i < 9; i++) {
             sum += (cpf.charAt(i) - '0') * (10 - i);
@@ -77,18 +76,14 @@ public class ValidationUtils {
             return false;
         }
         
-        // Validação do segundo dígito verificador
         sum = 0;
         for (int i = 0; i < 10; i++) {
             sum += (cpf.charAt(i) - '0') * (11 - i);
         }
         int secondDigit = 11 - (sum % 11);
         if (secondDigit > 9) secondDigit = 0;
-        if (secondDigit != (cpf.charAt(10) - '0')) {
-            return false;
-        }
         
-        return true;
+        return secondDigit == (cpf.charAt(10) - '0');
     }
     
     /**

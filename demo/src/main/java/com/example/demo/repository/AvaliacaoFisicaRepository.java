@@ -1,21 +1,29 @@
 package com.example.demo.repository;
 
-import com.example.demo.entity.Aluno;
-import com.example.demo.entity.AvaliacaoFisica;
-import com.example.demo.entity.Instrutor;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
+import com.example.demo.entity.Aluno;
+import com.example.demo.entity.AvaliacaoFisica;
+import com.example.demo.entity.Instrutor;
 
 /**
  * Repository para operações com a entidade AvaliacaoFisica
  */
 @Repository
 public interface AvaliacaoFisicaRepository extends JpaRepository<AvaliacaoFisica, Long> {
+    
+    /**
+     * Busca todas as avaliações com aluno e instrutor carregados
+     * @return Lista de avaliações físicas
+     */
+    @Query("SELECT af FROM AvaliacaoFisica af JOIN FETCH af.aluno JOIN FETCH af.instrutor ORDER BY af.dataAvaliacao DESC")
+    List<AvaliacaoFisica> findAllWithAlunoAndInstrutor();
     
     /**
      * Busca todas as avaliações de um aluno

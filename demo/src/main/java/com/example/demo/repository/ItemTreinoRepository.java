@@ -1,21 +1,30 @@
 package com.example.demo.repository;
 
-import com.example.demo.entity.Exercicio;
-import com.example.demo.entity.ItemTreino;
-import com.example.demo.entity.PlanoTreino;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Optional;
+import com.example.demo.entity.Exercicio;
+import com.example.demo.entity.ItemTreino;
+import com.example.demo.entity.PlanoTreino;
 
 /**
  * Repository para operações com a entidade ItemTreino
  */
 @Repository
 public interface ItemTreinoRepository extends JpaRepository<ItemTreino, Long> {
+    
+    /**
+     * Busca todos os itens de um plano de treino com exercício carregado
+     * @param planoTreino Plano de treino
+     * @return Lista de itens com exercícios carregados
+     */
+    @Query("SELECT it FROM ItemTreino it JOIN FETCH it.exercicio WHERE it.planoTreino = :planoTreino")
+    List<ItemTreino> findByPlanoTreinoWithExercicio(PlanoTreino planoTreino);
     
     /**
      * Busca todos os itens de um plano de treino

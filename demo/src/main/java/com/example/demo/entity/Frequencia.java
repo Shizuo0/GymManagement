@@ -25,7 +25,7 @@ public class Frequencia {
     private Long idFrequencia;
     
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_aluno", nullable = false)
+    @JoinColumn(name = "id_aluno", nullable = false, foreignKey = @jakarta.persistence.ForeignKey(name = "fk_frequencia_aluno"))
     private Aluno aluno;
     
     @Column(name = "data", nullable = false)

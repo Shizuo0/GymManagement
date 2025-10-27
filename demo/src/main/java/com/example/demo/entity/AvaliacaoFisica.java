@@ -26,11 +26,11 @@ public class AvaliacaoFisica {
     private Long idAvaliacao;
     
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_aluno", nullable = false)
+    @JoinColumn(name = "id_aluno", nullable = false, foreignKey = @jakarta.persistence.ForeignKey(name = "fk_avaliacao_aluno"))
     private Aluno aluno;
     
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_instrutor", nullable = false)
+    @JoinColumn(name = "id_instrutor", nullable = false, foreignKey = @jakarta.persistence.ForeignKey(name = "fk_avaliacao_instrutor"))
     private Instrutor instrutor;
     
     @Column(name = "data_avaliacao", nullable = false)
