@@ -134,7 +134,7 @@ public class PlanoTreinoPanel extends JPanel implements RefreshablePanel {
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, PADDING_SMALL, 0));
         searchPanel.setBackground(BACKGROUND_COLOR);
         
-        txtBusca = new CustomTextField("Buscar por aluno ou instrutor...", 20);
+        txtBusca = new CustomTextField("Buscar plano de treino por aluno ou instrutor", 20);
         btnBuscar = new CustomButton("[ ? ]", CustomButton.ButtonType.PRIMARY);
         btnBuscar.addActionListener(e -> buscarPlanos());
         

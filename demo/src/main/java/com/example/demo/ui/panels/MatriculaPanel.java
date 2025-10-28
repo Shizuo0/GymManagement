@@ -149,7 +149,7 @@ public class MatriculaPanel extends JPanel implements RefreshablePanel {
         cmbFiltroStatus.setFont(FONT_REGULAR);
         cmbFiltroStatus.addActionListener(e -> filtrarPorStatus());
         
-        txtBusca = new CustomTextField("Buscar por aluno...", 15);
+        txtBusca = new CustomTextField("Buscar matrícula por nome do aluno", 15);
         btnBuscar = new CustomButton("[ ? ]", CustomButton.ButtonType.PRIMARY);
         btnBuscar.addActionListener(e -> buscarMatriculas());
         

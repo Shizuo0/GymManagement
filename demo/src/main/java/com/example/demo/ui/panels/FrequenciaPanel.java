@@ -184,7 +184,7 @@ public class FrequenciaPanel extends JPanel implements RefreshablePanel {
         lblBusca.setFont(FONT_REGULAR);
         lblBusca.setForeground(TEXT_PRIMARY);
         
-        txtBuscaAluno = new CustomTextField("Digite o nome do aluno...", 25);
+        txtBuscaAluno = new CustomTextField("Buscar frequência por nome do aluno", 25);
         txtBuscaAluno.addActionListener(e -> filtrarPorAluno());
         
         buscaPanel.add(lblBusca);

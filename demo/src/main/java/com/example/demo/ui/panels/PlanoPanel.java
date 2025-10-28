@@ -79,7 +79,7 @@ public class PlanoPanel extends JPanel implements RefreshablePanel {
             }
         });
         
-        txtBusca = new CustomTextField("Buscar por nome...", 25);
+        txtBusca = new CustomTextField("Buscar plano por nome", 25);
         txtBusca.addActionListener(e -> buscarPlanos());
         
         btnNovo = CustomButton.createAddButton("Novo");
@@ -111,7 +111,9 @@ public class PlanoPanel extends JPanel implements RefreshablePanel {
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, PADDING_SMALL, 0));
         searchPanel.setBackground(PANEL_BACKGROUND);
         searchPanel.add(txtBusca);
-        searchPanel.add(CustomButton.createSearchButton("Buscar"));
+        CustomButton btnBuscar = CustomButton.createSearchButton("Buscar");
+        btnBuscar.addActionListener(e -> buscarPlanos());
+        searchPanel.add(btnBuscar);
         topPanel.add(searchPanel, BorderLayout.EAST);
         
         JScrollPane scrollPane = new JScrollPane(table);

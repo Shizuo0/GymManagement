@@ -1,16 +1,41 @@
 package com.example.demo.ui.panels;
 
-import com.example.demo.dto.InstrutorDTO;
-import com.example.demo.ui.GymManagementUI;
-import com.example.demo.ui.components.*;
-import com.example.demo.ui.utils.ApiClient;
-import com.example.demo.ui.utils.ApiException;
-
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.FlowLayout;
+import java.awt.Frame;
 import java.util.List;
 
-import static com.example.demo.ui.utils.UIConstants.*;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
+
+import com.example.demo.dto.InstrutorDTO;
+import com.example.demo.ui.GymManagementUI;
+import com.example.demo.ui.components.CustomButton;
+import com.example.demo.ui.components.CustomTable;
+import com.example.demo.ui.components.CustomTextField;
+import com.example.demo.ui.components.LoadingDialog;
+import com.example.demo.ui.components.MessageDialog;
+import com.example.demo.ui.utils.ApiClient;
+import com.example.demo.ui.utils.ApiException;
+import static com.example.demo.ui.utils.UIConstants.BORDER_COLOR;
+import static com.example.demo.ui.utils.UIConstants.CARD_BACKGROUND;
+import static com.example.demo.ui.utils.UIConstants.FONT_REGULAR;
+import static com.example.demo.ui.utils.UIConstants.FONT_TITLE;
+import static com.example.demo.ui.utils.UIConstants.MSG_SUCCESS_SAVE;
+import static com.example.demo.ui.utils.UIConstants.MSG_SUCCESS_UPDATE;
+import static com.example.demo.ui.utils.UIConstants.PADDING_LARGE;
+import static com.example.demo.ui.utils.UIConstants.PADDING_MEDIUM;
+import static com.example.demo.ui.utils.UIConstants.PADDING_SMALL;
+import static com.example.demo.ui.utils.UIConstants.PANEL_BACKGROUND;
+import static com.example.demo.ui.utils.UIConstants.TEXT_PRIMARY;
 
 public class InstrutorPanel extends JPanel implements RefreshablePanel {
     
@@ -39,7 +64,7 @@ public class InstrutorPanel extends JPanel implements RefreshablePanel {
             if (!e.getValueIsAdjusting()) updateButtonStates();
         });
         
-        txtBusca = new CustomTextField("Buscar por nome ou especialidade...", 25);
+        txtBusca = new CustomTextField("Buscar instrutor por nome ou especialidade", 25);
         txtBusca.addActionListener(e -> buscarInstrutores());
         
         btnNovo = CustomButton.createAddButton("Novo");
@@ -67,7 +92,11 @@ public class InstrutorPanel extends JPanel implements RefreshablePanel {
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, PADDING_SMALL, 0));
         searchPanel.setBackground(PANEL_BACKGROUND);
         searchPanel.add(txtBusca);
-        searchPanel.add(CustomButton.createSearchButton("Buscar"));
+        
+        CustomButton btnBuscar = CustomButton.createSearchButton("Buscar");
+        btnBuscar.addActionListener(e -> buscarInstrutores());
+        searchPanel.add(btnBuscar);
+        
         topPanel.add(searchPanel, BorderLayout.EAST);
         
         JScrollPane scrollPane = new JScrollPane(table);

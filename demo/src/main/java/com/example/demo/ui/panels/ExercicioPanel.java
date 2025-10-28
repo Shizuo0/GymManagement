@@ -69,7 +69,7 @@ public class ExercicioPanel extends JPanel implements RefreshablePanel {
             if (!e.getValueIsAdjusting()) updateButtonStates();
         });
         
-        txtBusca = new CustomTextField("Buscar exercício...", 25);
+        txtBusca = new CustomTextField("Buscar exercício por nome ou grupo muscular", 25);
         txtBusca.addActionListener(e -> buscarExercicios());
         
         btnNovo = CustomButton.createAddButton("Novo");
@@ -97,7 +97,11 @@ public class ExercicioPanel extends JPanel implements RefreshablePanel {
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, PADDING_SMALL, 0));
         searchPanel.setBackground(PANEL_BACKGROUND);
         searchPanel.add(txtBusca);
-        searchPanel.add(CustomButton.createSearchButton("Buscar"));
+        
+        CustomButton btnBuscar = CustomButton.createSearchButton("Buscar");
+        btnBuscar.addActionListener(e -> buscarExercicios());
+        searchPanel.add(btnBuscar);
+        
         topPanel.add(searchPanel, BorderLayout.EAST);
         
         JScrollPane scrollPane = new JScrollPane(table);
