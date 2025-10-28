@@ -26,7 +26,7 @@ public class Pagamento {
     private Long idPagamento;
     
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_matricula", nullable = false)
+    @JoinColumn(name = "id_matricula", nullable = false, foreignKey = @jakarta.persistence.ForeignKey(name = "fk_pagamento_matricula"))
     private Matricula matricula;
     
     @Column(name = "data_pagamento", nullable = false)

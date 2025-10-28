@@ -117,6 +117,10 @@ public class ExercicioPanel extends JPanel implements RefreshablePanel {
     }
     
     private void loadExercicios() {
+        loadExercicios(false); // false = não mostrar diálogo de erro na inicialização
+    }
+    
+    private void loadExercicios(boolean showErrorDialog) {
         LoadingDialog.executeWithLoading(
             SwingUtilities.getWindowAncestor(this),
             "Carregando exercícios...",
@@ -127,10 +131,14 @@ public class ExercicioPanel extends JPanel implements RefreshablePanel {
             },
             () -> {},
             error -> {
-                if (error instanceof ApiException) {
-                    MessageDialog.showError(this, ((ApiException) error).getUserFriendlyMessage());
+                if (showErrorDialog) {
+                    if (error instanceof ApiException apiException) {
+                        MessageDialog.showError(this, apiException.getUserFriendlyMessage());
+                    } else {
+                        MessageDialog.showError(this, "Erro ao carregar exercícios: " + (error != null ? error.getMessage() : "Erro desconhecido"));
+                    }
                 } else {
-                    MessageDialog.showError(this, "Erro ao carregar exercícios: " + error.getMessage());
+                    System.err.println("[AVISO] Não foi possível carregar exercícios. Verifique se o backend está rodando.");
                 }
             }
         );
@@ -173,10 +181,10 @@ public class ExercicioPanel extends JPanel implements RefreshablePanel {
             },
             () -> {},
             error -> {
-                if (error instanceof ApiException) {
-                    MessageDialog.showError(this, ((ApiException) error).getUserFriendlyMessage());
+                if (error instanceof ApiException apiException) {
+                    MessageDialog.showError(this, apiException.getUserFriendlyMessage());
                 } else {
-                    MessageDialog.showError(this, "Erro ao carregar: " + error.getMessage());
+                    MessageDialog.showError(this, "Erro ao carregar: " + (error != null ? error.getMessage() : "Erro desconhecido"));
                 }
             }
         );
@@ -207,9 +215,9 @@ public class ExercicioPanel extends JPanel implements RefreshablePanel {
                 notifyParentToRefresh();
             },
             error -> {
-                if (error instanceof ApiException) {
-                    MessageDialog.showError(this, ((ApiException) error).getUserFriendlyMessage());
-                } else {
+                if (error instanceof ApiException apiException) {
+                    MessageDialog.showError(this, apiException.getUserFriendlyMessage());
+                } else if (error != null) {
                     MessageDialog.showError(this, "Erro ao excluir: " + error.getMessage());
                 }
             }
@@ -349,9 +357,9 @@ public class ExercicioPanel extends JPanel implements RefreshablePanel {
                 notifyParentToRefresh();
             },
             error -> {
-                if (error instanceof ApiException) {
-                    MessageDialog.showError(this, ((ApiException) error).getUserFriendlyMessage());
-                } else {
+                if (error instanceof ApiException apiException) {
+                    MessageDialog.showError(this, apiException.getUserFriendlyMessage());
+                } else if (error != null) {
                     MessageDialog.showError(this, "Erro ao salvar: " + error.getMessage());
                 }
             }
@@ -384,9 +392,9 @@ public class ExercicioPanel extends JPanel implements RefreshablePanel {
             },
             () -> {},
             error -> {
-                if (error instanceof ApiException) {
-                    MessageDialog.showError(this, ((ApiException) error).getUserFriendlyMessage());
-                } else {
+                if (error instanceof ApiException apiException) {
+                    MessageDialog.showError(this, apiException.getUserFriendlyMessage());
+                } else if (error != null) {
                     MessageDialog.showError(this, "Erro ao buscar: " + error.getMessage());
                 }
             }
@@ -409,8 +417,8 @@ public class ExercicioPanel extends JPanel implements RefreshablePanel {
         while (parent != null && !(parent instanceof GymManagementUI)) {
             parent = parent.getParent();
         }
-        if (parent instanceof GymManagementUI) {
-            ((GymManagementUI) parent).notifyDataChanged();
+        if (parent instanceof GymManagementUI gym) {
+            gym.notifyDataChanged();
         }
     }
 }

@@ -116,7 +116,7 @@ public class MatriculaPanel extends JPanel implements RefreshablePanel {
         // Carregar dados após a UI estar visível
         SwingUtilities.invokeLater(() -> {
             loadMatriculas();
-            loadComboBoxData();
+            loadComboBoxData(false); // false = não mostrar diálogo de erro na inicialização
         });
     }
     
@@ -168,7 +168,7 @@ public class MatriculaPanel extends JPanel implements RefreshablePanel {
         table.setPreferredScrollableViewportSize(new Dimension(700, 400));
         table.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
-                onMatriculaSelected();
+                updateButtons();
             }
         });
         
@@ -357,6 +357,10 @@ public class MatriculaPanel extends JPanel implements RefreshablePanel {
     }
     
     private void loadComboBoxData() {
+        loadComboBoxData(true); // true = mostrar diálogo de erro por padrão
+    }
+    
+    private void loadComboBoxData(boolean showErrorDialog) {
         // Carregar alunos
         LoadingDialog.executeWithLoading(
             SwingUtilities.getWindowAncestor(this),
@@ -392,10 +396,14 @@ public class MatriculaPanel extends JPanel implements RefreshablePanel {
                 // Sucesso
             },
             error -> {
-                if (error instanceof ApiException) {
-                    MessageDialog.showError(this, ((ApiException) error).getUserFriendlyMessage());
+                if (showErrorDialog) {
+                    if (error instanceof ApiException) {
+                        MessageDialog.showError(this, ((ApiException) error).getUserFriendlyMessage());
+                    } else {
+                        MessageDialog.showError(this, "Erro ao carregar dados: " + error.getMessage());
+                    }
                 } else {
-                    MessageDialog.showError(this, "Erro ao carregar dados: " + error.getMessage());
+                    System.err.println("[AVISO] Não foi possível carregar dados de alunos/planos. Verifique se o backend está rodando.");
                 }
             }
         );
@@ -680,10 +688,10 @@ public class MatriculaPanel extends JPanel implements RefreshablePanel {
         buttonPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
         buttonPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         
-        CustomButton btnCancelar = new CustomButton("Cancelar", CustomButton.ButtonType.DEFAULT);
+        CustomButton btnCancelarDialog = new CustomButton("Cancelar", CustomButton.ButtonType.DEFAULT);
         CustomButton btnSalvar = new CustomButton("Salvar", CustomButton.ButtonType.SUCCESS);
         
-        btnCancelar.addActionListener(e -> dialog.dispose());
+        btnCancelarDialog.addActionListener(e -> dialog.dispose());
         
         btnSalvar.addActionListener(e -> {
             AlunoItem aluno = (AlunoItem) dialogCmbAluno.getSelectedItem();
@@ -741,7 +749,7 @@ public class MatriculaPanel extends JPanel implements RefreshablePanel {
             );
         });
         
-        buttonPanel.add(btnCancelar);
+        buttonPanel.add(btnCancelarDialog);
         buttonPanel.add(btnSalvar);
         formPanel.add(buttonPanel);
         
@@ -1125,21 +1133,46 @@ public class MatriculaPanel extends JPanel implements RefreshablePanel {
     
     private void updateButtons() {
         if (table == null) return; // Prevenir NullPointerException durante inicialização
-        boolean hasSelection = table.hasSelection();
-        String status = hasSelection ? (String) table.getSelectedRowValue(5) : "";
         
-        btnEditar.setEnabled(hasSelection);
-        btnExcluir.setEnabled(hasSelection);
-        btnAtivar.setEnabled(hasSelection && !"ATIVA".equals(status));
-        btnInativar.setEnabled(hasSelection && "ATIVA".equals(status));
-        btnCancelar.setEnabled(hasSelection && !status.equals("CANCELADA"));
-    }
-    
-    private void showFormPanel() {
-        splitPane.setRightComponent(formPanel);
-        splitPane.setResizeWeight(0.6);
-        splitPane.setDividerLocation(0.6);
-        formPanel.setVisible(true);
+        boolean hasSelection = table.hasSelection();
+        
+        if (!hasSelection) {
+            // Desabilitar todos os botões se não houver seleção
+            btnEditar.setEnabled(false);
+            btnExcluir.setEnabled(false);
+            btnAtivar.setEnabled(false);
+            btnInativar.setEnabled(false);
+            btnCancelar.setEnabled(false);
+            return;
+        }
+        
+        // Há seleção - obter status da linha selecionada
+        int selectedRow = table.getSelectedRow();
+        if (selectedRow < 0 || selectedRow >= table.getRowCount()) {
+            // Seleção inválida
+            btnEditar.setEnabled(false);
+            btnExcluir.setEnabled(false);
+            btnAtivar.setEnabled(false);
+            btnInativar.setEnabled(false);
+            btnCancelar.setEnabled(false);
+            return;
+        }
+        
+        String status = "";
+        try {
+            Object statusObj = table.getValueAt(selectedRow, 5);
+            status = statusObj != null ? statusObj.toString() : "";
+        } catch (Exception e) {
+            // Se houver erro ao obter o status, desabilita os botões específicos
+            status = "";
+        }
+        
+        // Habilitar botões baseado no status
+        btnEditar.setEnabled(true);
+        btnExcluir.setEnabled(true);
+        btnAtivar.setEnabled(!"ATIVA".equals(status));
+        btnInativar.setEnabled("ATIVA".equals(status));
+        btnCancelar.setEnabled(!"CANCELADA".equals(status));
     }
     
     private void hideFormPanel() {

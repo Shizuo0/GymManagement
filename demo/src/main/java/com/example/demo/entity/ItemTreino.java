@@ -34,12 +34,12 @@ public class ItemTreino {
     
     @NotNull(message = "O plano de treino é obrigatório")
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_plano", nullable = false)
+    @JoinColumn(name = "id_plano", nullable = false, foreignKey = @jakarta.persistence.ForeignKey(name = "fk_item_plano"))
     private PlanoTreino planoTreino;
     
     @NotNull(message = "O exercício é obrigatório")
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_exercicio", nullable = false)
+    @JoinColumn(name = "id_exercicio", nullable = false, foreignKey = @jakarta.persistence.ForeignKey(name = "fk_item_exercicio"))
     private Exercicio exercicio;
     
     @NotNull(message = "O número de séries é obrigatório")

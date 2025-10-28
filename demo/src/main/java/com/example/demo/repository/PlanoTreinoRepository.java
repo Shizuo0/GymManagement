@@ -19,6 +19,13 @@ import com.example.demo.entity.PlanoTreino;
 public interface PlanoTreinoRepository extends JpaRepository<PlanoTreino, Long> {
     
     /**
+     * Busca todos os planos de treino com aluno e instrutor carregados
+     * @return Lista de planos de treino
+     */
+    @Query("SELECT pt FROM PlanoTreino pt JOIN FETCH pt.aluno JOIN FETCH pt.instrutor ORDER BY pt.dataCriacao DESC")
+    List<PlanoTreino> findAllWithAlunoAndInstrutor();
+    
+    /**
      * Busca todos os planos de treino de um aluno
      * @param aluno Aluno
      * @return Lista de planos de treino

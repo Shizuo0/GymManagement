@@ -107,7 +107,6 @@ public class PagamentoService {
         BigDecimal totalPago = calcularTotalPago(matricula);
         BigDecimal valorPlano = matricula.getPlano().getValor();
         
-        // Verifica se o total pago é maior ou igual ao valor do plano
         return totalPago.compareTo(valorPlano) >= 0;
     }
     

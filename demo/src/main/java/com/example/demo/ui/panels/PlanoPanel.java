@@ -148,8 +148,8 @@ public class PlanoPanel extends JPanel implements RefreshablePanel {
             },
             () -> {},
             error -> {
-                if (error instanceof ApiException) {
-                    MessageDialog.showError(this, ((ApiException) error).getUserFriendlyMessage());
+                if (error instanceof ApiException apiException) {
+                    MessageDialog.showError(this, apiException.getUserFriendlyMessage());
                 } else {
                     MessageDialog.showError(this, "Erro ao carregar planos: " + error.getMessage());
                 }
@@ -199,10 +199,10 @@ public class PlanoPanel extends JPanel implements RefreshablePanel {
             },
             () -> {},
             error -> {
-                if (error instanceof ApiException) {
-                    MessageDialog.showError(this, ((ApiException) error).getUserFriendlyMessage());
+                if (error instanceof ApiException apiException) {
+                    MessageDialog.showError(this, apiException.getUserFriendlyMessage());
                 } else {
-                    MessageDialog.showError(this, "Erro ao carregar plano: " + error.getMessage());
+                    MessageDialog.showError(this, "Erro ao carregar plano: " + (error != null ? error.getMessage() : "Erro desconhecido"));
                 }
             }
         );
@@ -232,10 +232,10 @@ public class PlanoPanel extends JPanel implements RefreshablePanel {
                 notifyParentToRefresh();
             },
             error -> {
-                if (error instanceof ApiException) {
-                    MessageDialog.showError(this, ((ApiException) error).getUserFriendlyMessage());
+                if (error instanceof ApiException apiException) {
+                    MessageDialog.showError(this, apiException.getUserFriendlyMessage());
                 } else {
-                    MessageDialog.showError(this, "Erro ao excluir plano: " + error.getMessage());
+                    MessageDialog.showError(this, "Erro ao excluir plano: " + (error != null ? error.getMessage() : "Erro desconhecido"));
                 }
             }
         );
@@ -267,10 +267,10 @@ public class PlanoPanel extends JPanel implements RefreshablePanel {
                 notifyParentToRefresh();
             },
             error -> {
-                if (error instanceof ApiException) {
-                    MessageDialog.showError(this, ((ApiException) error).getUserFriendlyMessage());
+                if (error instanceof ApiException apiException) {
+                    MessageDialog.showError(this, apiException.getUserFriendlyMessage());
                 } else {
-                    MessageDialog.showError(this, "Erro ao ativar plano: " + error.getMessage());
+                    MessageDialog.showError(this, "Erro ao ativar plano: " + (error != null ? error.getMessage() : "Erro desconhecido"));
                 }
             }
         );
@@ -310,10 +310,10 @@ public class PlanoPanel extends JPanel implements RefreshablePanel {
                 notifyParentToRefresh();
             },
             error -> {
-                if (error instanceof ApiException) {
-                    MessageDialog.showError(this, ((ApiException) error).getUserFriendlyMessage());
+                if (error instanceof ApiException apiException) {
+                    MessageDialog.showError(this, apiException.getUserFriendlyMessage());
                 } else {
-                    MessageDialog.showError(this, "Erro ao inativar plano: " + error.getMessage());
+                    MessageDialog.showError(this, "Erro ao inativar plano: " + (error != null ? error.getMessage() : "Erro desconhecido"));
                 }
             }
         );
@@ -479,10 +479,10 @@ public class PlanoPanel extends JPanel implements RefreshablePanel {
                 notifyParentToRefresh();
             },
             error -> {
-                if (error instanceof ApiException) {
-                    MessageDialog.showError(this, ((ApiException) error).getUserFriendlyMessage());
+                if (error instanceof ApiException apiException) {
+                    MessageDialog.showError(this, apiException.getUserFriendlyMessage());
                 } else {
-                    MessageDialog.showError(this, "Erro ao salvar plano: " + error.getMessage());
+                    MessageDialog.showError(this, "Erro ao salvar plano: " + (error != null ? error.getMessage() : "Erro desconhecido"));
                 }
             }
         );
@@ -514,10 +514,10 @@ public class PlanoPanel extends JPanel implements RefreshablePanel {
             },
             () -> {},
             error -> {
-                if (error instanceof ApiException) {
-                    MessageDialog.showError(this, ((ApiException) error).getUserFriendlyMessage());
+                if (error instanceof ApiException apiException) {
+                    MessageDialog.showError(this, apiException.getUserFriendlyMessage());
                 } else {
-                    MessageDialog.showError(this, "Erro ao buscar planos: " + error.getMessage());
+                    MessageDialog.showError(this, "Erro ao buscar planos: " + (error != null ? error.getMessage() : "Erro desconhecido"));
                 }
             }
         );
@@ -538,8 +538,8 @@ public class PlanoPanel extends JPanel implements RefreshablePanel {
     
     private void notifyParentToRefresh() {
         Component parent = SwingUtilities.getWindowAncestor(this);
-        if (parent instanceof GymManagementUI) {
-            ((GymManagementUI) parent).notifyDataChanged();
+        if (parent instanceof GymManagementUI gym) {
+            gym.notifyDataChanged();
         }
     }
 }

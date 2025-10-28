@@ -6,20 +6,16 @@ public class ValidadorCPF {
             return false;
         }
 
-        // Remove todos os caracteres não numéricos
         cpf = cpf.replaceAll("[^0-9]", "");
         
-        // Verifica se tem 11 dígitos
         if (cpf.length() != 11) {
             return false;
         }
 
-        // Check for known invalid CPFs (todos dígitos iguais)
         if (cpf.matches("(\\d)\\1{10}")) {
             return false;
         }
 
-        // First digit validation
         int sum = 0;
         for (int i = 0; i < 9; i++) {
             sum += (cpf.charAt(i) - '0') * (10 - i);

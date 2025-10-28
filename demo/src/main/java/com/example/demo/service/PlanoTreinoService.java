@@ -23,7 +23,6 @@ public class PlanoTreinoService {
     public PlanoTreino criarPlanoTreino(PlanoTreino planoTreino) {
         validarPlanoTreino(planoTreino);
         
-        // Se não foi definida uma data de criação, usa a data atual
         if (planoTreino.getDataCriacao() == null) {
             planoTreino.setDataCriacao(LocalDate.now());
         }

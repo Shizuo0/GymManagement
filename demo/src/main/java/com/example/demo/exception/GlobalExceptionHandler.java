@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -19,6 +21,8 @@ import org.springframework.web.context.request.WebRequest;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
+    private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
     // ==================== PlanoTreino Exceptions ====================
     
     /**
@@ -27,6 +31,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(PlanoTreinoException.PlanoTreinoNotFoundException.class)
     public ResponseEntity<Object> handlePlanoTreinoNotFoundException(
             PlanoTreinoException.PlanoTreinoNotFoundException ex, WebRequest request) {
+        logger.warn("Plano de treino não encontrado: {}", ex.getMessage());
         return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
     
@@ -41,6 +46,7 @@ public class GlobalExceptionHandler {
     })
     public ResponseEntity<Object> handlePlanoTreinoValidationException(
             PlanoTreinoException ex, WebRequest request) {
+        logger.warn("Validação do plano de treino falhou: {}", ex.getMessage());
         return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
     
@@ -52,6 +58,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ExercicioException.ExercicioNotFoundException.class)
     public ResponseEntity<Object> handleExercicioNotFoundException(
             ExercicioException.ExercicioNotFoundException ex, WebRequest request) {
+        logger.warn("Exercício não encontrado: {}", ex.getMessage());
         return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
     
@@ -61,6 +68,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ExercicioException.DuplicateExercicioException.class)
     public ResponseEntity<Object> handleDuplicateExercicioException(
             ExercicioException.DuplicateExercicioException ex, WebRequest request) {
+        logger.warn("Exercício duplicado: {}", ex.getMessage());
         return buildErrorResponse(ex.getMessage(), HttpStatus.CONFLICT);
     }
     
@@ -70,6 +78,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ExercicioException.ExercicioEmUsoException.class)
     public ResponseEntity<Object> handleExercicioEmUsoException(
             ExercicioException.ExercicioEmUsoException ex, WebRequest request) {
+        logger.warn("Tentativa de exclusão de exercício em uso: {}", ex.getMessage());
         return buildErrorResponse(ex.getMessage(), HttpStatus.CONFLICT);
     }
     
@@ -79,6 +88,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ExercicioException.ExercicioInvalidoException.class)
     public ResponseEntity<Object> handleExercicioInvalidoException(
             ExercicioException.ExercicioInvalidoException ex, WebRequest request) {
+        logger.warn("Dados de exercício inválidos: {}", ex.getMessage());
         return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
     
@@ -90,6 +100,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ItemTreinoException.ItemTreinoNotFoundException.class)
     public ResponseEntity<Object> handleItemTreinoNotFoundException(
             ItemTreinoException.ItemTreinoNotFoundException ex, WebRequest request) {
+        logger.warn("Item de treino não encontrado: {}", ex.getMessage());
         return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
     
@@ -99,6 +110,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ItemTreinoException.DuplicateExerciseException.class)
     public ResponseEntity<Object> handleDuplicateExerciseException(
             ItemTreinoException.DuplicateExerciseException ex, WebRequest request) {
+        logger.warn("Exercício duplicado no plano de treino: {}", ex.getMessage());
         return buildErrorResponse(ex.getMessage(), HttpStatus.CONFLICT);
     }
     
@@ -112,6 +124,7 @@ public class GlobalExceptionHandler {
     })
     public ResponseEntity<Object> handleItemTreinoValidationException(
             ItemTreinoException ex, WebRequest request) {
+        logger.warn("Validação de item de treino falhou: {}", ex.getMessage());
         return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
     
@@ -123,6 +136,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(PagamentoException.PagamentoNotFoundException.class)
     public ResponseEntity<Object> handlePagamentoNotFoundException(
             PagamentoException.PagamentoNotFoundException ex, WebRequest request) {
+        logger.warn("Pagamento não encontrado: {}", ex.getMessage());
         return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
     
@@ -132,6 +146,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(PagamentoException.PagamentoDuplicadoException.class)
     public ResponseEntity<Object> handlePagamentoDuplicadoException(
             PagamentoException.PagamentoDuplicadoException ex, WebRequest request) {
+        logger.warn("Pagamento duplicado: {}", ex.getMessage());
         return buildErrorResponse(ex.getMessage(), HttpStatus.CONFLICT);
     }
     
@@ -146,6 +161,7 @@ public class GlobalExceptionHandler {
     })
     public ResponseEntity<Object> handlePagamentoValidationException(
             PagamentoException ex, WebRequest request) {
+        logger.warn("Validação de pagamento falhou: {}", ex.getMessage());
         return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
     
@@ -157,6 +173,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(FrequenciaException.FrequenciaNotFoundException.class)
     public ResponseEntity<Object> handleFrequenciaNotFoundException(
             FrequenciaException.FrequenciaNotFoundException ex, WebRequest request) {
+        logger.warn("Frequência não encontrada: {}", ex.getMessage());
         return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
     
@@ -166,6 +183,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(FrequenciaException.FrequenciaConflictException.class)
     public ResponseEntity<Object> handleFrequenciaConflictException(
             FrequenciaException.FrequenciaConflictException ex, WebRequest request) {
+        logger.warn("Conflito de registro de frequência: {}", ex.getMessage());
         return buildErrorResponse(ex.getMessage(), HttpStatus.CONFLICT);
     }
     
@@ -179,6 +197,7 @@ public class GlobalExceptionHandler {
     })
     public ResponseEntity<Object> handleFrequenciaValidationException(
             FrequenciaException ex, WebRequest request) {
+        logger.warn("Validação de frequência falhou: {}", ex.getMessage());
         return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
     
@@ -190,6 +209,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HistoricoException.HistoricoNotFoundException.class)
     public ResponseEntity<Object> handleHistoricoNotFoundException(
             HistoricoException.HistoricoNotFoundException ex, WebRequest request) {
+        logger.warn("Histórico não encontrado: {}", ex.getMessage());
         return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
     
@@ -199,6 +219,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HistoricoException.DadosCorruptosException.class)
     public ResponseEntity<Object> handleDadosCorruptosException(
             HistoricoException.DadosCorruptosException ex, WebRequest request) {
+        logger.error("Dados corrompidos no histórico: {}", ex.getMessage());
         return buildErrorResponse(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
     
@@ -208,6 +229,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HistoricoException.IntegridadeDadosException.class)
     public ResponseEntity<Object> handleIntegridadeDadosException(
             HistoricoException.IntegridadeDadosException ex, WebRequest request) {
+        logger.error("Violação de integridade de dados: {}", ex.getMessage());
         return buildErrorResponse(ex.getMessage(), HttpStatus.CONFLICT);
     }
     
@@ -217,6 +239,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HistoricoException.DadosAusentesException.class)
     public ResponseEntity<Object> handleDadosAusentesException(
             HistoricoException.DadosAusentesException ex, WebRequest request) {
+        logger.warn("Dados ausentes no histórico: {}", ex.getMessage());
         return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
     
@@ -226,6 +249,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HistoricoException.ErroAgregacaoException.class)
     public ResponseEntity<Object> handleErroAgregacaoException(
             HistoricoException.ErroAgregacaoException ex, WebRequest request) {
+        logger.error("Erro na agregação de dados: {}", ex.getMessage());
         return buildErrorResponse(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
     
@@ -235,6 +259,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HistoricoException.PeriodoInvalidoException.class)
     public ResponseEntity<Object> handlePeriodoInvalidoException(
             HistoricoException.PeriodoInvalidoException ex, WebRequest request) {
+        logger.warn("Período inválido: {}", ex.getMessage());
         return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
     
@@ -244,6 +269,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HistoricoException.SemDadosPeriodoException.class)
     public ResponseEntity<Object> handleSemDadosPeriodoException(
             HistoricoException.SemDadosPeriodoException ex, WebRequest request) {
+        logger.info("Sem dados no período: {}", ex.getMessage());
         return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
     
@@ -255,6 +281,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(PlanoException.PlanoNotFoundException.class)
     public ResponseEntity<Object> handlePlanoNotFoundException(
             PlanoException.PlanoNotFoundException ex, WebRequest request) {
+        logger.warn("Plano de assinatura não encontrado: {}", ex.getMessage());
         return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
     
@@ -267,6 +294,7 @@ public class GlobalExceptionHandler {
     })
     public ResponseEntity<Object> handlePlanoValidationException(
             PlanoException ex, WebRequest request) {
+        logger.warn("Validação de plano de assinatura falhou: {}", ex.getMessage());
         return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
     
@@ -275,12 +303,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RecursoNaoEncontradoException.class)
     public ResponseEntity<Object> handleRecursoNaoEncontradoException(
             RecursoNaoEncontradoException ex, WebRequest request) {
+        logger.warn("Recurso não encontrado: {}", ex.getMessage());
         return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(ValidacaoException.class)
     public ResponseEntity<Object> handleValidacaoException(
             ValidacaoException ex, WebRequest request) {
+        logger.warn("Erro de validação: {}", ex.getMessage());
         return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
     
@@ -303,12 +333,14 @@ public class GlobalExceptionHandler {
         });
         
         body.put("errors", errors);
+        logger.warn("Erro de validação de campos: {}", errors);
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleGlobalException(
             Exception ex, WebRequest request) {
+        logger.error("Erro interno inesperado", ex);
         return buildErrorResponse("Ocorreu um erro interno no servidor", HttpStatus.INTERNAL_SERVER_ERROR);
     }
     

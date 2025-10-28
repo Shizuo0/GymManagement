@@ -204,12 +204,35 @@ public class PlanoTreinoController {
      * @return DTO de resposta
      */
     private PlanoTreinoResponseDTO convertToDTO(PlanoTreino planoTreino) {
+        Long alunoId = null;
+        String alunoNome = "[Aluno Removido]";
+        Long instrutorId = null;
+        String instrutorNome = "[Instrutor Removido]";
+        
+        try {
+            if (planoTreino.getAluno() != null) {
+                alunoId = planoTreino.getAluno().getIdAluno();
+                alunoNome = planoTreino.getAluno().getNome();
+            }
+        } catch (Exception e) {
+            // Aluno foi removido, usar valores padrão
+        }
+        
+        try {
+            if (planoTreino.getInstrutor() != null) {
+                instrutorId = planoTreino.getInstrutor().getIdInstrutor();
+                instrutorNome = planoTreino.getInstrutor().getNome();
+            }
+        } catch (Exception e) {
+            // Instrutor foi removido, usar valores padrão
+        }
+        
         return new PlanoTreinoResponseDTO(
             planoTreino.getIdPlanoTreino(),
-            planoTreino.getAluno().getIdAluno(),
-            planoTreino.getAluno().getNome(),
-            planoTreino.getInstrutor().getIdInstrutor(),
-            planoTreino.getInstrutor().getNome(),
+            alunoId,
+            alunoNome,
+            instrutorId,
+            instrutorNome,
             planoTreino.getDataCriacao(),
             planoTreino.getDescricao(),
             planoTreino.getDuracaoSemanas()
